@@ -1,37 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.cpp                                         :+:      :+:    :+:   */
+/*   stdlib.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: psuanpro <Marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/16 20:56:29 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/07/17 21:05:50 by psuanpro         ###   ########.fr       */
+/*   Created: 2023/07/17 21:01:17 by psuanpro          #+#    #+#             */
+/*   Updated: 2023/07/17 21:02:03 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#ifndef STDLIB_HPP
+# define STDLIB_HPP
 
-Server::Server()
-{
+# include <iostream>
+# include <string>
+# include <vector>
+# include <list>
+# include <map>
+# include <stack>
+# include <queue>
+# include <deque>
+# include <set>
 
-}
-
-Server::Server(Server const & src)
-{
-    *this = src;
-}
-
-Server::~Server()
-{
-
-}
-
-Server &	Server::operator=(Server const & rhs)
-{
-    if (this != &rhs)
-    {
-        //do something
-    }
-    return (*this);
-}
+#endif
