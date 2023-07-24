@@ -6,7 +6,7 @@
 #    By: psuanpro <Marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/07/24 15:41:09 by psuanpro         ###   ########.fr        #
+#    Updated: 2023/07/24 16:04:05 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,8 @@ MODULE2_DIR = ./src/server/
 OBJ_DIR		= ./obj/
 
 OBJS		= ${addprefix $(OBJ_DIR),$(MODULE1:.cpp=.o)} \
-			  ${addprefix $(OBJ_DIR),$(MODULE2:.cpp=.o)}
+			  ${addprefix $(OBJ_DIR),$(MODULE2:.cpp=.o)} \
+			  ${addprefix $(OBJ_DIR),$(MAIN:.cpp=.o)}
 
 RM = rm -rf
 
@@ -96,7 +97,6 @@ ${OBJ_DIR}%.o: ${MAIN_DIR}%.cpp
 
 ${NAME}: ${OBJS}
 	$(CC) $(OBJS) $(INCLUDE_MLX) -o $(NAME) $(LIB) $(CPPFLAGS)
-#$(CC) $(OBJS) -o $(NAME) $(LIB) $(CFLAGS)
 
 run: re
 	./cub3d map/minimalist.cub
@@ -105,16 +105,12 @@ runn: re
 	./cub3d map/minimaldoor.cub
 
 clean:
-	@make -C lib/libft clean
-	@make -C lib/mlx clean
-	@echo "$(BYEL)Mlx Clean....$(RES)"
 	@$(RM) $(OBJ_DIR)
 	@$(RM) *.dSYM
 	@$(CLEAN)
 
 fclean: clean
-	@make -C lib/libft fclean
-	@$(RM) $(NAME)
+	@$(RM) $(NAME) $(OBJ_DIR)
 	@$(FCLEAN)
 
 re: fclean all
