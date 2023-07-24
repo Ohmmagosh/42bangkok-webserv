@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: psuanpro <Marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/07/24 15:41:09 by psuanpro         ###   ########.fr        #
+#    Updated: 2023/07/24 16:00:31 by rchiewli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,8 @@ MODULE2_DIR = ./src/server/
 OBJ_DIR		= ./obj/
 
 OBJS		= ${addprefix $(OBJ_DIR),$(MODULE1:.cpp=.o)} \
-			  ${addprefix $(OBJ_DIR),$(MODULE2:.cpp=.o)}
+			  ${addprefix $(OBJ_DIR),$(MODULE2:.cpp=.o)} \
+			  ${addprefix $(OBJ_DIR),$(MAIN:.cpp=.o)}
 
 RM = rm -rf
 
@@ -67,11 +68,14 @@ FCLEAN = echo "$(BRED)$(NAME) fclean....$(RES)"
 
 #parsing
 ${OBJ_DIR}%.o: ${MODULE1_DIR}%.cpp
-	$(CC) -g $(CFLAGS) -c -o $@ $^
+	$(CC) -g $(CPPFLAGS) -c -o $@ $^
 
 #server
 ${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
-	$(CC) -g $(CFLAGS) -c -o $@ $^
+	$(CC) -g $(CPPFLAGS) -c -o $@ $^
+
+${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
+	$(CC) -g $(CPPFLAGS) -c -o $@ $^
 
 # #free
 # ${OBJ_DIR}%.o: ${MODULE3_DIR}%.c
@@ -95,26 +99,15 @@ ${OBJ_DIR}%.o: ${MAIN_DIR}%.cpp
 	$(CC) -c -o $@ $^
 
 ${NAME}: ${OBJS}
-	$(CC) $(OBJS) $(INCLUDE_MLX) -o $(NAME) $(LIB) $(CPPFLAGS)
-#$(CC) $(OBJS) -o $(NAME) $(LIB) $(CFLAGS)
-
-run: re
-	./cub3d map/minimalist.cub
-
-runn: re
-	./cub3d map/minimaldoor.cub
+	$(CC) $(OBJS) -o $(NAME) $(LIB) $(CPPFLAGS)
 
 clean:
-	@make -C lib/libft clean
-	@make -C lib/mlx clean
-	@echo "$(BYEL)Mlx Clean....$(RES)"
 	@$(RM) $(OBJ_DIR)
 	@$(RM) *.dSYM
 	@$(CLEAN)
 
 fclean: clean
-	@make -C lib/libft fclean
-	@$(RM) $(NAME)
+	@$(RM) $(NAME) $(OBJ_DIR)
 	@$(FCLEAN)
 
 re: fclean all
