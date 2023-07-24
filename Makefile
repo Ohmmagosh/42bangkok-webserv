@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
+#    By: psuanpro <Marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/07/18 14:28:45 by rchiewli         ###   ########.fr        #
+#    Updated: 2023/07/24 15:41:09 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,8 +16,8 @@ MAIN		= main.cpp
 MAIN_DIR	= ./
 
 CC			= g++
-CPPFLAGS		= -g -Wall -Werror -Wextra -Imlx
-#CFLAGS		= -g -Wall -Werror -Wextra
+CPPFLAGS	= -g -Wall -Werror -Wextra
+
 
 SRC_DIR		= ./src/
 
@@ -38,8 +38,8 @@ MODULE2_DIR = ./src/server/
 
 OBJ_DIR		= ./obj/
 
-OBJS		= ${addprefix $(OBJ_DIR),$(MODULE1:.c=.o)} \
-			  ${addprefix $(OBJ_DIR),$(MODULE2:.c=.o)}
+OBJS		= ${addprefix $(OBJ_DIR),$(MODULE1:.cpp=.o)} \
+			  ${addprefix $(OBJ_DIR),$(MODULE2:.cpp=.o)}
 
 RM = rm -rf
 

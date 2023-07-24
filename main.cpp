@@ -2,9 +2,5 @@
 
 int main()
 {
-    Server serv;
-
-
-
-    serv.startsocket();
+    std::cout << "----------------" << "hello" << "----------------" << std::endl;
 }
