@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:31 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/07/24 15:47:31 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/08/08 23:03:54 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,16 @@
 class Server
 {
     public:
-        Server();
-        Server(Server const & src);
+        Server(int port);
+        // Server(Server const & src);
         ~Server();
         
-        int startsocket();
-        void shutdown();
-
-        Server &	operator=(Server const & rhs);
+        int getSocket() const;
+        
+        void run();
+        void setupSocket();
+        void handleNewConnection();
+        void handleClientData(size_t index);
 
         class SocketCreationException : public std::exception
         {
@@ -39,7 +41,8 @@ class Server
     private:
         int sockfd;
         std::string httpResponse;
-        sockaddr_in server_addr;
+        struct sockaddr_in server_addr;
+        std::vector<pollfd> fds;
 };
 
 #endif
