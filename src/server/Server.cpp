@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:29 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/07/18 14:54:54 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/08/08 14:19:27 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,11 +57,6 @@ Server::Server(Server const & src)
     *this = src;
 }
 
-Server::~Server()
-{
-
-}
-
 int Server::startsocket()
 {
     if (bind(this->sockfd, (struct sockaddr*)&this->server_addr, sizeof(this->server_addr)) < 0)
@@ -72,39 +67,52 @@ int Server::startsocket()
 
     listen(this->sockfd, 10);
 
+    std::vector<pollfd> fds;
+    pollfd newFd;
+    newFd.fd = this->sockfd;
+    newFd.events = POLLIN;
+    newFd.revents = 0;
+    fds.push_back(newFd);    
+
     
-    while(true)
+    for (size_t i = 0; i < fds.size(); i++)
     {
-        printf("\n+++++++ socket listening ++++++++\n\n");
-
-        sockaddr_in client_addr;
-        socklen_t client_len = sizeof(client_addr);
-        int client_sockfd = accept(this->sockfd, (struct sockaddr*)&client_addr, &client_len);
-        if (client_sockfd < 0)
+        if (fds[i].revents & POLLIN)
         {
-            std::cerr << "Error accepting connection" << std::endl;
-            return 1;
-        }
+            if (fds[i].fd == this->sockfd)
+            {
+                sockaddr_in client_addr;
+                socklen_t client_len = sizeof(client_addr);
+                int client_sockfd = accept(this->sockfd, (struct sockaddr*)&client_addr, &client_len);
+                if (client_sockfd < 0)
+                {
+                    std::cerr << "Error accepting connection" << std::endl;
+                    return 1;
+                }
 
-        char buffer[4096];
-        int bytes_read = recv(client_sockfd, buffer, sizeof(buffer) - 1, 0);
-        std::cout << buffer << std::endl;
-        if (bytes_read < 0) 
-        {
-            std::cerr << "Error reading from socket" << std::endl;
-            return 1;
+                pollfd clientFd;
+                clientFd.fd = client_sockfd;
+                clientFd.events = POLLIN;
+                clientFd.revents = 0;
+                fds.push_back(clientFd);
+            }
+            else
+            {
+                // Handle existing client
+                char buffer[4096];
+                int bytes_read = recv(fds[i].fd, buffer, sizeof(buffer) - 1, 0);
+                // ... (handle client)
+                close(fds[i].fd);
+                fds.erase(fds.begin() + i);
+                i--; // Adjust loop counter because of the removed element
+            }
         }
+    }
+}    
 
-        ssize_t hello_len = this->httpResponse.length();
-        ssize_t bytes_sent = send(client_sockfd, this->httpResponse.c_str(), hello_len, 0);
-        if (bytes_sent != hello_len)
-        {
-            perror("In send");
-        }
-        std::cout << this->httpResponse << std::endl;
-
-        close(client_sockfd);
-    }    
+Server::~Server()
+{
+    close(this->sockfd);
 }
 
 void Server::shutdown()
