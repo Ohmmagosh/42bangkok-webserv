@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:31 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/08 23:03:54 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/08/09 00:14:45 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Server
         void setupSocket();
         void handleNewConnection();
         void handleClientData(size_t index);
+        void handleClient(int client_sockfd);
 
         class SocketCreationException : public std::exception
         {
