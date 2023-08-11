@@ -1,265 +1,187 @@
 #include "Server.hpp"
 
-Server* serverInstance = NULL;
-
-Server::Server(int port): keepRunning(true)
+Server::Server(int port): port(port), server_fd(0), running(false)
 {
-    serverInstance = this;
-
-    this->sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) 
-    {
-        std::cerr << "Error creating socket!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    std::memset(&server_addr, 0, sizeof(server_addr)); // เคลีย struct
-
-    //ini struct
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(port);
-    server_addr.sin_addr.s_addr = INADDR_ANY;
-
-    if (bind(sockfd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0)
-    {
-        std::cerr << "Binding failed!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    if (listen(sockfd, 10) < 0)
-    {
-        std::cerr << "Error on listen!" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-
-    std::cout << "Server started on port " << port << std::endl;
-
-    struct sigaction sa;
-    sa.sa_handler = sigchld_handler;
-    sa.sa_flags = SA_RESTART;
-    sigemptyset(&sa.sa_mask);
-    if (sigaction(SIGCHLD, &sa, NULL) == -1) {
-        perror("sigaction");
-        exit(1);
-    }
     
-    struct sigaction saInt;
-    saInt.sa_handler = sigint_handler;
-    saInt.sa_flags = SA_RESTART; 
-    sigemptyset(&saInt.sa_mask);
-    if (sigaction(SIGINT, &saInt, NULL) == -1) {
-        perror("sigaction SIGINT");
-        exit(1);
-    }
-
-    struct sigaction saTerm;
-    saTerm.sa_handler = sigterm_handler;
-    saTerm.sa_flags = SA_RESTART; 
-    sigemptyset(&saTerm.sa_mask);
-    if (sigaction(SIGTERM, &saTerm, NULL) == -1) {
-        perror("sigaction SIGTERM");
-        exit(1);
-    }
-
-    this->setupSocket();
 }
 
-void Server::run()
+Server::~Server() 
 {
-    while (keepRunning) 
+    if (running) 
     {
-        int ret = poll(fds.data(), fds.size(), -1);
-        if (ret < 0)
-        {
-            if (errno == EINTR)
-            {
-                // poll was interrupted by a signal, continue with the loop
-                continue;
-            }
-            perror("poll");
-            break;
-        }
-
-        for (size_t i = 0; i < fds.size(); i++)
-        {
-            if (fds[i].fd == sockfd && fds[i].revents & POLLIN)
-            {
-                handleNewConnection();
-            }
-            else if (fds[i].revents & POLLIN)
-            {
-                handleClientData(i);
-            }
-        }
+        stop();
     }
 }
 
-void Server::setupSocket()
+void Server::setNonBlocking() 
 {
-    pollfd serverFd;
-    serverFd.fd = sockfd;
-    serverFd.events = POLLIN;
-    fds.push_back(serverFd);
-}
-
-void Server::handleNewConnection() 
-{
-    sockaddr_in client_addr;
-    socklen_t client_len = sizeof(client_addr);
-
-    int client_sockfd = accept(sockfd, (struct sockaddr*)&client_addr, &client_len);
-    if (client_sockfd < 0)
-    {
-        perror("accept");
-        return;
-    }
-
-    pid_t pid = fork();
-    if (pid < 0)
-    {
-        perror("fork");
-        close(client_sockfd);
-        return;
-    }
-
-    if (pid == 0) 
-    {
-        close(sockfd);
-        
-        // Call a function to handle client data, communication, etc.
-        handleClient(client_sockfd);
-        
-        exit(EXIT_SUCCESS);
-    } 
-    else
-    {  // This block will be executed by the parent process
-        close(client_sockfd);  // Parent doesn't need the client socket
-    }
-}
-
-void Server::handleClientData(size_t index) 
-{
-    (void)index;
-    // Code to handle data from a connected client goes here...
-}
-
-void Server::handleClient(int client_sockfd)
-{
-
-    if (fcntl(client_sockfd, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1)
+    if (fcntl(server_fd, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1) 
     {
         perror("fcntl");
-        close(client_sockfd);
-        return;
+        exit(EXIT_FAILURE);
     }
+}
+
+// bool Server::parseHttpRequest(const std::string &request, std::string &method, std::string &path, std::string &protocol)
+// {
+//     std::istringstream requestStream(request);
+//     requestStream >> method >> path >> protocol;
     
-    // Here, you can implement a loop to continuously read data from the client
-    // until they disconnect or you can simply read once depending on your design.
+//     // Basic validation to ensure that we've successfully parsed the request
+//     return (!method.empty() && !path.empty() && !protocol.empty());
+// }
 
-    char buffer[4096];
-    int bytes_read = recv(client_sockfd, buffer, sizeof(buffer) - 1, 0);
-    if (bytes_read <= 0)
+void Server::start() 
+{
+    server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd == 0) 
     {
-        perror("recv");
-        close(client_sockfd);
+        std::cerr << "Failed to create socket." << std::endl;
         return;
     }
 
-    buffer[bytes_read] = '\0';  // Null-terminate the received data
-    std::cout << "Received: " << buffer << std::endl;
+    setNonBlocking();
 
-    // parser แก้พาร์ทนี้ไปรีเชคเออเรอ กับรายละเอียดให้ด้วย แยกเป็นฟังชั่นให้ด้วย
-    std::istringstream requestStream(buffer);
-    std::string requestMethod, requestPath, httpVersion;
-    requestStream >> requestMethod >> requestPath >> httpVersion;
-    // ถึงตรงนี้
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(port);
 
-    // landing page and response
-    std::string httpResponse;
-    if (requestPath == "/")
+    int opt = 1;
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
     {
-        std::string htmlContent;
-        try 
+        std::cerr << "Failed to set SO_REUSEADDR." << std::endl;
+        return;
+    }
+
+    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) 
+    {
+        std::cerr << "Bind failed." << std::endl;
+        return;
+    }
+
+    if (listen(server_fd, 3) < 0) 
+    {
+        std::cerr << "Listen failed." << std::endl;
+        return;
+    }
+
+    const int MAX_CLIENTS = 1024;
+    std::vector<pollfd> clients;
+    pollfd serverPollFd;
+    serverPollFd.fd = server_fd;
+    serverPollFd.events = POLLIN;
+    serverPollFd.revents = 0;
+    clients.push_back(serverPollFd);
+
+    running = true;
+
+    while(running) 
+    {
+        int poll_count = poll(&clients[0], clients.size(), -1);
+        if (poll_count < 0) 
         {
-            htmlContent = readFile("./src/server/index.html"); // แก้เเแลนดิ้งให้เป็นตามconfig
-            httpResponse = "HTTP/1.1 200 OK\r\n"
-                           "Content-Type: text/html\r\n\r\n";
-            httpResponse += htmlContent;
+            std::cerr << "poll() failed." << std::endl;
+            return;
         }
-        catch (const std::exception& e)
+
+        for (size_t i = 0; i < clients.size(); ++i)
         {
-            httpResponse = "HTTP/1.1 500 Internal Server Error\r\n"
-                           "Content-Type: text/html\r\n\r\n"
-                           "<html><body><h1>500 Internal Server Error</h1></body></html>";
+            if (clients[i].revents & POLLIN) 
+            {
+                if (clients[i].fd == server_fd) 
+                {
+                    // Handle new client connection
+                    struct sockaddr_in client_address;
+                    socklen_t client_addrlen = sizeof(client_address);
+                    int new_socket = accept(server_fd, (struct sockaddr*)&client_address, &client_addrlen);
+                    if (new_socket >= 0 && clients.size() < MAX_CLIENTS) 
+                    {
+                        std::cout << "Client connected!" << std::endl;
+                        pollfd newClientPollFd;
+                        newClientPollFd.fd = new_socket;
+                        newClientPollFd.events = POLLIN;
+                        newClientPollFd.revents = 0;
+                        clients.push_back(newClientPollFd);
+                    }
+                }
+                else 
+                {
+                    // Handle data from a client or client disconnection
+                    char buffer[4096];  // 4K buffer for receiving data
+                    ssize_t bytesRead = recv(clients[i].fd, buffer, sizeof(buffer) - 1, 0);
+
+                    if (bytesRead <= 0) 
+                    {
+                        // Client disconnected or error occurred
+                        close(clients[i].fd);
+                        clients.erase(clients.begin() + i);
+                        i--;
+                    } 
+                    else 
+                    {
+                        buffer[bytesRead] = '\0';  // Null-terminate the received data
+                        std::string request(buffer);
+
+                        // Extract HTTP request details
+                        std::istringstream requestStream(request);
+                        std::string method, path, protocol;
+                        requestStream >> method >> path >> protocol;
+
+                        std::cout << request << std::endl;
+                        std::cout << "+++" << method << std::endl;
+                        // Use the extracted details to handle the HTTP request
+                        std::string httpResponse = handleHttpRequest(method, path, protocol);
+
+                        // Send the HTTP response back to the client
+                        send(clients[i].fd, httpResponse.c_str(), httpResponse.size(), 0);
+                    }
+                }
+            }
         }
-    } 
-    else
+    }
+}
+
+void Server::stop() 
+{
+    close(server_fd);
+    running = false;
+}
+
+std::string Server::handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol)
+{
+    (void)protocol;
+    if (method == "GET")
     {
-        httpResponse = "HTTP/1.1 404 Not Found\r\n"
-                       "Content-Type: text/html\r\n\r\n"
-                       "<html><body><h1>404 Not Found</h1></body></html>";
+        if (path == "/" || path == "/index.html")
+        {
+            std::ifstream file("./src/server/index.html", std::ios::in | std::ios::binary);
+            if (file.is_open())
+            {
+                std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+                file.close();
+                return generateHttpResponse(200, "OK", content);
+            }
+            else
+            {
+                return generateHttpResponse(404, "Not Found", "File not found");
+            }
+        }
+        else
+        {
+            return generateHttpResponse(404, "Not Found", "File not found");
+        }
     }
-    // ถึงตรงนี้
+    // ... Handle other HTTP methods here
 
-    // Here, you can handle the client's request and send back a response
-    // For now, let's just echo back the received data
-    send(client_sockfd, httpResponse.c_str(), httpResponse.length(), 0);
-
-    close(client_sockfd);
+    return generateHttpResponse(501, "Not Implemented", "This method is not implemented");
 }
 
-Server::~Server()
+std::string Server::generateHttpResponse(int statusCode, const std::string& statusMessage, const std::string& content)
 {
-    if (sockfd != -1)
-    {
-        close(sockfd);
-    }
-}
-
-int Server::getSocket() const 
-{
-    return sockfd;
-}
-
-std::string Server::readFile(const std::string& filename) 
-{
-    std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
-    if (!file.is_open()) {
-        throw std::runtime_error("Could not open file: " + filename);
-    }
-
-    std::string content, line;
-    while (getline(file, line)) {
-        content += line + "\n";
-    }
-
-    file.close();
-    return content;
-}
-
-void Server::stop()
-{
-    keepRunning = false;
-}
-
-void Server::print_error(const char* prefix)
-{
-    std::cerr << prefix << ": " << strerror(errno) << std::endl;
-}
-
-void sigchld_handler(int s) 
-{
-    (void)s;
-    while (waitpid(-1, NULL, WNOHANG) > 0);
-}
-
-void sigint_handler(int signo)
-{
-    (void)signo;
-    serverInstance->stop();
-}
-
-void sigterm_handler(int signo) 
-{
-    (void)signo;
-    serverInstance->stop();
+    std::ostringstream response;
+    response << "HTTP/1.1 " << statusCode << " " << statusMessage << "\r\n";
+    response << "Content-Length: " << content.size() << "\r\n";
+    response << "\r\n";  // End of headers
+    response << content;
+    return response.str();
 }
