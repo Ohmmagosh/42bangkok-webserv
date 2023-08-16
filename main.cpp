@@ -1,6 +1,8 @@
 #include "src/server/Server.hpp"
 
-int main()
+int main() 
 {
-    std::cout << "----------------" << "hello" << "----------------" << std::endl;
+    Server server(8080);
+    server.start();
+    return 0;
 }

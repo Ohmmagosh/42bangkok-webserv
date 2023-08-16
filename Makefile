@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: psuanpro <Marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/07/24 16:04:05 by psuanpro         ###   ########.fr        #
+#    Updated: 2023/08/16 22:06:19 by rchiewli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,11 +68,14 @@ FCLEAN = echo "$(BRED)$(NAME) fclean....$(RES)"
 
 #parsing
 ${OBJ_DIR}%.o: ${MODULE1_DIR}%.cpp
-	$(CC) -g $(CFLAGS) -c -o $@ $^
+	$(CC) -g $(CPPFLAGS) -c -o $@ $^
 
 #server
 ${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
-	$(CC) -g $(CFLAGS) -c -o $@ $^
+	$(CC) -g $(CPPFLAGS) -c -o $@ $^
+
+${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
+	$(CC) -g $(CPPFLAGS) -c -o $@ $^
 
 # #free
 # ${OBJ_DIR}%.o: ${MODULE3_DIR}%.c
@@ -96,13 +99,7 @@ ${OBJ_DIR}%.o: ${MAIN_DIR}%.cpp
 	$(CC) -c -o $@ $^
 
 ${NAME}: ${OBJS}
-	$(CC) $(OBJS) $(INCLUDE_MLX) -o $(NAME) $(LIB) $(CPPFLAGS)
-
-run: re
-	./cub3d map/minimalist.cub
-
-runn: re
-	./cub3d map/minimaldoor.cub
+	$(CC) $(OBJS) -o $(NAME) $(LIB) $(CPPFLAGS)
 
 clean:
 	@$(RM) $(OBJ_DIR)

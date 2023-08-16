@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:31 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/11 16:04:07 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/08/09 23:27:14 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,31 +15,45 @@
 
 # include "../stdlib.hpp"
 
-class Server 
+void sigchld_handler(int s);
+void sigint_handler(int signo);
+void sigterm_handler(int signo);
+
+class Server
 {
     public:
         Server(int port);
+        // Server(Server const & src);
         ~Server();
-        void start();
+        
+        int getSocket() const;
+        
+        void run();
         void stop();
+        void print_error(const char* prefix);
+
+        // class SocketCreationException : public std::exception
+        // {
+        //     public :
+        //         virtual const char *what() const throw()
+        //         {
+        //             return ("Error creating socket");
+        //         }
+        // };
 
     private:
-        int port;
-        int server_fd;
-        bool running;
-        struct sockaddr_in address;
-        // int addrlen;
+        int sockfd;
+        std::string httpResponse;
+        struct sockaddr_in server_addr;
+        std::vector<pollfd> fds;
+        bool keepRunning;
 
-        // parsing data
-        // std::string method;
-        // std::string path;
-        // std::string protocol;
-        //
+        void setupSocket();
+        void handleNewConnection();
+        void handleClientData(size_t index);
+        void handleClient(int client_sockfd);
+        std::string readFile(const std::string& filename);
         
-        void setNonBlocking();
-        // bool parseHttpRequest(const std::string &request, std::string &method, std::string &path, std::string &protocol);
-        std::string handleHttpRequest(const std::string &method, const std::string &path, const std::string &protocol);
-        std::string generateHttpResponse(int statusCode, const std::string &statusMessage, const std::string &content);
 };
 
 
