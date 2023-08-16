@@ -15,31 +15,31 @@
 
 # include "../stdlib.hpp"
 
-class Server 
+class Server
 {
-    public:
-        Server(int port);
-        ~Server();
-        void start();
-        void stop();
+	public:
+		Server(int port);
+		~Server();
+		void start();
+		void stop();
 
-    private:
-        int port;
-        int server_fd;
-        bool running;
-        struct sockaddr_in address;
-        // int addrlen;
+	private:
+		int port;
+		int server_fd;
+		bool running;
+		struct sockaddr_in address;
+		// int addrlen;
 
-        // parsing data
-        // std::string method;
-        // std::string path;
-        // std::string protocol;
-        //
-        
-        void setNonBlocking();
-        // bool parseHttpRequest(const std::string &request, std::string &method, std::string &path, std::string &protocol);
-        std::string handleHttpRequest(const std::string &method, const std::string &path, const std::string &protocol);
-        std::string generateHttpResponse(int statusCode, const std::string &statusMessage, const std::string &content);
+		// parsing data
+		// std::string method;
+		// std::string path;
+		// std::string protocol;
+		//
+
+		void setNonBlocking();
+		// bool parseHttpRequest(const std::string &request, std::string &method, std::string &path, std::string &protocol);
+		std::string handleHttpRequest(const std::string &method, const std::string &path, const std::string &protocol);
+		std::string generateHttpResponse(int statusCode, const std::string &statusMessage, const std::string &content);
 };
 
 
