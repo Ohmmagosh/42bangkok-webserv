@@ -6,7 +6,7 @@
 #    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/07/18 14:28:45 by rchiewli         ###   ########.fr        #
+#    Updated: 2023/08/16 22:06:19 by rchiewli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,8 +16,8 @@ MAIN		= main.cpp
 MAIN_DIR	= ./
 
 CC			= g++
-CPPFLAGS		= -g -Wall -Werror -Wextra -Imlx
-#CFLAGS		= -g -Wall -Werror -Wextra
+CPPFLAGS	= -g -Wall -Werror -Wextra
+
 
 SRC_DIR		= ./src/
 
@@ -38,8 +38,9 @@ MODULE2_DIR = ./src/server/
 
 OBJ_DIR		= ./obj/
 
-OBJS		= ${addprefix $(OBJ_DIR),$(MODULE1:.c=.o)} \
-			  ${addprefix $(OBJ_DIR),$(MODULE2:.c=.o)}
+OBJS		= ${addprefix $(OBJ_DIR),$(MODULE1:.cpp=.o)} \
+			  ${addprefix $(OBJ_DIR),$(MODULE2:.cpp=.o)} \
+			  ${addprefix $(OBJ_DIR),$(MAIN:.cpp=.o)}
 
 RM = rm -rf
 
@@ -67,11 +68,14 @@ FCLEAN = echo "$(BRED)$(NAME) fclean....$(RES)"
 
 #parsing
 ${OBJ_DIR}%.o: ${MODULE1_DIR}%.cpp
-	$(CC) -g $(CFLAGS) -c -o $@ $^
+	$(CC) -g $(CPPFLAGS) -c -o $@ $^
 
 #server
 ${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
-	$(CC) -g $(CFLAGS) -c -o $@ $^
+	$(CC) -g $(CPPFLAGS) -c -o $@ $^
+
+${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
+	$(CC) -g $(CPPFLAGS) -c -o $@ $^
 
 # #free
 # ${OBJ_DIR}%.o: ${MODULE3_DIR}%.c
@@ -95,26 +99,15 @@ ${OBJ_DIR}%.o: ${MAIN_DIR}%.cpp
 	$(CC) -c -o $@ $^
 
 ${NAME}: ${OBJS}
-	$(CC) $(OBJS) $(INCLUDE_MLX) -o $(NAME) $(LIB) $(CPPFLAGS)
-#$(CC) $(OBJS) -o $(NAME) $(LIB) $(CFLAGS)
-
-run: re
-	./cub3d map/minimalist.cub
-
-runn: re
-	./cub3d map/minimaldoor.cub
+	$(CC) $(OBJS) -o $(NAME) $(LIB) $(CPPFLAGS)
 
 clean:
-	@make -C lib/libft clean
-	@make -C lib/mlx clean
-	@echo "$(BYEL)Mlx Clean....$(RES)"
 	@$(RM) $(OBJ_DIR)
 	@$(RM) *.dSYM
 	@$(CLEAN)
 
 fclean: clean
-	@make -C lib/libft fclean
-	@$(RM) $(NAME)
+	@$(RM) $(NAME) $(OBJ_DIR)
 	@$(FCLEAN)
 
 re: fclean all

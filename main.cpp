@@ -1,10 +1,8 @@
 #include "src/server/Server.hpp"
 
-int main()
+int main() 
 {
-    Server serv;
-
-
-
-    serv.startsocket();
+    Server server(8080);
+    server.start();
+    return 0;
 }

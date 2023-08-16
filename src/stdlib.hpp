@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 21:01:17 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/07/17 21:53:57 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/08/09 16:12:39 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,11 @@
 # include <cstdio>
 # include <cstdlib>
 # include <sys/socket.h>
+# include <sys/types.h>
+# include <sys/wait.h>
 # include <netinet/in.h>
+# include <poll.h>
+# include <fcntl.h>
+# include <signal.h>
 
 #endif
