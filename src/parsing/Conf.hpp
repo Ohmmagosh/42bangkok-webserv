@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 22:54:43 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/18 00:46:30 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/08/18 01:53:35 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class Conf
 		void	setValue(const std::string & key,const std::string & value);
 		std::map<std::string, std::string>::const_iterator findKey(const std::map<std::string, std::string> &map, const std::string& key);
 	private:
-		std::map<std::string, std::string>	conf;
+		std::map<std::string, std::string>	_conf;
 	class ValueNotFound:public std::exception {
 		public:
 			const char* what() const throw () {

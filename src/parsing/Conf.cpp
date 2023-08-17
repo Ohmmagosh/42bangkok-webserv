@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/17 22:59:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/18 00:47:21 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/08/18 01:54:01 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ Conf::Conf(Conf const & rhs) {
 
 Conf & Conf::operator=(Conf const & rhs) {
 	if (this != &rhs) {
-		this->conf = rhs.conf;
+		this->_conf = rhs._conf;
 	}
 	return (*this);
 }
@@ -37,13 +37,13 @@ std::map<std::string, std::string>::const_iterator	Conf::findKey(const std::map<
 }
 
 std::string	Conf::getValue(const std::string & key){
-	const std::map<std::string, std::string>::const_iterator it = findKey(this->conf, key);
+	const std::map<std::string, std::string>::const_iterator it = findKey(this->_conf, key);
 
-	if (it == this->conf.end())
+	if (it == this->_conf.end())
 		throw ValueNotFound();
 	return it->second;
 }
 
 void	Conf::setValue(const std::string & key, const std::string & value) {
-	this->conf.insert(std::make_pair(key, value));
+	this->_conf.insert(std::make_pair(key, value));
 }
