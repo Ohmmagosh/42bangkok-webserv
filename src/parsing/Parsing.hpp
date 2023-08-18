@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parsing.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <Marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:33 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/07/17 21:04:18 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/08/18 18:00:48 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,22 @@
 
 class Parsing
 {
-    public:
-        Parsing();
-        Parsing(Parsing const & src);
-        ~Parsing();
+	private:
+		std::fstream	_file;
+	public:
+		Parsing();
+		Parsing(const std::string & file_path);
+		Parsing(Parsing const & src);
+		~Parsing();
 
-        Parsing &	operator=(Parsing const & rhs);
-
-    private:
+		Parsing &	operator=(Parsing const & rhs);
+		void	readFile(void);
+		class CanNotOpenFile: public std::exception {
+			public:
+				const char* what() const throw () {
+					return "Can not open file";
+				};
+		};
 
 };
 
