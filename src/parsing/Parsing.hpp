@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:33 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/19 07:13:26 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/08/19 07:21:28 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ class Parsing
 		~Parsing();
 
 		Parsing &	operator=(Parsing const & rhs);
-		void	readFile(void);
+		int			countBracket(const std::string & text);
+		void		readFile(void);
 
 		class CanNotOpenFile: public std::exception {
 			private:
@@ -41,6 +42,12 @@ class Parsing
 				}
 				const char* what() const throw () {
 					return _message.c_str();
+				};
+		};
+		class UnmatchedBracketException: public std::exception {
+			public:
+				const char* what() const throw () {
+					return "Unmatched Bracket []";
 				};
 		};
 };
