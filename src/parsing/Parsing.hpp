@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:33 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/19 07:21:28 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/08/19 08:14:17 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,9 @@ class Parsing
 	private:
 		std::fstream	_file;
 		std::string		_file_path;
+		std::string		_text_file;
 		Conf			*_config;
+		int				_config_size;
 	public:
 		Parsing();
 		Parsing(const std::string & file_path);
