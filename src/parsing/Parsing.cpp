@@ -6,18 +6,18 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:34 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/19 07:21:53 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/08/20 23:29:33 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Parsing.hpp"
 
-Parsing::Parsing()
+Parsing::Parsing(): _config(NULL)
 {
 
 }
 
-Parsing::Parsing(const std::string & file_path): _file_path(file_path) {}
+Parsing::Parsing(const std::string & file_path): _file_path(file_path), _config(NULL) {}
 
 Parsing::Parsing(Parsing const & src)
 {
@@ -31,15 +31,26 @@ Parsing::~Parsing()
 
 Parsing &	Parsing::operator=(Parsing const & rhs)
 {
-	if (this != &rhs)
+	if (this != &rhs) {
 		this->_file_path = rhs._file_path;
+		this->_config = rhs._config;
+	}
 	return (*this);
 }
 
 void	Parsing::readFile(void) {
-	this->_file.open(this->_file_path, std::fstream::in);
-	if (!this->_file.is_open())
+	std::string			line;
+	std::stringstream	ss;
+	std::fstream		file;
+
+	file.open(this->_file_path, std::fstream::in);
+	if (!file.is_open())
 		throw CanNotOpenFile(this->_file_path);
+	while (std::getline(file, line)) {
+		ss << line << std::endl;
+	}
+	this->_text_file = ss.str();
+	file.close();
 	return ;
 }
 
@@ -58,5 +69,5 @@ int		Parsing::countBracket(const std::string & text) {
 	if (isOpenBracketFound) {
 		throw UnmatchedBracketException();
 	}
-	return count;
+	return (count);
 }
