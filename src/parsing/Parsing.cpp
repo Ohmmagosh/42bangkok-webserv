@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:34 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/20 23:29:33 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/08/20 23:34:05 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ Parsing &	Parsing::operator=(Parsing const & rhs)
 	return (*this);
 }
 
+/// @brief read file and push data to private variable
+/// @param void
 void	Parsing::readFile(void) {
 	std::string			line;
 	std::stringstream	ss;
@@ -54,6 +56,9 @@ void	Parsing::readFile(void) {
 	return ;
 }
 
+/// @brief count bracket header in config
+/// @param text
+/// @return number of bracket[...]
 int		Parsing::countBracket(const std::string & text) {
 	int count = 0;
 	bool isOpenBracketFound = false;
