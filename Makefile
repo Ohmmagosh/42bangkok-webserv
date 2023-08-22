@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
+#    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/08/16 22:06:19 by rchiewli         ###   ########.fr        #
+#    Updated: 2023/08/23 01:54:51 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,9 @@ SRC_DIR		= ./src/
 
 MODULE1		= Parsing.cpp
 
-MODULE2		= Server.cpp
+MODULE2		= Server.cpp \
+				Request.cpp \
+				HttpRequestHandle.cpp \
 
 MODULE1_DIR	= ./src/parsing/
 MODULE2_DIR = ./src/server/
