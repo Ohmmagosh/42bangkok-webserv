@@ -18,6 +18,7 @@ void Server::setNonBlocking()
     if (fcntl(server_fd, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1) 
     {
         perror("fcntl");
+        // stop();
         exit(EXIT_FAILURE);
     }
 }
@@ -37,11 +38,14 @@ void Server::start()
     if (server_fd == 0) 
     {
         std::cerr << "Failed to create socket." << std::endl;
+        std::cout << "Failed to create socket." << std::endl;
+        stop();
         return;
     }
 
     setNonBlocking();
 
+    memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
@@ -50,23 +54,36 @@ void Server::start()
     if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
     {
         std::cerr << "Failed to set SO_REUSEADDR." << std::endl;
+        // std::cout << "Failed to set SO_REUSEADDR." << std::endl;
+        // stop();
         return;
     }
+
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)))
+    {
+        std::cerr << "Failed to set SO_REUSEPORT." << std::endl;
+        // std::cout << "Failed to set SO_REUSEADDR." << std::endl;
+        // stop();
+        return;
+    }
+
 
     if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) 
     {
         std::cerr << "Bind failed." << std::endl;
+        // stop();
         return;
     }
 
     if (listen(server_fd, 3) < 0) 
     {
         std::cerr << "Listen failed." << std::endl;
+        // stop();
         return;
     }
 
-    const int MAX_CLIENTS = 1024;
-    std::vector<pollfd> clients;
+    const int MAX_CLIENTS = 10240;
+    // std::vector<pollfd> clients;
     pollfd serverPollFd;
     serverPollFd.fd = server_fd;
     serverPollFd.events = POLLIN;
@@ -77,10 +94,13 @@ void Server::start()
 
     while(running) 
     {
+        std::cout << "work!!" << std::endl;
         int poll_count = poll(&clients[0], clients.size(), -1);
+        std::cout << "poll "<< poll_count << std::endl;
         if (poll_count < 0) 
         {
             std::cerr << "poll() failed." << std::endl;
+            std::cout << "poll() failed." << std::endl;
             return;
         }
 
@@ -96,7 +116,7 @@ void Server::start()
                     int new_socket = accept(server_fd, (struct sockaddr*)&client_address, &client_addrlen);
                     if (new_socket >= 0 && clients.size() < MAX_CLIENTS) 
                     {
-                        std::cout << "Client connected!" << std::endl;
+                        // std::cout << "Client connected!" << std::endl;
                         pollfd newClientPollFd;
                         newClientPollFd.fd = new_socket;
                         newClientPollFd.events = POLLIN;
@@ -109,6 +129,8 @@ void Server::start()
                     // Handle data from a client or client disconnection
                     char buffer[4096];  // 4K buffer for receiving data
                     ssize_t bytesRead = recv(clients[i].fd, buffer, sizeof(buffer) - 1, 0);
+
+                    // std::cout << "---------\n" << buffer << '\n' << "---------\n" << std::endl;
 
                     if (bytesRead <= 0) 
                     {
@@ -127,8 +149,8 @@ void Server::start()
                         std::string method, path, protocol;
                         requestStream >> method >> path >> protocol;
 
-                        std::cout << request << std::endl;
-                        std::cout << "+++" << method << std::endl;
+                        // std::cout << request << std::endl;
+                        // std::cout << "+++" << method << std::endl;
                         // Use the extracted details to handle the HTTP request
                         std::string httpResponse = handleHttpRequest(method, path, protocol);
 
@@ -143,7 +165,20 @@ void Server::start()
 
 void Server::stop() 
 {
-    close(server_fd);
+    int result;
+    for (std::vector<pollfd>::iterator it = clients.begin(); it != clients.end(); ++it) 
+    {
+        result = close(it->fd);
+        if (result < 0)
+        {
+            perror("Failed to close client socket");
+        }
+    }
+    result = close(server_fd);
+    if (result < 0)
+    {
+        perror("Failed to close server socket");
+    }
     running = false;
 }
 
