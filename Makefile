@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
+#    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/08/16 22:06:19 by rchiewli         ###   ########.fr        #
+#    Updated: 2023/08/23 21:54:20 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,10 +23,17 @@ SRC_DIR		= ./src/
 
 MODULE1		= Parsing.cpp
 
-MODULE2		= Server.cpp
+MODULE2		= Server.cpp \
+				Request.cpp \
+				HttpRequestHandle.cpp \
+
+MODULE3		=
+
 
 MODULE1_DIR	= ./src/parsing/
+
 MODULE2_DIR = ./src/server/
+MODULE3_DIR = ./src/cgihandler/
 
 # LIB_DIR		= ./lib/
 # MLX = mlx/libmlx.a
@@ -74,7 +81,8 @@ ${OBJ_DIR}%.o: ${MODULE1_DIR}%.cpp
 ${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
 	$(CC) -g $(CPPFLAGS) -c -o $@ $^
 
-${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
+#cgihandler
+${OBJ_DIR}%.o: ${MODULE3_DIR}%.cpp
 	$(CC) -g $(CPPFLAGS) -c -o $@ $^
 
 # #free
