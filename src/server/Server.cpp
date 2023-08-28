@@ -2,18 +2,18 @@
 
 Server::Server(int port): port(port), server_fd(0), running(false)
 {
-    
+
 }
 
-Server::~Server() 
+Server::~Server()
 {
-    if (running) 
-    {
-        stop();
-    }
+	if (running)
+	{
+		stop();
+	}
 }
 
-void Server::setNonBlocking() 
+void Server::setNonBlocking()
 {
     if (fcntl(server_fd, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1) 
     {
@@ -27,23 +27,21 @@ void Server::setNonBlocking()
 // {
 //     std::istringstream requestStream(request);
 //     requestStream >> method >> path >> protocol;
-    
+
 //     // Basic validation to ensure that we've successfully parsed the request
 //     return (!method.empty() && !path.empty() && !protocol.empty());
 // }
 
-void Server::start() 
+void Server::start()
 {
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd == 0) 
-    {
-        std::cerr << "Failed to create socket." << std::endl;
-        std::cout << "Failed to create socket." << std::endl;
-        stop();
-        return;
-    }
+	server_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (server_fd == 0)
+	{
+		std::cerr << "Failed to create socket." << std::endl;
+		return;
+	}
 
-    setNonBlocking();
+	setNonBlocking();
 
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
@@ -82,15 +80,20 @@ void Server::start()
         return;
     }
 
-    const int MAX_CLIENTS = 10240;
+    const int MAX_CLIENTS = 1024;
     // std::vector<pollfd> clients;
-    pollfd serverPollFd;
-    serverPollFd.fd = server_fd;
-    serverPollFd.events = POLLIN;
-    serverPollFd.revents = 0;
-    clients.push_back(serverPollFd);
+    // pollfd serverPollFd;
+    // serverPollFd.fd = server_fd;
+    // serverPollFd.events = POLLIN;
+    // serverPollFd.revents = 0;
+    // clients.push_back(serverPollFd);
+    int kq = kqueue();
+    if (kq == -1) {
+        std::cerr << "Could not create kqueue" << std::endl;
+        return;
+    }
 
-    running = true;
+	running = true;
 
     while(running) 
     {
@@ -144,26 +147,26 @@ void Server::start()
                         buffer[bytesRead] = '\0';  // Null-terminate the received data
                         std::string request(buffer);
 
-                        // Extract HTTP request details
-                        std::istringstream requestStream(request);
-                        std::string method, path, protocol;
-                        requestStream >> method >> path >> protocol;
+						// Extract HTTP request details
+						std::istringstream requestStream(request);
+						std::string method, path, protocol;
+						requestStream >> method >> path >> protocol;
 
                         // std::cout << request << std::endl;
                         // std::cout << "+++" << method << std::endl;
                         // Use the extracted details to handle the HTTP request
                         std::string httpResponse = handleHttpRequest(method, path, protocol);
 
-                        // Send the HTTP response back to the client
-                        send(clients[i].fd, httpResponse.c_str(), httpResponse.size(), 0);
-                    }
-                }
-            }
-        }
-    }
+						// Send the HTTP response back to the client
+						send(clients[i].fd, httpResponse.c_str(), httpResponse.size(), 0);
+					}
+				}
+			}
+		}
+	}
 }
 
-void Server::stop() 
+void Server::stop()
 {
     int result;
     for (std::vector<pollfd>::iterator it = clients.begin(); it != clients.end(); ++it) 
@@ -184,39 +187,39 @@ void Server::stop()
 
 std::string Server::handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol)
 {
-    (void)protocol;
-    if (method == "GET")
-    {
-        if (path == "/" || path == "/index.html")
-        {
-            std::ifstream file("./src/server/index.html", std::ios::in | std::ios::binary);
-            if (file.is_open())
-            {
-                std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-                file.close();
-                return generateHttpResponse(200, "OK", content);
-            }
-            else
-            {
-                return generateHttpResponse(404, "Not Found", "File not found");
-            }
-        }
-        else
-        {
-            return generateHttpResponse(404, "Not Found", "File not found");
-        }
-    }
-    // ... Handle other HTTP methods here
+	(void)protocol;
+	if (method == "GET")
+	{
+		if (path == "/" || path == "/index.html")
+		{
+			std::ifstream file("./src/server/index.html", std::ios::in | std::ios::binary);
+			if (file.is_open())
+			{
+				std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+				file.close();
+				return generateHttpResponse(200, "OK", content);
+			}
+			else
+			{
+				return generateHttpResponse(404, "Not Found", "File not found");
+			}
+		}
+		else
+		{
+			return generateHttpResponse(404, "Not Found", "File not found");
+		}
+	}
+	// ... Handle other HTTP methods here
 
-    return generateHttpResponse(501, "Not Implemented", "This method is not implemented");
+	return generateHttpResponse(501, "Not Implemented", "This method is not implemented");
 }
 
 std::string Server::generateHttpResponse(int statusCode, const std::string& statusMessage, const std::string& content)
 {
-    std::ostringstream response;
-    response << "HTTP/1.1 " << statusCode << " " << statusMessage << "\r\n";
-    response << "Content-Length: " << content.size() << "\r\n";
-    response << "\r\n";  // End of headers
-    response << content;
-    return response.str();
+	std::ostringstream response;
+	response << "HTTP/1.1 " << statusCode << " " << statusMessage << "\r\n";
+	response << "Content-Length: " << content.size() << "\r\n";
+	response << "\r\n";  // End of headers
+	response << content;
+	return response.str();
 }

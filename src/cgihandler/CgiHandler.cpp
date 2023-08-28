@@ -1,47 +1,46 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Parsing.cpp                                        :+:      :+:    :+:   */
+/*   CgiHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/16 20:56:34 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/18 18:03:46 by psuanpro         ###   ########.fr       */
+/*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
+/*   Updated: 2023/08/24 01:11:09 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Parsing.hpp"
+#include "CgiHandler.hpp"
 
-Parsing::Parsing()
-{
 
-}
-
-Parsing::Parsing(const std::string & file_path) {
-	this->_file.open(file_path.c_str(), std::ifstream::in);
-}
-
-Parsing::Parsing(Parsing const & src)
-{
-	*this = src;
-}
-
-Parsing::~Parsing()
-{
+CgiHandler::CgiHandler() {
 
 }
 
-Parsing &	Parsing::operator=(Parsing const & rhs)
-{
-	if (this != &rhs)
-	{
+CgiHandler::~CgiHandler() {
 
+}
+
+void	CgiHandler::run() {
+	int		pipefd[2];
+	pid_t	pid;
+	int		status;
+
+	if (pipe(pipefd) == -1) {
+		throw PipeFail();
 	}
-	return (*this);
-}
 
-void	Parsing::readFile(void) {
-	if (!this->_file.is_open())
-		throw CanNotOpenFile();
-
+	pid = fork();
+	if (pid == 0) {
+		close(pipefd[0]);
+		// execve();
+		//execve cgi
+		close(pipefd[1]);
+	} else {
+		close(pipefd[1]);
+		waitpid(pid, &status, 0);
+		//send response to client
+		close(pipefd[0]);
+	}
+	return ;
 }
