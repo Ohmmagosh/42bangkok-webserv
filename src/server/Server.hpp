@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:31 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/11 16:04:07 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/08/25 22:45:45 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,13 @@ class Server
 		void start();
 		void stop();
 
-	private:
-		int port;
-		int server_fd;
-		bool running;
-		struct sockaddr_in address;
-		// int addrlen;
+    private:
+        int port;
+        int server_fd;
+        bool running;
+        struct sockaddr_in address;
+        std::vector<pollfd> clients;
+        // int addrlen;
 
 		// parsing data
 		// std::string method;
