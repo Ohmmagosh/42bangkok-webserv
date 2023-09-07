@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
+#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/08/23 21:54:20 by psuanpro         ###   ########.fr        #
+#    Updated: 2023/09/02 17:59:19 by rchiewli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,6 +26,7 @@ MODULE1		= Parsing.cpp
 MODULE2		= Server.cpp \
 				Request.cpp \
 				HttpRequestHandle.cpp \
+				TBucket.cpp \
 
 MODULE3		=
 
