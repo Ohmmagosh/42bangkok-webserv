@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "TBucket.hpp"
+#include "Request.hpp"
 
 volatile sig_atomic_t Server::got_signal = 0;
 
@@ -73,6 +74,7 @@ void Server::start()
         return;
     }
 
+    // if (listen(server_fd, 1024) < 0) 
     if (listen(server_fd, 3) < 0) 
     {
         std::cerr << "Listen failed." << std::endl;
@@ -201,11 +203,13 @@ void Server::start()
                         std::string request(buffer);
 
                         // Extract HTTP request details
-                        std::istringstream requestStream(request);
-                        std::string method, path, protocol;
-                        requestStream >> method >> path >> protocol;
+                        // std::istringstream requestStream(request);
+                        Request requestString(request);
+                        // ตรงเน้
+                        // std::string method, path, protocol;
+                        // requestStream >> method >> path >> protocol;
 
-                        std::string httpResponse = handleHttpRequest(method, path, protocol);
+                        std::string httpResponse = handleHttpRequest(requestString.getMethod(), requestString.getPath(), requestString.getProtocol());
 
                         client_write_queues[event.ident].push(httpResponse);
 
