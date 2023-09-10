@@ -1,30 +1,26 @@
 #include "src/server/Server.hpp"
 #include "src/stdlib.hpp"
 
+// void startServers(const std::vector<int>& ports) 
+// {
+//     for (std::vector<int>::const_iterator it = ports.begin(); it != ports.end(); ++it) {
+//         int port = *it;
+//         Server server(port);
+//         server.start();
+//     }
+// }
 
 int main()
 {
-	// {
-	// 	std::fstream	file("config.conf");
-	// 	if (!file.is_open()) {
-	// 		std::cerr << "Unable to open file\n";
-	// 		return 1;
-	// 	}
+    // std::vector<int> portList;
+    // portList.push_back(8080);
+    // portList.push_back(8081);
+    // portList.push_back(8082);
 
-	// 	std::string line;
-	// 	std::stringstream	ss;
-	// 	std::string		ret;
-	// 	while (std::getline(file, line)) { // Read lines until end of file
-	// 		ss << line << std::endl; // Print each line
-	// 		// You can add more code here to process each line as needed
-	// 	}
 
-	// 	ret = ss.str();
-	// 	std::cout << ret;
-	// 	file.close(); // Close the file
-	// 	return 0;
-	// }
+
+	// startServers(portList);
 	// Server server(8080);
 	// server.start();
-	// return 0;
+	return 0;
 }
