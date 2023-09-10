@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Parsing.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:33 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/19 08:14:17 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/09/10 22:49:26 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "../stdlib.hpp"
 # include "Conf.hpp"
+# include <cstring>
 
 class Parsing
 {
@@ -23,7 +24,7 @@ class Parsing
 		std::string		_file_path;
 		std::string		_text_file;
 		Conf			*_config;
-		int				_config_size;
+		// int				_config_size;
 	public:
 		Parsing();
 		Parsing(const std::string & file_path);
@@ -38,17 +39,18 @@ class Parsing
 			private:
 				std::string	_message;
 			public:
-				CanNotOpenFile(const std::string & file_name) {
+				CanNotOpenFile(const std::string & file_name): _message(file_name) {
 					_message = file_name;
 					_message += " : Not found";
 				}
-				const char* what() const throw () {
-					return _message.c_str();
+				virtual const char* what(void) const throw () {
+					return "Error";
 				};
+				virtual ~CanNotOpenFile() throw () {}
 		};
 		class UnmatchedBracketException: public std::exception {
 			public:
-				const char* what() const throw () {
+				virtual const char* what(void) const throw () {
 					return "Unmatched Bracket []";
 				};
 		};

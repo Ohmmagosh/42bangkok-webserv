@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/16 20:56:31 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/09/04 16:19:54 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/09/11 02:00:07 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class Server
 
     private:
         int port;
+		// std::vector<int>
         int server_fd;
         bool running;
         struct sockaddr_in address;

@@ -74,8 +74,7 @@ void Server::start()
         return;
     }
 
-    // if (listen(server_fd, 1024) < 0) 
-    if (listen(server_fd, 3) < 0) 
+    if (listen(server_fd, 1024) < 0) 
     {
         std::cerr << "Listen failed." << std::endl;
         stop();
@@ -99,6 +98,7 @@ void Server::start()
 
     while(running) 
     {
+        // std::cout 
         std::cout << "work!!" << std::endl;
 
         int newEvents = kevent(kq, changeList, 1, eventList, 1024, NULL);
