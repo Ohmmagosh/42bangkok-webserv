@@ -86,6 +86,10 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 
 void Server::start()
 {
+    // signal(SIGINT, Server::signal_handler);
+    // signal(SIGTERM, Server::signal_handler);
+    // signal(SIGPIPE, SIG_IGN);
+
     int kq = kqueue();
     if (kq < 0) 
     {
@@ -104,6 +108,14 @@ void Server::start()
             return ;
         }
 
+
+        int opt = 1;
+        if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+        {
+            perror("setsockopt SO_REUSEADDR");
+            exit(EXIT_FAILURE);
+        }
+
         struct sockaddr_in serverAddr;
         memset(&serverAddr, 0, sizeof(serverAddr));
         serverAddr.sin_family = AF_INET;
@@ -114,6 +126,8 @@ void Server::start()
             perror("Error binding socket");
             return ;
         }
+
+        std::cout << "Server socket created with FD: " << serverSocket << std::endl;
 
         if (listen(serverSocket, 1024) < 0) {
             perror("Error listening");
@@ -137,54 +151,68 @@ void Server::start()
 
     int currentClientCount = 0;
     running = true;
-    
+
     while (running)
     {
-        struct kevent events[NUM_SERVERS + 1];
-        int numEvents = kevent(kq, NULL, 0, events, NUM_SERVERS + 1, NULL);
+        std::cout << "running" << std::endl;
+
+        struct kevent events[NUM_SERVERS + MAX_CLIENTS];
+        // struct kevent changeList[1024];
+        // int numEvents = kevent(kq, changeList, 1, events, 1024, NULL);
+        int numEvents = kevent(kq, NULL, 0, events, NUM_SERVERS + MAX_CLIENTS, NULL);
         if (numEvents < 0)
         {
             perror("Error in kevent");
             return ;
         }
-        
+
         for (int i = 0; i < numEvents; ++i)
         {
             struct kevent event = events[i];
 
-            if (event.ident == static_cast<uintptr_t>(server_fd))
+            std::cout << "---------\n" << i << '\n' << "---------\n" << std::endl;
+
+            if (event.flags & EV_ERROR)
             {
+                std::cerr << "Error in kevent: " << strerror(event.data) << std::endl;
+                continue;
+            }
+            // if (event.ident == static_cast<uintptr_t>(server_fd))
+            if (std::find(serverSockets.begin(), serverSockets.end(), event.ident) != serverSockets.end())
+            {
+                // std::cout << "---------\n" << "nee!" << "---------\n" << std::endl;
+                // exit(0);
                 if (currentClientCount < MAX_CLIENTS)
                 {
                     struct sockaddr_in client_address;
                     socklen_t client_addrlen = sizeof(client_address);
-                    int new_socket = accept(server_fd, (struct sockaddr*)&client_address, &client_addrlen);
+                    int new_socket = accept(event.ident, (struct sockaddr*)&client_address, &client_addrlen);
                     if (new_socket < 0)
                     {
-                        std::cerr << "Failed to accept new connection" << std::endl;
+                        perror("new_socket");
                     }
+
+                    std::cout << "New client connected with FD: " << new_socket << std::endl;
 
                     if (fcntl(new_socket, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1) 
                     {
-                        perror("fcntl");
+                        perror("fcntl nonblock");
                         close(new_socket);
-                        continue;
                     }
 
-                    if (new_socket >= 0)
+                    struct kevent kev;
+                    EV_SET(&kev, new_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+                    if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
                     {
-                        struct kevent client_change;
-                        EV_SET(&client_change, new_socket, EVFILT_READ | EVFILT_WRITE, EV_ADD, 0, 0, NULL);
-                        if (kevent(kq, &client_change, 1, NULL, 0, NULL) == -1)
-                        {
-                            std::cerr << "Could not add client event to kqueue" << std::endl;
-                        }
-                        currentClientCount++;
+                        perror("Error registering new client socket with kqueue");
+                        // Handle error
                     }
-                }   
+                    // Add the new_socket to your data structures and update the count of active clients
+                    active_clients.insert(new_socket);
+                    currentClientCount++;
+                }
                 else
                 {
-                    std::cerr << "Max clients reached. Cannot accept more." << std::endl;
                     std::string httpResponse = generateHttpResponse(503, "Service Unavailable", "Server is overloaded");
 
                     struct sockaddr_in client_address;
@@ -193,21 +221,17 @@ void Server::start()
                     if (new_socket >= 0)
                     {
                         active_clients.insert(new_socket);
+
                         send(new_socket, httpResponse.c_str(), httpResponse.size(), 0);
+
                         close(new_socket);
                     }
-                } 
+                }
             }
             else if (event.filter == EVFILT_READ)
             {
-                char buffer[4096];
-                ssize_t bytesRead = recv(event.ident, buffer, sizeof(buffer) - 1, 0);
-                if (bytesRead < 0) 
-                {
-                    std::cerr << "b < 0" << std::endl;
-                    perror("recv error");
-                }
-                else if (bytesRead == 0)
+                std::cout << "Attempting recv on FD: " << event.ident << std::endl;
+                if (event.flags & EV_EOF)
                 {
                     active_clients.erase(event.ident);
 
@@ -216,30 +240,68 @@ void Server::start()
                     if (kevent(kq, &client_change, 1, NULL, 0, NULL) == -1)
                     {
                         perror("Error deleting client event from kqueue");
-                        std::cerr << "Error: " << strerror(errno) << std::endl;
-                        std::cerr << "Could not delete client event from kqueue" << std::endl;
                     }
+
                     client_write_queues.erase(event.ident);
                     close(event.ident);
                     currentClientCount--;
+                    continue;
+                }
+                if(fcntl(event.ident, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1) 
+                {
+                    std::cout << "Invalid file descriptor: " << event.ident << std::endl;
+                    continue;
+                }
+                char buffer[4096];
+                ssize_t bytesRead = recv(event.ident, buffer, sizeof(buffer) - 1, 0);
+
+                std::cout << "---------\n" << buffer << '\n' << bytesRead << "bytes\n" << "---------\n" << std::endl;
+
+                if (bytesRead < 0) 
+                {
+                    if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    {
+                        // Non-blocking operation would block, continue processing other events
+                        continue;
+                    }
+                    else
+                    {
+                        perror("recv error");
+                        // Handle other errors or disconnect here
+                        // You may want to close the socket or take other appropriate actions
+                        // For example, you can remove the client from your data structures
+                    }
+                }
+                else if (bytesRead == 0)
+                {
+                    active_clients.erase(event.ident);
+
+
+                    struct kevent client_change;
+                    EV_SET(&client_change, event.ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+                    if (kevent(kq, &client_change, 1, NULL, 0, NULL) == -1)
+                    {
+                        perror("Error deleting client event from kqueue");
+                    }     
+
+                    client_write_queues.erase(event.ident);
+                    close(event.ident);
+                    currentClientCount--;            
                 }
                 else
                 {
-                    std::cout << "Received " << bytesRead << " bytes of data" << std::endl;
                     buffer[bytesRead] = '\0';
                     std::string request(buffer);
-                    std::cout << "---------\n" << buffer << '\n' << "---------\n" << std::endl;
-                    if (bytesRead > static_cast<ssize_t>(sizeof(buffer) - 1))
-                    {
-                        bytesRead = sizeof(buffer) - 1;
-                    }
+
                     if (rateLimiter.consume())
                     {
                         Request requestString(request);
                         std::string httpResponse = handleHttpRequest(requestString.getMethod(), requestString.getPath(), requestString.getProtocol());
 
+                        // Push the response into the client's write queue
                         client_write_queues[event.ident].push(httpResponse);
 
+                        // Add an EVFILT_WRITE event to the kqueue to indicate that the socket is ready for writing
                         struct kevent client_change;
                         EV_SET(&client_change, event.ident, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
                         kevent(kq, &client_change, 1, NULL, 0, NULL);
@@ -247,8 +309,9 @@ void Server::start()
                     else
                     {
                         std::string httpResponse = generateHttpResponse(429, "Too Many Requests", "Rate limit exceeded");
-                        send(event.ident, httpResponse.c_str(), httpResponse.size(), MSG_NOSIGNAL);  
+                        send(event.ident, httpResponse.c_str(), httpResponse.size(), MSG_NOSIGNAL);
                     }
+
                     if (got_signal)
                     {
                         stop();
@@ -258,25 +321,61 @@ void Server::start()
             }
             else if (event.filter == EVFILT_WRITE)
             {
-                // Your new code to handle write events
-                std::queue<std::string>& write_queue = client_write_queues[event.ident];
-                if (!write_queue.empty())
-                {
-                    const std::string& message = write_queue.front();
-                    send(event.ident, message.c_str(), message.size(), MSG_NOSIGNAL);
-                    write_queue.pop();
-                }
+                std::cout << "Handling write event for fd: " << event.ident << std::endl;
 
-                if (write_queue.empty())
+                std::map<int, std::queue<std::string> >::iterator it = client_write_queues.find(event.ident);
+                if (it != client_write_queues.end())
                 {
-                    // Remove write filter if nothing to write
-                    struct kevent client_change;
-                    EV_SET(&client_change, event.ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-                    kevent(kq, &client_change, 1, NULL, 0, NULL);
+                    std::queue<std::string>& write_queue = it->second;
+                    
+                    // While there's something to send to this client
+                    while (!write_queue.empty())
+                    {
+                        const std::string& data_to_send = write_queue.front();
+                        ssize_t bytes_sent = send(event.ident, data_to_send.c_str(), data_to_send.size(), 0);
+
+                        if (bytes_sent < 0)
+                        {
+                            if (errno == EAGAIN || errno == EWOULDBLOCK)
+                            {
+                                // Would block, so stop trying to send more data
+                                break;
+                            }
+                            else
+                            {
+                                perror("send error");
+                                // Remove client from active_clients and close its socket
+                                active_clients.erase(event.ident);
+                                client_write_queues.erase(event.ident);
+                                close(event.ident);
+                                currentClientCount--;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            write_queue.pop();
+                            
+                            // If we have sent all the data, then let's remove the write event from kqueue
+                            if (write_queue.empty())
+                            {
+                                struct kevent kev;
+                                EV_SET(&kev, event.ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+                                if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
+                                {
+                                    perror("Error removing write event from kqueue");
+                                    // Handle error
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    std::cerr << "No write queue found for client with FD: " << event.ident << std::endl;
                 }
             }
         }
     }
-    close(kq);
-    return ;
 }
+
