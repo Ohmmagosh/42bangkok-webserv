@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/16 20:56:31 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/09/11 02:00:07 by rchiewli         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
@@ -25,7 +13,7 @@ extern volatile sig_atomic_t got_signal;
 class Server
 {
 	public:
-		Server(int port);
+		Server();
 		~Server();
 		void start();
 		void stop();
@@ -33,24 +21,16 @@ class Server
 		static volatile sig_atomic_t got_signal;
 
     private:
-        int port;
-		// std::vector<int>
         int server_fd;
         bool running;
-        struct sockaddr_in address;
+		int MAX_CLIENTS;
 		static void signal_handler(int sig);
         std::set<int> active_clients;
+		std::vector<int> serverSockets;
+		std::vector<int> ports;
 		TokenBucket rateLimiter;
-        // int addrlen;
-
-		// parsing data
-		// std::string method;
-		// std::string path;
-		// std::string protocol;
-		//
 
 		void setNonBlocking();
-		// bool parseHttpRequest(const std::string &request, std::string &method, std::string &path, std::string &protocol);
 		std::string handleHttpRequest(const std::string &method, const std::string &path, const std::string &protocol);
 		std::string generateHttpResponse(int statusCode, const std::string &statusMessage, const std::string &content);
 };

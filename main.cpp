@@ -20,7 +20,7 @@ int main()
 
 
 	// startServers(portList);
-	// Server server(8080);
-	// server.start();
+	Server server;
+	server.start();
 	return 0;
 }
