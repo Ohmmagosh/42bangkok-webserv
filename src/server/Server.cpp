@@ -59,6 +59,7 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 {
 	(void)protocol;
 	HttpRequestHandle ret(method, path);
+	std::cout << "method : "<< method << "path: " << path<< std::endl;
 	return (ret.validateMethod());
 	// if (method == "GET")
 	// {
