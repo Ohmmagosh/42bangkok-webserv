@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
+#    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/09/02 17:59:19 by rchiewli         ###   ########.fr        #
+#    Updated: 2023/09/27 15:56:46 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,7 @@ MODULE2		= Server.cpp \
 				Request.cpp \
 				HttpRequestHandle.cpp \
 				TBucket.cpp \
+				Response.cpp
 
 MODULE3		=
 
@@ -76,15 +77,15 @@ FCLEAN = echo "$(BRED)$(NAME) fclean....$(RES)"
 
 #parsing
 ${OBJ_DIR}%.o: ${MODULE1_DIR}%.cpp
-	$(CC) -g $(CPPFLAGS) -c -o $@ $^
+	$(CC) $(CPPFLAGS) -c -o $@ $^
 
 #server
 ${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
-	$(CC) -g $(CPPFLAGS) -c -o $@ $^
+	$(CC) $(CPPFLAGS) -c -o $@ $^
 
 #cgihandler
 ${OBJ_DIR}%.o: ${MODULE3_DIR}%.cpp
-	$(CC) -g $(CPPFLAGS) -c -o $@ $^
+	$(CC) $(CPPFLAGS) -c -o $@ $^
 
 # #free
 # ${OBJ_DIR}%.o: ${MODULE3_DIR}%.c

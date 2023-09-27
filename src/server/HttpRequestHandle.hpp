@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/09/27 12:45:52 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/09/27 15:43:03 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ class HttpRequestHandle
 	private:
 		std::string	_method;
 		std::string	_path;
-		std::string	_cgi_path = "./src/server";
+		std::string	_cgi_path;
 	public:
 		HttpRequestHandle();
 		HttpRequestHandle(const std::string& method, const std::string& path);

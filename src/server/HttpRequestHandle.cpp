@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/09/27 12:57:26 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/09/27 16:13:14 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ HttpRequestHandle::HttpRequestHandle()
 
 HttpRequestHandle::HttpRequestHandle(const std::string &method, const std::string &path) : _method(method), _path(path)
 {
+	this->_cgi_path = "./src/server";
 }
 
 HttpRequestHandle::HttpRequestHandle(const HttpRequestHandle &rhs)
@@ -62,15 +63,17 @@ std::string HttpRequestHandle::validateMethod()
 
 std::string HttpRequestHandle::getMethod()
 {
-	std::stringstream ss;
 	if (this->_path == "/" || this->_path == "/index.html")
 	{
-
+		std::stringstream ss;
+		this->_path = "/index.html";
 		ss << this->_cgi_path << this->_path;
+		std::cout << "ss : " << ss.str() << std::endl;
 		std::ifstream file(ss.str(), std::ios::in | std::ios::binary);
 		if (file.is_open())
 		{
 			std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+			std::cout << content << std::endl;
 			file.close();
 			Response res(200, "Ok", content);
 			return res.HttpResponse();
