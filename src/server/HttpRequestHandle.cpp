@@ -63,21 +63,22 @@ std::string HttpRequestHandle::validateMethod()
 
 std::string HttpRequestHandle::getMethod()
 {
+	std::stringstream ss;
 	if (this->_path == "/" || this->_path == "/index.html")
 	{
-		std::stringstream ss;
 		this->_path = "/index.html";
 		ss << this->_cgi_path << this->_path;
-		std::cout << "ss : " << ss.str() << std::endl;
-		std::ifstream file(ss.str(), std::ios::in | std::ios::binary);
-		if (file.is_open())
-		{
-			std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-			std::cout << content << std::endl;
-			file.close();
-			Response res(200, "Ok", content);
-			return res.HttpResponse();
-		}
+	}else {
+		ss << this->_cgi_path << this->_path;
+	}
+	std::ifstream file(ss.str(), std::ios::in | std::ios::binary);
+	if (file.is_open())
+	{
+		std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		std::cout << content << std::endl;
+		file.close();
+		Response res(200, "Ok", content);
+		return res.HttpResponse();
 	}
 	Response err404(404, "not Found", "file not found");
 	return err404.HttpResponse();
