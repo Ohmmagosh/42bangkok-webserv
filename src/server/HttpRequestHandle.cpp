@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/09/27 16:13:14 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/05 00:30:50 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,10 @@ HttpRequestHandle &HttpRequestHandle::operator=(const HttpRequestHandle &rhs)
 	}
 	return *this;
 }
-
+//if cgi_path == null
+//openfile and return with contents string
+//else
+//use execute cgi
 std::string HttpRequestHandle::validateMethod()
 {
 	if (this->_method == "GET")
