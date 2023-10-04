@@ -28,11 +28,13 @@ class Server
 		static void signal_handler(int sig);
         std::set<int> active_clients;
 		std::vector<int> serverSockets;
-		std::vector<int> ports;
+		// std::vector<int> ports;
+		std::vector<std::pair<int, std::string> > serverPortNamePairs;
 		TokenBucket rateLimiter;
 
 		void setNonBlocking();
-		std::string handleHttpRequest(const std::string &method, const std::string &path, const std::string &protocol);
+		std::string extractHostHeader(const std::string& request);
+		std::string handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader);
 		std::string generateHttpResponse(int statusCode, const std::string &statusMessage, const std::string &content);
 };
 

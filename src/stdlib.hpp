@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 21:01:17 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/28 02:21:03 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/01 17:05:47 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@
 # include <sys/wait.h>
 # include <sys/event.h>
 # include <netinet/in.h>
+# include <arpa/inet.h>
 # include <poll.h>
 # include <fcntl.h>
 # include <signal.h>

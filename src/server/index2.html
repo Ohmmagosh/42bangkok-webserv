@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -53,6 +52,7 @@
 		.link-button:hover {
 			background-color: #45a049;
 		}
+
 	</style>
 </head>
 <body>
@@ -65,31 +65,14 @@
 			<p>This is the default page of Webserv. You can customize this page to display any content you like.</p>
 			<p>Enjoy using Webserv to serve your static and dynamic content!</p>
 
-			<h2>Send Data to Server</h2>
-			<form id="dataForm" action="http://localhost:8080/submit-data" method="POST">
-				<label for="dataInput">Enter Data:</label>
-				<input type="text" id="dataInput" name="data" placeholder="Enter data to send">
-				<input type="submit" value="Submit">
-			</form>
 
 			<!-- Added GET, POST, and DELETE buttons -->
-			<a href="index2.html" class="link-button">GET</a>
+			<a href="index.html" class="link-button">GET</a>
 			<!-- <button onclick="handleGet()">GET</button> -->
 			<!-- <button onclick="handlePost()">POST</button> -->
 			<!-- <button onclick="handleDelete()">DELETE</button> -->
 
 			<!-- <input type="text" id="deleteInput" placeholder="Enter item to delete"> -->
-			<button onclick="handleDelete()">Delete</button>
-
-			<div class="container">
-				<div class="content">
-					<h2>Upload a File</h2>
-					<form id="uploadForm" enctype="multipart/form-data">
-						<input type="file" id="fileInput" name="fileToUpload">
-						<button type="button" onclick="handleFileUpload()">Upload</button>
-					</form>
-				</div>
-			</div>
 		</div>
 	</div>
 	<div class="footer">
@@ -102,7 +85,7 @@
 			alert('GET button clicked.');
 			// Your GET request code here
 		}
-		function handlePost(e) {akjsdgjkasgdkhagd
+		function handlePost(e) {
 			alert(e.target.value)
 			// const data = document.getElementById('postDataInput').value;
 			// if (data) {
@@ -127,39 +110,6 @@
 			// } else {
 			// 	alert('Please enter data to POST.');
 			// }
-		}
-
-		function handleDelete() {
-			fetch('http://localhost:8080/delete-data', {
-				method: 'DELETE',
-			})
-			.then(response => response.json())  // assuming server responds with json
-			.then(data => {
-				console.log(data);
-				alert('Data deleted successfully.');
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-				alert('Error deleting data.');
-			});
-		}
-
-		function handleFileUpload() {
-			const formData = new FormData(document.getElementById('uploadForm'));
-			
-			fetch('http://localhost:8080/upload-file', {
-				method: 'POST',
-				body: formData
-			})
-			.then(response => response.json())
-			.then(data => {
-				console.log(data);
-				alert('File uploaded successfully.');
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-				alert('Error uploading file.');
-			});
 		}
 	</script>
 </body>

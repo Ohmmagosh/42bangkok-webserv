@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:09:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/09/26 11:08:33 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/04 14:57:13 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,8 @@ Response::Response() {
 }
 
 Response::Response(int statusCode, const std::string& statusMessage, const std::string& content) {
-	this->_res << "HTTP/1.1" << statusCode << " " << statusMessage << "\r\n";
-	this->_res << "Content-Length:" << content.size() << "\r\n";
+	this->_res << "HTTP/1.1 " << statusCode << " " << statusMessage << "\r\n";
+	this->_res << "Content-Length: " << content.size() << "\r\n";
 	this->_res << "\r\n";
 	this->_res << content;
 }
