@@ -28,11 +28,7 @@ std::string Server::extractHostHeader(const std::string& request)
 
 Server::Server(): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(16000, 1600)
 {
-	// ports.push_back(8080);
-	// ports.push_back(8081);
-	// ports.push_back(9090);
-
-    serverPortNamePairs.push_back(std::make_pair(8080, "localhost"));
+    serverPortNamePairs.push_back(std::make_pair(8080, "abc"));
     serverPortNamePairs.push_back(std::make_pair(8081, "anothername"));
     serverPortNamePairs.push_back(std::make_pair(9090, "yetanothername"));
 }
@@ -79,18 +75,22 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 {
     (void)protocol;
     HttpRequestHandle ret(method, path);
-    std::cout << "method : " << method << " path: " << path << std::endl;
+    // std::cout << "method : " << method << " path: " << path << std::endl;
 
     // Validate the Host header
-    bool validHost = false;
-    for (std::vector<std::pair<int, std::string> >::const_iterator it = serverPortNamePairs.begin(); it != serverPortNamePairs.end(); ++it) {
-        std::stringstream ss;
-        ss << it->second << ":" << it->first;
-        if (hostHeader == ss.str()) {
-            validHost = true;
-            break;
-        }
-    }
+	bool validHost = false;
+	for (std::vector<std::pair<int, std::string> >::const_iterator it = serverPortNamePairs.begin(); it != serverPortNamePairs.end(); ++it) {
+		std::stringstream ss;
+		ss << it->second << ":" << it->first;
+		std::stringstream localhostWithPort;
+		localhostWithPort << "localhost:" << it->first;
+		std::stringstream ipWithPort;
+		ipWithPort << "127.0.0.1:" << it->first;
+		if (hostHeader == ss.str() || hostHeader == localhostWithPort.str() || hostHeader == ipWithPort.str() || hostHeader == "10.13.8.3:" + std::to_string(it->first)) {
+			validHost = true;
+			break;
+		}
+	}
 
     if (!validHost) {
         return generateHttpResponse(400, "Bad Request", "Invalid Host header");
@@ -196,7 +196,7 @@ void Server::start()
 
 	while (running)
 	{
-		std::cout << "running" << std::endl;
+		// std::cout << "running" << std::endl;
 
 		struct kevent events[NUM_SERVERS + MAX_CLIENTS];
 		// struct kevent changeList[1024];
@@ -212,7 +212,7 @@ void Server::start()
 		{
 			struct kevent event = events[i];
 
-			std::cout << "---------\n" << i << '\n' << "---------\n" << std::endl;
+			// std::cout << "---------\n" << i << '\n' << "---------\n" << std::endl;
 
 			if (event.flags & EV_ERROR)
 			{
@@ -264,7 +264,7 @@ void Server::start()
 					{
 						active_clients.insert(new_socket);
 						
-						std::cout << httpResponse.c_str() << std::endl;
+						// std::cout << httpResponse.c_str() << std::endl;
 						send(new_socket, httpResponse.c_str(), httpResponse.size(), 0);
 
 						close(new_socket);
@@ -298,7 +298,7 @@ void Server::start()
 				char buffer[4096];
 				ssize_t bytesRead = recv(event.ident, buffer, sizeof(buffer) - 1, 0);
 
-				std::cout << "---------\n" << buffer << '\n' << bytesRead << "bytes\n" << "---------\n" << std::endl;
+				// std::cout << "---------\n" << buffer << '\n' << bytesRead << "bytes\n" << "---------\n" << std::endl;
 
 				if (bytesRead < 0)
 				{
@@ -337,6 +337,9 @@ void Server::start()
 					std::string request(buffer);
 					std::string hostHeader = extractHostHeader(request);
 
+					// Print the request to the console
+					std::cout << "Received request:\n" << request << "\n-------------------\n";
+
 					if (rateLimiter.consume())
 					{
 						Request requestString(request);
@@ -353,7 +356,7 @@ void Server::start()
 					else
 					{
 						std::string httpResponse = generateHttpResponse(429, "Too Many Requests", "Rate limit exceeded");
-						std::cout << httpResponse.c_str() << std::endl;
+						// std::cout << httpResponse.c_str() << std::endl;
 						send(event.ident, httpResponse.c_str(), httpResponse.size(), MSG_NOSIGNAL);
 					}
 
@@ -377,6 +380,7 @@ void Server::start()
 					while (!write_queue.empty())
 					{
 						const std::string& data_to_send = write_queue.front();
+						std::cout << ",.,.,.,.,.,.,.,.,.,.,.,.,.,.\n" << data_to_send.c_str() << ",.,.,.,.,.,.,.,.,.,.,.,.,.,.\n" << std::endl;
 						ssize_t bytes_sent = send(event.ident, data_to_send.c_str(), data_to_send.size(), 0);
 
 						if (bytes_sent < 0)
