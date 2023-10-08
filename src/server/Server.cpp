@@ -31,6 +31,8 @@ Server::Server(): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(1
     serverPortNamePairs.push_back(std::make_pair(8080, "abc"));
     serverPortNamePairs.push_back(std::make_pair(8081, "anothername"));
     serverPortNamePairs.push_back(std::make_pair(9090, "yetanothername"));
+
+	this->MAX_BODY_SIZE = 4096;
 }
 
 Server::~Server()
@@ -97,31 +99,6 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
     }
 
     return ret.validateMethod();
-	// if (method == "GET")
-	// {
-	// 	if (path == "/" || path == "/index.html")
-	// 	{
-	// 		std::ifstream file("./src/server/index.html", std::ios::in | std::ios::binary);
-	// 		if (file.is_open())
-	// 		{
-	// 			std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	// 			file.close();
-	// 			return generateHttpResponse(200, "OK", content);
-	// 		}
-	// 		else
-	// 		{
-	// 			return generateHttpResponse(404, "Not Found", "File not found");
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		return generateHttpResponse(404, "Not Found", "File not found");
-	// 	}
-	// }
-	// ... Handle other HTTP methods here
-
-	// return generateHttpResponse(501, "Not Implemented", "This method is not implemented");
-
 }
 
 void Server::start()
@@ -196,11 +173,8 @@ void Server::start()
 
 	while (running)
 	{
-		// std::cout << "running" << std::endl;
 
 		struct kevent events[NUM_SERVERS + MAX_CLIENTS];
-		// struct kevent changeList[1024];
-		// int numEvents = kevent(kq, changeList, 1, events, 1024, NULL);
 		int numEvents = kevent(kq, NULL, 0, events, NUM_SERVERS + MAX_CLIENTS, NULL);
 		if (numEvents < 0)
 		{
@@ -212,8 +186,6 @@ void Server::start()
 		{
 			struct kevent event = events[i];
 
-			// std::cout << "---------\n" << i << '\n' << "---------\n" << std::endl;
-
 			if (event.flags & EV_ERROR)
 			{
 				std::cerr << "Error in kevent: " << strerror(event.data) << std::endl;
@@ -222,8 +194,6 @@ void Server::start()
 			// if (event.ident == static_cast<uintptr_t>(server_fd))
 			if (std::find(serverSockets.begin(), serverSockets.end(), event.ident) != serverSockets.end())
 			{
-				// std::cout << "---------\n" << "nee!" << "---------\n" << std::endl;
-				// exit(0);
 				if (currentClientCount < MAX_CLIENTS)
 				{
 					struct sockaddr_in client_address;
@@ -295,8 +265,8 @@ void Server::start()
 					std::cout << "Invalid file descriptor: " << event.ident << std::endl;
 					continue;
 				}
-				char buffer[4096];
-				ssize_t bytesRead = recv(event.ident, buffer, sizeof(buffer) - 1, 0);
+				char buffer[MAX_BODY_SIZE + 1];
+				size_t bytesRead = recv(event.ident, buffer, sizeof(buffer) - 1, 0);
 
 				// std::cout << "---------\n" << buffer << '\n' << bytesRead << "bytes\n" << "---------\n" << std::endl;
 
@@ -333,6 +303,12 @@ void Server::start()
 				}
 				else
 				{
+					if (bytesRead > MAX_BODY_SIZE)
+					{
+						std::string response = generateHttpResponse(413, "Payload Too Large", "Request body is too large");
+						send(event.ident, response.c_str(), response.size(), 0);
+						continue;  // Skip processing this request further
+					}
 					buffer[bytesRead] = '\0';
 					std::string request(buffer);
 					std::string hostHeader = extractHostHeader(request);
