@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/09/27 15:43:03 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/06 08:45:55 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,9 @@ class HttpRequestHandle
 
 		std::string	validateMethod();
 		std::string	getMethod();
-		std::string	putMethod();
+		std::string	postMethod();
 		std::string deleteMethod();
+		std::string	readFile(std::stringstream& path);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/04 15:10:20 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/07 13:03:40 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ CgiHandler::~CgiHandler() {
 //
 //
 //
+
+
 std::string	CgiHandler::executeCgi() {
 	char path[] = "/usr/bin/python3";
 	char file[] = "hello.py";
@@ -55,3 +57,10 @@ std::string	CgiHandler::executeCgi() {
 		return res;
 	}
 }
+
+
+// char** CgiHandler::initEnv(const Request & req) {
+// 	char** res = new char*[req.getSize()];
+
+
+// }

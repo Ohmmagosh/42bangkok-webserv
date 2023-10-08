@@ -6,12 +6,11 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/05 15:57:35 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/08 18:18:38 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-#include <iostream>
 
 Request::Request() {
 
@@ -21,7 +20,10 @@ Request::Request(const std::string& raw_request) {
 	std::stringstream	requestStream(raw_request);
 	requestStream >> this->_method >> this->_path >> this->_protocol;
 	std::string line;
-	while (std::getline(requestStream, line) && line != "\r\n") {
+	std::getline(requestStream, line);
+	while (std::getline(requestStream, line)) {
+		if (line == "\r")
+			break;
 		size_t colon_p = line.find(':');
 		if (colon_p != std::string::npos) {
 			std::string key = line.substr(0, colon_p);
@@ -30,7 +32,9 @@ Request::Request(const std::string& raw_request) {
 			this->_headers[key] = value;
 		}
 	}
-	this->_body = line;
+	while (std::getline(requestStream, line)) {
+		this->_body = line;
+	}
 }
 
 Request::~Request() {
