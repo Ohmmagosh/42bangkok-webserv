@@ -6,7 +6,7 @@
 #    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/09/27 15:56:46 by psuanpro         ###   ########.fr        #
+#    Updated: 2023/10/11 23:52:24 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,8 @@ MODULE2		= Server.cpp \
 				Request.cpp \
 				HttpRequestHandle.cpp \
 				TBucket.cpp \
-				Response.cpp
+				Response.cpp \
+				Store.cpp
 
 MODULE3		=
 
@@ -106,10 +107,10 @@ ${OBJ_DIR}:
 	@mkdir -p $(OBJ_DIR)
 
 ${OBJ_DIR}%.o: ${MAIN_DIR}%.cpp
-	$(CC) -c -o $@ $^
+	$(CC) $(CPPFLAGS) -c -o $@ $^
 
 ${NAME}: ${OBJS}
-	$(CC) $(OBJS) -o $(NAME) $(LIB) $(CPPFLAGS)
+	$(CC) $(CPPFLAGS) $(OBJS) -o $(NAME) $(LIB)
 
 clean:
 	@$(RM) $(OBJ_DIR)
@@ -120,4 +121,10 @@ fclean: clean
 	@$(RM) $(NAME) $(OBJ_DIR)
 	@$(FCLEAN)
 
+
 re: fclean all
+
+run: re
+	./webserv
+
+.PHONY: all clean fclean re run
