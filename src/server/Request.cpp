@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/11 23:43:54 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/11 23:54:40 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,6 @@ Request::Request(const std::string& raw_request) {
 	std::string line;
 
 	this->setRawReqToVector(raw_request);
-	// std::cout << "-------------------------------------" << std::endl;
-	// std::cout << "----------------SIZE-----------------" << std::endl;
-	// std::cout << this->getReqVectorSize() << std::endl;
-	// std::cout << "----------------SIZE-----------------" << std::endl;
-	// std::cout << "----------------VECTOR-----------------" << std::endl;
-	// std::cout << this->getVectorReq() << std::endl;
-	// std::cout << "----------------VECTOR-----------------" << std::endl;
-	// std::cout << "-------------------------------------" << std::endl;
 	this->setHeaderAndBody(this->_req);
 }
 
