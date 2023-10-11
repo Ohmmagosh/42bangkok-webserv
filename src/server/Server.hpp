@@ -32,6 +32,8 @@ class Server
 		std::vector<std::pair<int, std::string> > serverPortNamePairs;
 		TokenBucket rateLimiter;
 
+		size_t MAX_BODY_SIZE;
+
 		void setNonBlocking();
 		std::string extractHostHeader(const std::string& request);
 		std::string handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader);
