@@ -6,7 +6,7 @@
 #    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/10/10 22:56:21 by psuanpro         ###   ########.fr        #
+#    Updated: 2023/10/11 23:52:24 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,8 @@ MODULE2		= Server.cpp \
 				Request.cpp \
 				HttpRequestHandle.cpp \
 				TBucket.cpp \
-				Response.cpp
+				Response.cpp \
+				Store.cpp
 
 MODULE3		=
 
