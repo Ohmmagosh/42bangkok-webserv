@@ -4,6 +4,7 @@
 # include "../stdlib.hpp"
 # include "TBucket.hpp"
 # include "HttpRequestHandle.hpp"
+# include "Store.hpp"
 
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0
@@ -29,10 +30,13 @@ class Server
         std::set<int> active_clients;
 		std::vector<int> serverSockets;
 		// std::vector<int> ports;
+		std::map<int, std::string> client_buffers;
 		std::vector<std::pair<int, std::string> > serverPortNamePairs;
 		TokenBucket rateLimiter;
+		Store store;
 
 		size_t MAX_BODY_SIZE;
+		std::string dlpath;
 
 		void setNonBlocking();
 		std::string extractHostHeader(const std::string& request);
