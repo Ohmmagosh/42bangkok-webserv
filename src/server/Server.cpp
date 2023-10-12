@@ -32,7 +32,8 @@ Server::Server(): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(1
     serverPortNamePairs.push_back(std::make_pair(8081, "anothername"));
     serverPortNamePairs.push_back(std::make_pair(9090, "yetanothername"));
 
-	this->MAX_BODY_SIZE = 4096;
+	this->MAX_BODY_SIZE = 10000;
+	this->dlpath = "./dl";
 }
 
 Server::~Server()
@@ -265,10 +266,16 @@ void Server::start()
 					std::cout << "Invalid file descriptor: " << event.ident << std::endl;
 					continue;
 				}
-				char buffer[MAX_BODY_SIZE + 1];
+				// char buffer[MAX_BODY_SIZE + 1];
+				const int READ_BUFFER_SIZE = 256000;
+				char buffer[READ_BUFFER_SIZE];
 				size_t bytesRead = recv(event.ident, buffer, sizeof(buffer) - 1, 0);
+				buffer[bytesRead] = '\0';
 
-				// std::cout << "---------\n" << buffer << '\n' << bytesRead << "bytes\n" << "---------\n" << std::endl;
+
+				// std::cout << "------- This is next -------" << std::endl;
+				std::cout << "\n" << buffer << '\n' << bytesRead << "bytes\n" << "\n" << std::endl;
+				// std::cout << "------- This is next -------" << std::endl;
 
 				if (bytesRead < 0)
 				{
@@ -303,23 +310,44 @@ void Server::start()
 				}
 				else
 				{
-					if (bytesRead > MAX_BODY_SIZE)
+
+					buffer[bytesRead] = '\0';
+					std::string requestData(buffer);
+					Request parsedRequest;
+					std::string hostHeader;
+					try 
+					{
+						parsedRequest = Request(requestData);
+						hostHeader = parsedRequest.getHeaderValue("Host");
+					} 
+					catch (const Request::HeaderNotFound& e) 
+					{
+						std::cerr << "Error: " << e.what() << std::endl;
+						std::string badRequestResponse = generateHttpResponse(400, "Bad Request", "Host header not found");
+						send(event.ident, badRequestResponse.c_str(), badRequestResponse.size(), MSG_NOSIGNAL);
+					}
+
+					if (parsedRequest.getBody().size() > MAX_BODY_SIZE)
 					{
 						std::string response = generateHttpResponse(413, "Payload Too Large", "Request body is too large");
 						send(event.ident, response.c_str(), response.size(), 0);
+						
+						std::cout << "------- Oversized -------" << std::endl;
+						std::cout << response << std::endl;
+						std::cout << "------- Oversized -------" << std::endl;
 						continue;  // Skip processing this request further
 					}
-					buffer[bytesRead] = '\0';
-					std::string request(buffer);
-					std::string hostHeader = extractHostHeader(request);
 
 					// Print the request to the console
-					std::cout << "Received request:\n" << request << "\n-------------------\n";
+					// std::cout << "Received request:\n" << request << "\n-------------------\n";
 
 					if (rateLimiter.consume())
 					{
-						Request requestString(request);
-						std::string httpResponse = handleHttpRequest(requestString.getMethod(), requestString.getPath(), requestString.getProtocol(), hostHeader);
+
+						// std::cout << "------- This is now -------" << std::endl;
+						// std::cout << parsedRequest << std::endl;
+						// std::cout << "------- This is now -------" << std::endl;
+						std::string httpResponse = handleHttpRequest(parsedRequest.getMethod(), parsedRequest.getPath(), parsedRequest.getProtocol(), hostHeader);
 
 						// Push the response into the client's write queue
 						client_write_queues[event.ident].push(httpResponse);
@@ -332,7 +360,9 @@ void Server::start()
 					else
 					{
 						std::string httpResponse = generateHttpResponse(429, "Too Many Requests", "Rate limit exceeded");
+						// std::cout << "------- This is next -------" << std::endl;
 						// std::cout << httpResponse.c_str() << std::endl;
+						// std::cout << "------- This is next -------" << std::endl;
 						send(event.ident, httpResponse.c_str(), httpResponse.size(), MSG_NOSIGNAL);
 					}
 
@@ -356,7 +386,7 @@ void Server::start()
 					while (!write_queue.empty())
 					{
 						const std::string& data_to_send = write_queue.front();
-						std::cout << ",.,.,.,.,.,.,.,.,.,.,.,.,.,.\n" << data_to_send.c_str() << ",.,.,.,.,.,.,.,.,.,.,.,.,.,.\n" << std::endl;
+						// std::cout << ",.,.,.,.,.,.,.,.,.,.,.,.,.,.\n" << data_to_send.c_str() << ",.,.,.,.,.,.,.,.,.,.,.,.,.,.\n" << std::endl;
 						ssize_t bytes_sent = send(event.ident, data_to_send.c_str(), data_to_send.size(), 0);
 
 						if (bytes_sent < 0)
