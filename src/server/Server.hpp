@@ -25,10 +25,9 @@ class Server
 
     private:
 		// struct kevent events;
-        int server_fd;
-        bool running;
-		int MAX_CLIENTS;
-		static void signal_handler(int sig);
+        int		server_fd;
+        bool	running;
+		int 	MAX_CLIENTS;
         std::set<int> active_clients;
 		std::vector<int> serverSockets;
 		// std::vector<int> ports;
@@ -42,6 +41,7 @@ class Server
 		std::string dlpath;
 		std::string dlname;
 
+		static void signal_handler(int sig);
 		void setNonBlocking();
 		void closeActiveClients();
 		void closeServerSocket();
@@ -54,7 +54,7 @@ class Server
 		void handleClientRead(int kq, int eventIdent);
 		void handleClientWrite(int kq, int eventIdent);
 		std::string extractHostHeader(const std::string& request);
-		std::string handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader);
+		std::string handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader, std::string reqbuffer);
 		std::string handleFileDownloadRequest();
 };
 
