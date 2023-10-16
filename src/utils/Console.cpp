@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 02:21:29 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/14 16:01:22 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/16 17:16:48 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,4 +63,8 @@ const std::string&	Console::getModeColor(int mode) {
 
 t_mode		Console::getModeAndColor(int mode) {
 	return this->_mode[mode];
+}
+
+void	Console::log() const{
+	return ;
 }

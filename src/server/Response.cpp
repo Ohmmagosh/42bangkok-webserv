@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:09:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 17:39:39 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/16 20:52:20 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ Response::~Response() {
 
 }
 
-std::string Response::HttpResponse() const {
+std::string	Response::HttpResponse() const {
 	return this->_res.str();
 }
 

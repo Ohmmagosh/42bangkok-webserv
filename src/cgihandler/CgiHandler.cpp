@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/07 13:03:40 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/13 20:25:57 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,13 @@ CgiHandler::~CgiHandler() {
 //
 
 
+// std::string	CgiHandler::executeCgi(char **argv, ) {
 std::string	CgiHandler::executeCgi() {
 	char path[] = "/usr/bin/python3";
 	char file[] = "hello.py";
+	char hello[] = "hello=world";
 	char *argv[] = {path,file , NULL};
-	char *env[] = {"hello=world", NULL};
+	char *env[] = {hello, NULL};
 	int	pipefd[2];
 	if (pipe(pipefd) == -1) {
 		perror("error pipe");
