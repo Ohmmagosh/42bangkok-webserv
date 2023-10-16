@@ -40,6 +40,7 @@ class Server
 
 		size_t MAX_BODY_SIZE;
 		std::string dlpath;
+		std::string dlname;
 
 		void setNonBlocking();
 		void closeActiveClients();
@@ -54,7 +55,7 @@ class Server
 		void handleClientWrite(int kq, int eventIdent);
 		std::string extractHostHeader(const std::string& request);
 		std::string handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader);
-		std::string handleFileDownloadRequest(const std::string& path);
+		std::string handleFileDownloadRequest();
 };
 
 #endif
