@@ -1,11 +1,11 @@
 #include "TBucket.hpp"
 
-TokenBucket::TokenBucket(double max, double rate) : tokens(max), max_tokens(max), fill_rate(rate)
+TBucket::TBucket(double max, double rate) : tokens(max), max_tokens(max), fill_rate(rate)
 {
     last_refill_time = std::time(0);
 }
 
-void TokenBucket::refill() 
+void TBucket::refill() 
 {
     std::time_t current_time = std::time(0);
     double time_passed = difftime(current_time, last_refill_time);
@@ -13,7 +13,7 @@ void TokenBucket::refill()
     last_refill_time = current_time;
 }
 
-bool TokenBucket::consume() 
+bool TBucket::consume() 
 {
     refill();
     if (tokens >= 1) {
@@ -23,7 +23,7 @@ bool TokenBucket::consume()
     return false;
 }
 
-TokenBucket::~TokenBucket() 
+TBucket::~TBucket() 
 {
     // any cleanup code here
 }

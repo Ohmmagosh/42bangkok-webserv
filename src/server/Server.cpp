@@ -26,14 +26,14 @@ std::string Server::extractHostHeader(const std::string& request)
     return request.substr(startPos, endPos - startPos);
 }
 
-Server::Server(): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(16000, 1600)
+Server::Server(): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(16000, 1600), currentClientCount(0)
 {
     serverPortNamePairs.push_back(std::make_pair(8080, "abc"));
     serverPortNamePairs.push_back(std::make_pair(8081, "anothername"));
     serverPortNamePairs.push_back(std::make_pair(9090, "yetanothername"));
 
 	this->MAX_BODY_SIZE = 10000;
-	this->dlpath = "./dl";
+	this->dlpath = "./playground";
 }
 
 Server::~Server()
@@ -46,39 +46,41 @@ Server::~Server()
 
 void Server::stop()
 {
-	std::cout << "Stopping server." << std::endl;
-
-	std::set<int>::iterator it;
-	for(it = active_clients.begin(); it != active_clients.end(); ++it)
-	{
-		int client_fd = *it;
-		close(client_fd);
-	}
-	active_clients.clear();
-
-	if (server_fd != -1)
-	{
-		close(server_fd);
-		server_fd = -1;
-	}
-	running = false;
+    std::cout << "Stopping server." << std::endl;
+    closeActiveClients();
+    closeServerSocket();
+    running = false;
 }
 
-std::string Server::generateHttpResponse(int statusCode, const std::string& statusMessage, const std::string& content)
+void Server::closeActiveClients()
 {
-	std::ostringstream response;
-	response << "HTTP/1.1 " << statusCode << " " << statusMessage << "\r\n";
-	response << "Content-Length: " << content.size() << "\r\n";
-	response << "\r\n";  // End of headers
-	response << content;
-	return response.str();
+    std::set<int>::iterator it;
+    for(it = active_clients.begin(); it != active_clients.end(); ++it)
+    {
+        int client_fd = *it;
+        close(client_fd);
+    }
+    active_clients.clear();
+}
+
+void Server::closeServerSocket()
+{
+    if (server_fd != -1)
+    {
+        close(server_fd);
+        server_fd = -1;
+    }
 }
 
 std::string Server::handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader)
 {
     (void)protocol;
     HttpRequestHandle ret(method, path);
-    // std::cout << "method : " << method << " path: " << path << std::endl;
+
+    if (method == "GET" && path.find("/download") == 0)
+    {
+        return handleFileDownloadRequest(path);
+    }
 
     // Validate the Host header
 	bool validHost = false;
@@ -96,27 +98,67 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 	}
 
     if (!validHost) {
-        return generateHttpResponse(400, "Bad Request", "Invalid Host header");
+		Response res(400, "Bad Request", "Invalid Host header");
+        // return generateHttpResponse(400, "Bad Request", "Invalid Host header");
+		return res.HttpResponse();
     }
 
     return ret.validateMethod();
 }
 
-void Server::start()
+std::string Server::handleFileDownloadRequest(const std::string& path)
 {
-	// signal(SIGINT, Server::signal_handler);
-	// signal(SIGTERM, Server::signal_handler);
-	// signal(SIGPIPE, SIG_IGN);
+    // Extract the filename from the path
+    size_t pos = path.find("filename=");
+    if (pos == std::string::npos)
+    {
+		Response res(400, "Bad Request", "Filename parameter is missing");
+        return res.HttpResponse();
+    }
+    std::string filename = path.substr(pos + 9); // 9 is the length of "filename="
 
-	int kq = kqueue();
-	if (kq < 0)
-	{
-		perror("Error creating kqueue");
-		return ;
-	}
+    // Construct the full file path
+    std::string filePath = dlpath + "/" + filename;
 
-	size_t NUM_SERVERS = serverPortNamePairs.size();
+    // Check if the file exists
+    if (access(filePath.c_str(), F_OK) != 0)
+    {
+		Response res(404, "Not Found", "File not found");
+        return res.HttpResponse();
+    }
 
+    // Read the file content
+    std::ifstream file(filePath, std::ios::binary);
+    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    // Generate the HTTP response with the file content
+    std::ostringstream response;
+    response << "HTTP/1.1 200 OK\r\n";
+    response << "Content-Length: " << fileContent.size() << "\r\n";
+    response << "Content-Disposition: attachment; filename=\"" << filename << "\"\r\n";
+    response << "\r\n";  // End of headers
+    response << fileContent;
+
+    return response.str();
+}
+
+void Server::setupSignalHandlers()
+{
+    signal(SIGINT, Server::signal_handler);
+}
+
+int Server::setupKqueue()
+{
+    int kq = kqueue();
+    if (kq < 0)
+    {
+        perror("Error creating kqueue");
+    }
+    return kq;
+}
+
+void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
+{
 	for (size_t i = 0; i < NUM_SERVERS; ++i)
 	{
 		int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -138,7 +180,6 @@ void Server::start()
 		memset(&serverAddr, 0, sizeof(serverAddr));
 		serverAddr.sin_family = AF_INET;
         int port = serverPortNamePairs[i].first;
-        // std::string name = serverPortNamePairs[i].second;
 		serverAddr.sin_addr.s_addr = INADDR_ANY;
         serverAddr.sin_port = htons(port);
 
@@ -168,10 +209,249 @@ void Server::start()
 			return ;
 		}
 	}
+}
 
-	int currentClientCount = 0;
-	running = true;
+void Server::handleEventError(struct kevent& event) 
+{
+    std::cerr << "Error in kevent: " << strerror(event.data) << std::endl;
+}
 
+void Server::handleNewClientConnection(int kq, int& currentClientCount, int eventIdent) 
+{
+	if (currentClientCount < MAX_CLIENTS)
+	{
+		struct sockaddr_in client_address;
+		socklen_t client_addrlen = sizeof(client_address);
+		int new_socket = accept(eventIdent, (struct sockaddr*)&client_address, &client_addrlen);
+		if (new_socket < 0)
+		{
+			perror("new_socket");
+		}
+
+		std::cout << "New client connected with FD: " << new_socket << std::endl;
+
+		if (fcntl(new_socket, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1)
+		{
+			perror("fcntl nonblock");
+			close(new_socket);
+		}
+
+		struct kevent kev;
+		EV_SET(&kev, new_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+		if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
+		{
+			perror("Error registering new client socket with kqueue");
+		}
+		// Add the new_socket to your data structures and update the count of active clients
+		active_clients.insert(new_socket);
+		this->currentClientCount++;
+	}
+	else
+	{
+		Response res(503, "Service Unavailable", "Server is overloaded");
+
+		struct sockaddr_in client_address;
+		socklen_t client_addrlen = sizeof(client_address);
+		int new_socket = accept(server_fd, (struct sockaddr*)&client_address, &client_addrlen);
+		if (new_socket >= 0)
+		{
+			active_clients.insert(new_socket);
+			
+			send(new_socket, res.HttpResponse().c_str(), res.size(), 0);
+			close(new_socket);
+		}
+	}
+}
+
+void Server::handleClientRead(int kq, int eventIdent) 
+{
+	std::cout << "Attempting recv on FD: " << eventIdent << std::endl;
+
+    struct kevent event;
+    int numEvents = kevent(kq, NULL, 0, &event, 1, NULL);
+    if (numEvents == -1) {
+        perror("kevent error");
+        return;
+    }
+
+	if (event.flags & EV_EOF)
+	{
+		active_clients.erase(eventIdent);
+
+		struct kevent client_change;
+		EV_SET(&client_change, eventIdent, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+		if (kevent(kq, &client_change, 1, NULL, 0, NULL) == -1)
+		{
+			perror("Error deleting client event from kqueue");
+		}
+
+		client_write_queues.erase(eventIdent);
+		close(eventIdent);
+		this->currentClientCount--;
+		return;
+	}
+	if(fcntl(eventIdent, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1)
+	{
+		std::cout << "Invalid file descriptor: " << eventIdent << std::endl;
+		return;
+	}
+
+	char buffer[READ_BUFFER_SIZE];
+	size_t bytesRead = recv(eventIdent, buffer, sizeof(buffer) - 1, 0);
+	buffer[bytesRead] = '\0';
+
+
+	// std::cout << "------- This is next -------" << std::endl;
+	std::cout << "\n" << buffer << '\n' << bytesRead << "bytes\n" << "\n" << std::endl;
+	// std::cout << "------- This is next -------" << std::endl;
+
+	if (bytesRead < 0)
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+		{
+			// Non-blocking operation would block, continue processing other events
+			return;
+		}
+		else
+		{
+			perror("recv error");
+			// Handle other errors or disconnect here
+			// You may want to close the socket or take other appropriate actions
+			// For example, you can remove the client from your data structures
+		}
+	}
+	else if (bytesRead == 0)
+	{
+		active_clients.erase(eventIdent);
+
+
+		struct kevent client_change;
+		EV_SET(&client_change, eventIdent, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+		if (kevent(kq, &client_change, 1, NULL, 0, NULL) == -1)
+		{
+			perror("Error deleting client event from kqueue");
+		}
+
+		client_write_queues.erase(eventIdent);
+		close(eventIdent);
+		currentClientCount--;
+	}
+	else
+	{
+
+		buffer[bytesRead] = '\0';
+		std::string requestData(buffer);
+		Request parsedRequest;
+		std::string hostHeader;
+		try 
+		{
+			parsedRequest = Request(requestData);
+			hostHeader = parsedRequest.getHeaderValue("Host");
+		} 
+		catch (const Request::HeaderNotFound& e) 
+		{
+			std::cerr << "Error: " << e.what() << std::endl;
+			Response res(400, "Bad Request", "Host header not found");
+			send(eventIdent, res.HttpResponse().c_str(), res.size(), MSG_NOSIGNAL);
+		}
+
+		if (parsedRequest.getBody().size() > MAX_BODY_SIZE)
+		{
+			Response res(413, "Payload Too Large", "Request body is too large");
+			send(eventIdent, res.HttpResponse().c_str(), res.size(), 0);
+			
+			return;
+		}
+
+		if (rateLimiter.consume())
+		{
+			std::string httpResponse = handleHttpRequest(parsedRequest.getMethod(), parsedRequest.getPath(), parsedRequest.getProtocol(), hostHeader);
+
+			// Push the response into the client's write queue
+			client_write_queues[eventIdent].push(httpResponse);
+
+			// Add an EVFILT_WRITE event to the kqueue to indicate that the socket is ready for writing
+			struct kevent client_change;
+			EV_SET(&client_change, eventIdent, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+			kevent(kq, &client_change, 1, NULL, 0, NULL);
+		}
+		else
+		{
+			Response res(429, "Too Many Requests", "Rate limit exceeded");
+			send(eventIdent, res.HttpResponse().c_str(), res.size(), MSG_NOSIGNAL);
+		}
+
+		if (got_signal)
+		{
+			stop();
+			return;
+		}
+	}
+}
+
+void Server::handleClientWrite(int kq, int eventIdent)
+{
+	struct kevent event;
+    int numEvents = kevent(kq, NULL, 0, &event, 1, NULL);
+    if (numEvents == -1) {
+        perror("kevent error");
+        return;
+    }
+	std::cout << "Handling write event for fd: " << eventIdent << std::endl;
+
+	std::map<int, std::queue<std::string> >::iterator it = client_write_queues.find(eventIdent);
+	if (it != client_write_queues.end())
+	{
+		std::queue<std::string>& write_queue = it->second;
+
+		while (!write_queue.empty())
+		{
+			const std::string& data_to_send = write_queue.front();
+			ssize_t bytes_sent = send(eventIdent, data_to_send.c_str(), data_to_send.size(), 0);
+
+			if (bytes_sent < 0)
+			{
+				if (errno == EAGAIN || errno == EWOULDBLOCK)
+				{
+					// Would block, so stop trying to send more data
+					break;
+				}
+				else
+				{
+					perror("send error");
+					// Remove client from active_clients and close its socket
+					active_clients.erase(eventIdent);
+					client_write_queues.erase(eventIdent);
+					close(eventIdent);
+					currentClientCount--;
+					break;
+				}
+			}
+			else
+			{
+				write_queue.pop();
+
+				// If we have sent all the data, then let's remove the write event from kqueue
+				if (write_queue.empty())
+				{
+					struct kevent kev;
+					EV_SET(&kev, eventIdent, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+					if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
+					{
+						perror("Error removing write event from kqueue");
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		std::cerr << "No write queue found for client with FD: " << event.ident << std::endl;
+	}
+}
+
+void Server::mainEventLoop(int kq, int& currentClientCount, size_t NUM_SERVERS)
+{
 	while (running)
 	{
 
@@ -189,247 +469,35 @@ void Server::start()
 
 			if (event.flags & EV_ERROR)
 			{
-				std::cerr << "Error in kevent: " << strerror(event.data) << std::endl;
+				handleEventError(event);
 				continue;
 			}
-			// if (event.ident == static_cast<uintptr_t>(server_fd))
 			if (std::find(serverSockets.begin(), serverSockets.end(), event.ident) != serverSockets.end())
 			{
-				if (currentClientCount < MAX_CLIENTS)
-				{
-					struct sockaddr_in client_address;
-					socklen_t client_addrlen = sizeof(client_address);
-					int new_socket = accept(event.ident, (struct sockaddr*)&client_address, &client_addrlen);
-					if (new_socket < 0)
-					{
-						perror("new_socket");
-					}
-
-					std::cout << "New client connected with FD: " << new_socket << std::endl;
-
-					if (fcntl(new_socket, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1)
-					{
-						perror("fcntl nonblock");
-						close(new_socket);
-					}
-
-					struct kevent kev;
-					EV_SET(&kev, new_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
-					if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
-					{
-						perror("Error registering new client socket with kqueue");
-						// Handle error
-					}
-					// Add the new_socket to your data structures and update the count of active clients
-					active_clients.insert(new_socket);
-					currentClientCount++;
-				}
-				else
-				{
-					std::string httpResponse = generateHttpResponse(503, "Service Unavailable", "Server is overloaded");
-
-					struct sockaddr_in client_address;
-					socklen_t client_addrlen = sizeof(client_address);
-					int new_socket = accept(server_fd, (struct sockaddr*)&client_address, &client_addrlen);
-					if (new_socket >= 0)
-					{
-						active_clients.insert(new_socket);
-						
-						// std::cout << httpResponse.c_str() << std::endl;
-						send(new_socket, httpResponse.c_str(), httpResponse.size(), 0);
-
-						close(new_socket);
-					}
-				}
+				handleNewClientConnection(kq, currentClientCount, event.ident);
 			}
 			else if (event.filter == EVFILT_READ)
 			{
-				std::cout << "Attempting recv on FD: " << event.ident << std::endl;
-				if (event.flags & EV_EOF)
-				{
-					active_clients.erase(event.ident);
-
-					struct kevent client_change;
-					EV_SET(&client_change, event.ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-					if (kevent(kq, &client_change, 1, NULL, 0, NULL) == -1)
-					{
-						perror("Error deleting client event from kqueue");
-					}
-
-					client_write_queues.erase(event.ident);
-					close(event.ident);
-					currentClientCount--;
-					continue;
-				}
-				if(fcntl(event.ident, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1)
-				{
-					std::cout << "Invalid file descriptor: " << event.ident << std::endl;
-					continue;
-				}
-				// char buffer[MAX_BODY_SIZE + 1];
-				const int READ_BUFFER_SIZE = 256000;
-				char buffer[READ_BUFFER_SIZE];
-				size_t bytesRead = recv(event.ident, buffer, sizeof(buffer) - 1, 0);
-				buffer[bytesRead] = '\0';
-
-
-				// std::cout << "------- This is next -------" << std::endl;
-				std::cout << "\n" << buffer << '\n' << bytesRead << "bytes\n" << "\n" << std::endl;
-				// std::cout << "------- This is next -------" << std::endl;
-
-				if (bytesRead < 0)
-				{
-					if (errno == EAGAIN || errno == EWOULDBLOCK)
-					{
-						// Non-blocking operation would block, continue processing other events
-						continue;
-					}
-					else
-					{
-						perror("recv error");
-						// Handle other errors or disconnect here
-						// You may want to close the socket or take other appropriate actions
-						// For example, you can remove the client from your data structures
-					}
-				}
-				else if (bytesRead == 0)
-				{
-					active_clients.erase(event.ident);
-
-
-					struct kevent client_change;
-					EV_SET(&client_change, event.ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-					if (kevent(kq, &client_change, 1, NULL, 0, NULL) == -1)
-					{
-						perror("Error deleting client event from kqueue");
-					}
-
-					client_write_queues.erase(event.ident);
-					close(event.ident);
-					currentClientCount--;
-				}
-				else
-				{
-
-					buffer[bytesRead] = '\0';
-					std::string requestData(buffer);
-					Request parsedRequest;
-					std::string hostHeader;
-					try 
-					{
-						parsedRequest = Request(requestData);
-						hostHeader = parsedRequest.getHeaderValue("Host");
-					} 
-					catch (const Request::HeaderNotFound& e) 
-					{
-						std::cerr << "Error: " << e.what() << std::endl;
-						std::string badRequestResponse = generateHttpResponse(400, "Bad Request", "Host header not found");
-						send(event.ident, badRequestResponse.c_str(), badRequestResponse.size(), MSG_NOSIGNAL);
-					}
-
-					if (parsedRequest.getBody().size() > MAX_BODY_SIZE)
-					{
-						std::string response = generateHttpResponse(413, "Payload Too Large", "Request body is too large");
-						send(event.ident, response.c_str(), response.size(), 0);
-						
-						std::cout << "------- Oversized -------" << std::endl;
-						std::cout << response << std::endl;
-						std::cout << "------- Oversized -------" << std::endl;
-						continue;  // Skip processing this request further
-					}
-
-					// Print the request to the console
-					// std::cout << "Received request:\n" << request << "\n-------------------\n";
-
-					if (rateLimiter.consume())
-					{
-
-						// std::cout << "------- This is now -------" << std::endl;
-						// std::cout << parsedRequest << std::endl;
-						// std::cout << "------- This is now -------" << std::endl;
-						std::string httpResponse = handleHttpRequest(parsedRequest.getMethod(), parsedRequest.getPath(), parsedRequest.getProtocol(), hostHeader);
-
-						// Push the response into the client's write queue
-						client_write_queues[event.ident].push(httpResponse);
-
-						// Add an EVFILT_WRITE event to the kqueue to indicate that the socket is ready for writing
-						struct kevent client_change;
-						EV_SET(&client_change, event.ident, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
-						kevent(kq, &client_change, 1, NULL, 0, NULL);
-					}
-					else
-					{
-						std::string httpResponse = generateHttpResponse(429, "Too Many Requests", "Rate limit exceeded");
-						// std::cout << "------- This is next -------" << std::endl;
-						// std::cout << httpResponse.c_str() << std::endl;
-						// std::cout << "------- This is next -------" << std::endl;
-						send(event.ident, httpResponse.c_str(), httpResponse.size(), MSG_NOSIGNAL);
-					}
-
-					if (got_signal)
-					{
-						stop();
-						break;
-					}
-				}
+				handleClientRead(kq, event.ident);
 			}
 			else if (event.filter == EVFILT_WRITE)
 			{
-				std::cout << "Handling write event for fd: " << event.ident << std::endl;
-
-				std::map<int, std::queue<std::string> >::iterator it = client_write_queues.find(event.ident);
-				if (it != client_write_queues.end())
-				{
-					std::queue<std::string>& write_queue = it->second;
-
-					// While there's something to send to this client
-					while (!write_queue.empty())
-					{
-						const std::string& data_to_send = write_queue.front();
-						// std::cout << ",.,.,.,.,.,.,.,.,.,.,.,.,.,.\n" << data_to_send.c_str() << ",.,.,.,.,.,.,.,.,.,.,.,.,.,.\n" << std::endl;
-						ssize_t bytes_sent = send(event.ident, data_to_send.c_str(), data_to_send.size(), 0);
-
-						if (bytes_sent < 0)
-						{
-							if (errno == EAGAIN || errno == EWOULDBLOCK)
-							{
-								// Would block, so stop trying to send more data
-								break;
-							}
-							else
-							{
-								perror("send error");
-								// Remove client from active_clients and close its socket
-								active_clients.erase(event.ident);
-								client_write_queues.erase(event.ident);
-								close(event.ident);
-								currentClientCount--;
-								break;
-							}
-						}
-						else
-						{
-							write_queue.pop();
-
-							// If we have sent all the data, then let's remove the write event from kqueue
-							if (write_queue.empty())
-							{
-								struct kevent kev;
-								EV_SET(&kev, event.ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-								if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
-								{
-									perror("Error removing write event from kqueue");
-									// Handle error
-								}
-							}
-						}
-					}
-				}
-				else
-				{
-					std::cerr << "No write queue found for client with FD: " << event.ident << std::endl;
-				}
+				handleClientWrite(kq, event.ident);
 			}
 		}
 	}
+}
+
+void Server::start()
+{
+	setupSignalHandlers();
+
+	int kq = setupKqueue();
+
+	size_t NUM_SERVERS = serverPortNamePairs.size();
+	setupServerSockets(kq, NUM_SERVERS);
+
+	running = true;
+
+	mainEventLoop(kq, currentClientCount, NUM_SERVERS);
 }

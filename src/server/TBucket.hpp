@@ -3,7 +3,7 @@
 
 # include "../stdlib.hpp"
 
-class TokenBucket 
+class TBucket 
 {
     private:
         double tokens;            // The current number of tokens in the bucket
@@ -12,8 +12,8 @@ class TokenBucket
         std::time_t last_refill_time; // The last time the bucket was refilled with tokens
 
     public:
-        TokenBucket(double max, double rate);
-        ~TokenBucket();
+        TBucket(double max, double rate);
+        ~TBucket();
         void refill();
         bool consume();
 };
