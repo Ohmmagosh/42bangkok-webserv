@@ -33,7 +33,8 @@ Server::Server(): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(1
     serverPortNamePairs.push_back(std::make_pair(9090, "yetanothername"));
 
 	this->MAX_BODY_SIZE = 10000;
-	this->dlpath = "./playground";
+	this->dlpath = ".";
+	this->dlname = "lorem7000.txt"; 
 }
 
 Server::~Server()
@@ -46,7 +47,7 @@ Server::~Server()
 
 void Server::stop()
 {
-    std::cout << "Stopping server." << std::endl;
+    Console::modeMsg(1, "Stopping server.");
     closeActiveClients();
     closeServerSocket();
     running = false;
@@ -77,9 +78,9 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
     (void)protocol;
     HttpRequestHandle ret(method, path);
 
-    if (method == "GET" && path.find("/download") == 0)
+    if (method == "GET" && path == "/download-latest-file")
     {
-        return handleFileDownloadRequest(path);
+        return handleFileDownloadRequest();
     }
 
     // Validate the Host header
@@ -106,38 +107,55 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
     return ret.validateMethod();
 }
 
-std::string Server::handleFileDownloadRequest(const std::string& path)
+std::string getMimeType(const std::string& filename) 
 {
-    // Extract the filename from the path
-    size_t pos = path.find("filename=");
-    if (pos == std::string::npos)
-    {
-		Response res(400, "Bad Request", "Filename parameter is missing");
-        return res.HttpResponse();
+    std::map<std::string, std::string> mimeTypes;
+
+    mimeTypes[".txt"] = "text/plain";
+    mimeTypes[".jpg"] = "image/jpeg";
+    mimeTypes[".jpeg"] = "image/jpeg";
+    mimeTypes[".png"] = "image/png";
+    mimeTypes[".html"] = "text/html";
+    mimeTypes[".css"] = "text/css";
+    mimeTypes[".js"] = "application/javascript";
+
+    std::string::size_type idx = filename.rfind('.');
+    if (idx != std::string::npos)
+	{
+        std::string extension = filename.substr(idx);
+        if (mimeTypes.find(extension) != mimeTypes.end())
+		{
+            return mimeTypes[extension];
+        }
     }
-    std::string filename = path.substr(pos + 9); // 9 is the length of "filename="
+    return "application/octet-stream";
+}
 
-    // Construct the full file path
-    std::string filePath = dlpath + "/" + filename;
+std::string Server::handleFileDownloadRequest() 
+{
+    std::string fullPath = dlpath + "/" + dlname;
 
-    // Check if the file exists
-    if (access(filePath.c_str(), F_OK) != 0)
+    // Open the file
+    std::ifstream file(fullPath, std::ios::binary);
+    if (!file.is_open())
     {
-		Response res(404, "Not Found", "File not found");
-        return res.HttpResponse();
+        return "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
     }
 
-    // Read the file content
-    std::ifstream file(filePath, std::ios::binary);
-    std::string fileContent((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    std::string fileContents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-    // Generate the HTTP response with the file content
+    file.close();
+
+    std::string mimeType = getMimeType(dlname);
+
+    // Create the response
     std::ostringstream response;
     response << "HTTP/1.1 200 OK\r\n";
-    response << "Content-Length: " << fileContent.size() << "\r\n";
-    response << "Content-Disposition: attachment; filename=\"" << filename << "\"\r\n";
-    response << "\r\n";  // End of headers
-    response << fileContent;
+    response << "Content-Type: " << mimeType << "\r\n";
+    response << "Content-Disposition: attachment; filename=\"" << dlname << "\"\r\n";
+    response << "Content-Length: " << fileContents.size() << "\r\n";
+    response << "\r\n";
+    response << fileContents;
 
     return response.str();
 }
