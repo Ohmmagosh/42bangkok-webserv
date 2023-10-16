@@ -36,6 +36,7 @@ class Server
 		TBucket rateLimiter;
 		int currentClientCount;
 		Store store;
+		std::set<int> checked_hostnames;
 
 		size_t MAX_BODY_SIZE;
 		std::string dlpath;

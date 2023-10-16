@@ -76,6 +76,7 @@ void Server::closeServerSocket()
 std::string Server::handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader, std::string reqbuffer)
 {
 	(void)protocol;
+	(void)reqbuffer;
 	HttpRequestHandle ret(method, path);
 
 	if (method == "GET" && path == "/download-latest-file")
@@ -360,16 +361,22 @@ void Server::handleClientRead(int kq, int eventIdent)
 		std::string requestData(buffer);
 		Request parsedRequest;
 		std::string hostHeader;
-		try
+
+		// std::cout << "READEVENT" << std::endl;
+		if (checked_hostnames.find(eventIdent) == checked_hostnames.end()) 
 		{
-			parsedRequest = Request(requestData);
-			hostHeader = parsedRequest.getHeaderValue("Host");
-		}
-		catch (const Request::HeaderNotFound& e)
-		{
-			std::cerr << "Error: " << e.what() << std::endl;
-			Response res(400, "Bad Request", "Host header not found");
-			send(eventIdent, res.HttpResponse().c_str(), res.size(), MSG_NOSIGNAL);
+			try
+			{
+				parsedRequest = Request(requestData);
+				hostHeader = parsedRequest.getHeaderValue("Host");
+				checked_hostnames.insert(eventIdent); // Add the socket to the set
+			}
+			catch (const Request::HeaderNotFound& e)
+			{
+				std::cerr << "Error: " << e.what() << std::endl;
+				Response res(400, "Bad Request", "Host header not found");
+				send(eventIdent, res.HttpResponse().c_str(), res.size(), MSG_NOSIGNAL);
+			}
 		}
 
 		if (parsedRequest.getBody().size() > MAX_BODY_SIZE)
@@ -440,6 +447,7 @@ void Server::handleClientWrite(int kq, int eventIdent)
 					// Remove client from active_clients and close its socket
 					active_clients.erase(eventIdent);
 					client_write_queues.erase(eventIdent);
+					checked_hostnames.erase(eventIdent);
 					close(eventIdent);
 					currentClientCount--;
 					break;
