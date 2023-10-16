@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
+#    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/10/16 17:42:37 by rchiewli         ###   ########.fr        #
+#    Updated: 2023/10/16 21:36:08 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -33,11 +33,15 @@ MODULE2		= Server.cpp \
 
 MODULE3		=
 
+MODULE4		= Console.cpp \
+				Utility.cpp
+
 
 MODULE1_DIR	= ./src/parsing/
 
 MODULE2_DIR = ./src/server/
 MODULE3_DIR = ./src/cgihandler/
+MODULE4_DIR = ./src/utils/
 
 # LIB_DIR		= ./lib/
 # MLX = mlx/libmlx.a
@@ -51,6 +55,7 @@ OBJ_DIR		= ./obj/
 
 OBJS		= ${addprefix $(OBJ_DIR),$(MODULE1:.cpp=.o)} \
 			  ${addprefix $(OBJ_DIR),$(MODULE2:.cpp=.o)} \
+			  ${addprefix $(OBJ_DIR),$(MODULE4:.cpp=.o)} \
 			  ${addprefix $(OBJ_DIR),$(MAIN:.cpp=.o)}
 
 RM = rm -rf
@@ -87,6 +92,10 @@ ${OBJ_DIR}%.o: ${MODULE2_DIR}%.cpp
 
 #cgihandler
 ${OBJ_DIR}%.o: ${MODULE3_DIR}%.cpp
+	$(CC) $(CPPFLAGS) -c -o $@ $^
+
+#utils
+${OBJ_DIR}%.o: ${MODULE4_DIR}%.cpp
 	$(CC) $(CPPFLAGS) -c -o $@ $^
 
 # #free
