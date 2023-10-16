@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 21:01:17 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/14 15:45:06 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/15 22:53:05 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,5 +46,6 @@
 # include <fcntl.h>
 # include <signal.h>
 # include "utils/Console.hpp"
+# include "utils/Utility.hpp"
 
 #endif
