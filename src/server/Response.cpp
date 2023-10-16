@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:09:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 16:44:02 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/16 17:22:06 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ Response::~Response() {
 
 }
 
-std::string Response::HttpResponse() const {
+std::string	Response::HttpResponse() const {
 	return this->_res.str();
 }
 
