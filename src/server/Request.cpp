@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 23:14:56 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/17 00:23:55 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,13 @@ Request::Request(const std::string& raw_request) {
 
 	this->setRawReqToVector(raw_request);
 	this->setHeaderAndBody(this->_req);
-	std::map<std::string, std::string>::iterator it = this->_headers.begin();
-	while(it != this->_headers.end()) {
-		std::stringstream	ss;
-		ss << it->first << " : " << it->second << std::endl;
-		Console::modeMsg(0, ss.str());
-		it++;
-	}
+	// std::map<std::string, std::string>::iterator it = this->_headers.begin();
+	// while(it != this->_headers.end()) {
+	// 	std::stringstream	ss;
+	// 	ss << it->first << " : " << it->second << std::endl;
+	// 	// Console::modeMsg(0, ss.str());
+	// 	// it++;
+	// }
 }
 
 Request::~Request() {
