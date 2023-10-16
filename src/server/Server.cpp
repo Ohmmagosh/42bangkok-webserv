@@ -73,7 +73,7 @@ void Server::closeServerSocket()
 	}
 }
 
-std::string Server::handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader)
+std::string Server::handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader, std::string reqbuffer)
 {
 	(void)protocol;
 	HttpRequestHandle ret(method, path);
@@ -318,7 +318,6 @@ void Server::handleClientRead(int kq, int eventIdent)
 	size_t bytesRead = recv(eventIdent, buffer, sizeof(buffer) - 1, 0);
 	buffer[bytesRead] = '\0';
 
-
 	// std::cout << "------- This is next -------" << std::endl;
 	std::cout << "\n" << buffer << '\n' << bytesRead << "bytes\n" << "\n" << std::endl;
 	// std::cout << "------- This is next -------" << std::endl;
@@ -383,7 +382,8 @@ void Server::handleClientRead(int kq, int eventIdent)
 
 		if (rateLimiter.consume())
 		{
-			std::string httpResponse = handleHttpRequest(parsedRequest.getMethod(), parsedRequest.getPath(), parsedRequest.getProtocol(), hostHeader);
+			std::string reqbuffer(buffer); 
+			std::string httpResponse = handleHttpRequest(parsedRequest.getMethod(), parsedRequest.getPath(), parsedRequest.getProtocol(), hostHeader, reqbuffer);
 
 			// Push the response into the client's write queue
 			client_write_queues[eventIdent].push(httpResponse);

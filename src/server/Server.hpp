@@ -54,7 +54,7 @@ class Server
 		void handleClientRead(int kq, int eventIdent);
 		void handleClientWrite(int kq, int eventIdent);
 		std::string extractHostHeader(const std::string& request);
-		std::string handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader);
+		std::string handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader, std::string reqbuffer);
 		std::string handleFileDownloadRequest();
 };
 
