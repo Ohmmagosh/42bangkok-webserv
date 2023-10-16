@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/13 20:26:06 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/14 00:23:32 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/14 13:35:42 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ class FileHandle {
 		FileHandle(const std::string& name, const std::string& boundary,const std::string& content);
 		~FileHandle();
 
-		void	setName(const std::string& name);
-		void	setBoundary(const std::string& boundary);
-		void	setContentOrAdd(const std::string& content);
+		void				setName(const std::string& name);
+		void				setBoundary(const std::string& boundary);
+		void				setContentOrAdd(const std::string& content);
 		const std::string&	getName() const;
 		const std::string&	getBoundary() const;
 		const std::string&	getContent() const;
