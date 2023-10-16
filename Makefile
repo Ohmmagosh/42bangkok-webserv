@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
+#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/10/11 23:52:24 by psuanpro         ###   ########.fr        #
+#    Updated: 2023/10/16 17:42:37 by rchiewli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,8 @@ MODULE2		= Server.cpp \
 				HttpRequestHandle.cpp \
 				TBucket.cpp \
 				Response.cpp \
-				Store.cpp
+				Store.cpp \
+				FileHandle.cpp
 
 MODULE3		=
 
