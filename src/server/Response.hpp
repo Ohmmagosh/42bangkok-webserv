@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:09:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/09/26 11:05:43 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/16 16:44:07 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,13 @@
 class Response
 {
 	private:
-		std::ostringstream	_res;
+		std::stringstream	_res;
 	public:
 		Response();
 		Response(int statusCode, const std::string& statusMessage, const std::string& content);
 		~Response();
 		std::string HttpResponse() const;
+		size_t	size() const;
 };
 
 
