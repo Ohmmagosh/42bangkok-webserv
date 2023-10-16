@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Store.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 21:52:22 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/14 00:36:33 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/16 17:41:21 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Store::~Store() {
 }
 
 const FileHandle*	Store::getFileByName(const std::string& name) const {
-	for (int i = 0; i < this->_file.size(); i++) {
+	for (size_t i = 0; i < this->_file.size(); i++) {
 		if (this->_file[i].getName() == name) {
 			return &this->_file[i];
 		}
@@ -34,7 +34,7 @@ void	Store::addFile(const FileHandle& file) {
 }
 
 bool	Store::searchFileName(const std::string& name) const {
-	for (int i = 0; i < this->_file.size(); i++) {
+	for (size_t i = 0; i < this->_file.size(); i++) {
 		if (this->_file[i].getName() == name) {
 			return true ;
 		}
@@ -43,7 +43,7 @@ bool	Store::searchFileName(const std::string& name) const {
 }
 
 void	Store::delFileByName(const std::string& name) {
-	for (int i = 0; i < this->_file.size(); i++) {
+	for (size_t i = 0; i < this->_file.size(); i++) {
 		if (this->_file[i].getName() == name) {
 			this->_file.erase(this->_file.begin() + i);
 			return ;
@@ -53,7 +53,7 @@ void	Store::delFileByName(const std::string& name) {
 }
 
 void	Store::updateContentFileByName(const std::string& name, const std::string& content) {
-	for (int i = 0; i < this->_file.size(); i++) {
+	for (size_t i = 0; i < this->_file.size(); i++) {
 		if (this->_file[i].getName() == name) {
 			this->_file[i].setContentOrAdd(content);
 			return ;
