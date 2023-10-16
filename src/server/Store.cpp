@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 21:52:22 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/14 00:36:33 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/16 20:40:46 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@ Store::~Store() {
 
 }
 
-const FileHandle*	Store::getFileByName(const std::string& name) const {
-	for (int i = 0; i < this->_file.size(); i++) {
+const FileHandle*	Store::FindFileVectorByName(const std::string& name) const {
+	for (size_t i = 0; i < this->_file.size(); i++) {
 		if (this->_file[i].getName() == name) {
 			return &this->_file[i];
 		}
@@ -29,12 +29,12 @@ const FileHandle*	Store::getFileByName(const std::string& name) const {
 	return nullptr ;
 }
 
-void	Store::addFile(const FileHandle& file) {
+void	Store::addFileVector(const FileHandle& file) {
 	this->_file.push_back(file);
 }
 
-bool	Store::searchFileName(const std::string& name) const {
-	for (int i = 0; i < this->_file.size(); i++) {
+bool	Store::validateGotFileVectorByName(const std::string& name) const {
+	for (size_t i = 0; i < this->_file.size(); i++) {
 		if (this->_file[i].getName() == name) {
 			return true ;
 		}
@@ -42,8 +42,9 @@ bool	Store::searchFileName(const std::string& name) const {
 	return false ;
 }
 
-void	Store::delFileByName(const std::string& name) {
-	for (int i = 0; i < this->_file.size(); i++) {
+void	Store::delFileVectorByName(const std::string& name) {
+
+	for (size_t i = 0; i < this->_file.size(); i++) {
 		if (this->_file[i].getName() == name) {
 			this->_file.erase(this->_file.begin() + i);
 			return ;
@@ -52,8 +53,8 @@ void	Store::delFileByName(const std::string& name) {
 	return ;
 }
 
-void	Store::updateContentFileByName(const std::string& name, const std::string& content) {
-	for (int i = 0; i < this->_file.size(); i++) {
+void	Store::updateContentFileVectorByName(const std::string& name, const std::string& content) {
+	for (size_t i = 0; i < this->_file.size(); i++) {
 		if (this->_file[i].getName() == name) {
 			this->_file[i].setContentOrAdd(content);
 			return ;
@@ -62,3 +63,39 @@ void	Store::updateContentFileByName(const std::string& name, const std::string& 
 	return ;
 }
 
+bool	Store::createFileByName(const std::string& name)const {
+	std::ofstream	file(name);
+
+	if (!file) {
+		return false;
+	}
+
+	file << this->_file[1].getContent();
+	file.close();
+	return true;
+}
+
+const std::string	Store::getFileContent(const std::string& path) const {
+	std::ifstream	rfile(path);
+
+	if (!rfile) {
+		return NULL;
+	}
+	std::string	buff, content;
+	while (std::getline(rfile, buff)) {
+		content += buff;
+	}
+	rfile.close();
+	return (content);
+}
+
+bool	Store::delFile(const std::string& name) {
+	if (std::remove(name.c_str()) == 0) {
+		return true;
+	}
+	return false;
+}
+
+bool	Store::validateContentBoundary() const {
+	return true;
+}
