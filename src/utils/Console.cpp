@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 02:21:29 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 17:16:48 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/16 23:30:25 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,7 @@ void	Console::modeMsg(int mode, const std::string& msg) {
 void	Console::initMsg(t_mode	mc, const std::string& msg) {
 	std::stringstream	ss;
 	ss << mc.color << "--------------------" << mc.mode << "---------------------" << RES << std::endl;
-	ss << std::endl;
 	ss << msg << std::endl;
-	ss << std::endl;
 	ss << mc.color << "----------------------END-----------------------" << RES << std::endl;
 	std::cout << ss.str();
 	return ;
@@ -65,6 +63,10 @@ t_mode		Console::getModeAndColor(int mode) {
 	return this->_mode[mode];
 }
 
-void	Console::log() const{
+void	Console::log(t_mode mc, const std::string& msg) const{
+	std::stringstream	ss;
+	ss << mc.color << msg << RES << std::endl;
+
+	std::cout << ss.str();
 	return ;
 }
