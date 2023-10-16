@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 22:09:04 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/17 00:10:17 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,9 @@ HttpRequestHandle::HttpRequestHandle()
 {
 }
 
-HttpRequestHandle::HttpRequestHandle(const std::string &method, const std::string &path) : _method(method), _path(path)
+HttpRequestHandle::HttpRequestHandle(const std::string &method, const std::string &path) : _method(method), _path(path), _cgi_path("./src/server")
 {
 	//should from config
-	this->_cgi_path = "./src/server";
 }
 
 HttpRequestHandle::HttpRequestHandle(const HttpRequestHandle &rhs)
@@ -40,10 +39,7 @@ HttpRequestHandle &HttpRequestHandle::operator=(const HttpRequestHandle &rhs)
 	}
 	return *this;
 }
-//if cgi_path == null
-//openfile and return with contents string
-//else
-//use execute cgi
+
 std::string HttpRequestHandle::validateMethod()
 {
 	if (this->_method == "GET") {
