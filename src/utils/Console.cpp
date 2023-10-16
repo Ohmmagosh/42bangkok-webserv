@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 02:21:29 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 23:30:25 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/16 23:59:27 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@ void	Console::initMsg(t_mode	mc, const std::string& msg) {
 	ss << mc.color << "--------------------" << mc.mode << "---------------------" << RES << std::endl;
 	ss << msg << std::endl;
 	ss << mc.color << "----------------------END-----------------------" << RES << std::endl;
+	if (mc.mode == "[ERROR]")
+		std::cerr << ss.str();
 	std::cout << ss.str();
 	return ;
 }
@@ -63,10 +65,14 @@ t_mode		Console::getModeAndColor(int mode) {
 	return this->_mode[mode];
 }
 
-void	Console::log(t_mode mc, const std::string& msg) const{
+void	Console::log(int mode, const std::string& msg) {
+	Console				c;
 	std::stringstream	ss;
-	ss << mc.color << msg << RES << std::endl;
+	t_mode				mc = c.getModeAndColor(mode);
+	ss << mc.color << mc.mode << RES << " " << msg << std::endl;
 
+	if (mode == 2)
+		std::cerr << ss.str();
 	std::cout << ss.str();
 	return ;
 }

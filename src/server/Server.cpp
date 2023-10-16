@@ -12,29 +12,29 @@ void Server::signal_handler(int sig)
 
 std::string Server::extractHostHeader(const std::string& request)
 {
-    std::string::size_type startPos = request.find("Host: ");
-    if (startPos == std::string::npos)
+	std::string::size_type startPos = request.find("Host: ");
+	if (startPos == std::string::npos)
 	{
-        return ""; // Host header not found
-    }
-    startPos += 6; // Move past "Host: "
-    std::string::size_type endPos = request.find("\r\n", startPos);
-    if (endPos == std::string::npos)
+		return ""; // Host header not found
+	}
+	startPos += 6; // Move past "Host: "
+	std::string::size_type endPos = request.find("\r\n", startPos);
+	if (endPos == std::string::npos)
 	{
-        return ""; // Malformed request
-    }
-    return request.substr(startPos, endPos - startPos);
+		return ""; // Malformed request
+	}
+	return request.substr(startPos, endPos - startPos);
 }
 
 Server::Server(): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(16000, 1600), currentClientCount(0)
 {
-    serverPortNamePairs.push_back(std::make_pair(8080, "abc"));
-    serverPortNamePairs.push_back(std::make_pair(8081, "anothername"));
-    serverPortNamePairs.push_back(std::make_pair(9090, "yetanothername"));
+	serverPortNamePairs.push_back(std::make_pair(8080, "abc"));
+	serverPortNamePairs.push_back(std::make_pair(8081, "anothername"));
+	serverPortNamePairs.push_back(std::make_pair(9090, "yetanothername"));
 
 	this->MAX_BODY_SIZE = 10000;
 	this->dlpath = ".";
-	this->dlname = "lorem7000.txt"; 
+	this->dlname = "lorem7000.txt";
 }
 
 Server::~Server()
@@ -47,43 +47,43 @@ Server::~Server()
 
 void Server::stop()
 {
-    Console::modeMsg(1, "Stopping server.");
-    closeActiveClients();
-    closeServerSocket();
-    running = false;
+	Console::log(1, "Stopping server.");
+	closeActiveClients();
+	closeServerSocket();
+	running = false;
 }
 
 void Server::closeActiveClients()
 {
-    std::set<int>::iterator it;
-    for(it = active_clients.begin(); it != active_clients.end(); ++it)
-    {
-        int client_fd = *it;
-        close(client_fd);
-    }
-    active_clients.clear();
+	std::set<int>::iterator it;
+	for(it = active_clients.begin(); it != active_clients.end(); ++it)
+	{
+		int client_fd = *it;
+		close(client_fd);
+	}
+	active_clients.clear();
 }
 
 void Server::closeServerSocket()
 {
-    if (server_fd != -1)
-    {
-        close(server_fd);
-        server_fd = -1;
-    }
+	if (server_fd != -1)
+	{
+		close(server_fd);
+		server_fd = -1;
+	}
 }
 
 std::string Server::handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader)
 {
-    (void)protocol;
-    HttpRequestHandle ret(method, path);
+	(void)protocol;
+	HttpRequestHandle ret(method, path);
 
-    if (method == "GET" && path == "/download-latest-file")
-    {
-        return handleFileDownloadRequest();
-    }
+	if (method == "GET" && path == "/download-latest-file")
+	{
+		return handleFileDownloadRequest();
+	}
 
-    // Validate the Host header
+	// Validate the Host header
 	bool validHost = false;
 	for (std::vector<std::pair<int, std::string> >::const_iterator it = serverPortNamePairs.begin(); it != serverPortNamePairs.end(); ++it) {
 		std::stringstream ss;
@@ -98,81 +98,81 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 		}
 	}
 
-    if (!validHost) {
+	if (!validHost) {
 		Response res(400, "Bad Request", "Invalid Host header");
-        // return generateHttpResponse(400, "Bad Request", "Invalid Host header");
+		// return generateHttpResponse(400, "Bad Request", "Invalid Host header");
 		return res.HttpResponse();
-    }
+	}
 
-    return ret.validateMethod();
+	return ret.validateMethod();
 }
 
-std::string getMimeType(const std::string& filename) 
+std::string getMimeType(const std::string& filename)
 {
-    std::map<std::string, std::string> mimeTypes;
+	std::map<std::string, std::string> mimeTypes;
 
-    mimeTypes[".txt"] = "text/plain";
-    mimeTypes[".jpg"] = "image/jpeg";
-    mimeTypes[".jpeg"] = "image/jpeg";
-    mimeTypes[".png"] = "image/png";
-    mimeTypes[".html"] = "text/html";
-    mimeTypes[".css"] = "text/css";
-    mimeTypes[".js"] = "application/javascript";
+	mimeTypes[".txt"] = "text/plain";
+	mimeTypes[".jpg"] = "image/jpeg";
+	mimeTypes[".jpeg"] = "image/jpeg";
+	mimeTypes[".png"] = "image/png";
+	mimeTypes[".html"] = "text/html";
+	mimeTypes[".css"] = "text/css";
+	mimeTypes[".js"] = "application/javascript";
 
-    std::string::size_type idx = filename.rfind('.');
-    if (idx != std::string::npos)
+	std::string::size_type idx = filename.rfind('.');
+	if (idx != std::string::npos)
 	{
-        std::string extension = filename.substr(idx);
-        if (mimeTypes.find(extension) != mimeTypes.end())
+		std::string extension = filename.substr(idx);
+		if (mimeTypes.find(extension) != mimeTypes.end())
 		{
-            return mimeTypes[extension];
-        }
-    }
-    return "application/octet-stream";
+			return mimeTypes[extension];
+		}
+	}
+	return "application/octet-stream";
 }
 
-std::string Server::handleFileDownloadRequest() 
+std::string Server::handleFileDownloadRequest()
 {
-    std::string fullPath = dlpath + "/" + dlname;
+	std::string fullPath = dlpath + "/" + dlname;
 
-    // Open the file
-    std::ifstream file(fullPath, std::ios::binary);
-    if (!file.is_open())
-    {
-        return "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
-    }
+	// Open the file
+	std::ifstream file(fullPath, std::ios::binary);
+	if (!file.is_open())
+	{
+		return "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
+	}
 
-    std::string fileContents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	std::string fileContents((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-    file.close();
+	file.close();
 
-    std::string mimeType = getMimeType(dlname);
+	std::string mimeType = getMimeType(dlname);
 
-    // Create the response
-    std::ostringstream response;
-    response << "HTTP/1.1 200 OK\r\n";
-    response << "Content-Type: " << mimeType << "\r\n";
-    response << "Content-Disposition: attachment; filename=\"" << dlname << "\"\r\n";
-    response << "Content-Length: " << fileContents.size() << "\r\n";
-    response << "\r\n";
-    response << fileContents;
+	// Create the response
+	std::ostringstream response;
+	response << "HTTP/1.1 200 OK\r\n";
+	response << "Content-Type: " << mimeType << "\r\n";
+	response << "Content-Disposition: attachment; filename=\"" << dlname << "\"\r\n";
+	response << "Content-Length: " << fileContents.size() << "\r\n";
+	response << "\r\n";
+	response << fileContents;
 
-    return response.str();
+	return response.str();
 }
 
 void Server::setupSignalHandlers()
 {
-    signal(SIGINT, Server::signal_handler);
+	signal(SIGINT, Server::signal_handler);
 }
 
 int Server::setupKqueue()
 {
-    int kq = kqueue();
-    if (kq < 0)
-    {
-        perror("Error creating kqueue");
-    }
-    return kq;
+	int kq = kqueue();
+	if (kq < 0)
+	{
+		perror("Error creating kqueue");
+	}
+	return kq;
 }
 
 void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
@@ -197,9 +197,9 @@ void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
 		struct sockaddr_in serverAddr;
 		memset(&serverAddr, 0, sizeof(serverAddr));
 		serverAddr.sin_family = AF_INET;
-        int port = serverPortNamePairs[i].first;
+		int port = serverPortNamePairs[i].first;
 		serverAddr.sin_addr.s_addr = INADDR_ANY;
-        serverAddr.sin_port = htons(port);
+		serverAddr.sin_port = htons(port);
 
 		if (bind(serverSocket, (struct sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
 			perror("Error binding socket");
@@ -229,12 +229,12 @@ void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
 	}
 }
 
-void Server::handleEventError(struct kevent& event) 
+void Server::handleEventError(struct kevent& event)
 {
-    std::cerr << "Error in kevent: " << strerror(event.data) << std::endl;
+	std::cerr << "Error in kevent: " << strerror(event.data) << std::endl;
 }
 
-void Server::handleNewClientConnection(int kq, int& currentClientCount, int eventIdent) 
+void Server::handleNewClientConnection(int kq, int& currentClientCount, int eventIdent)
 {
 	if (currentClientCount < MAX_CLIENTS)
 	{
@@ -274,23 +274,23 @@ void Server::handleNewClientConnection(int kq, int& currentClientCount, int even
 		if (new_socket >= 0)
 		{
 			active_clients.insert(new_socket);
-			
+
 			send(new_socket, res.HttpResponse().c_str(), res.size(), 0);
 			close(new_socket);
 		}
 	}
 }
 
-void Server::handleClientRead(int kq, int eventIdent) 
+void Server::handleClientRead(int kq, int eventIdent)
 {
 	std::cout << "Attempting recv on FD: " << eventIdent << std::endl;
 
-    struct kevent event;
-    int numEvents = kevent(kq, NULL, 0, &event, 1, NULL);
-    if (numEvents == -1) {
-        perror("kevent error");
-        return;
-    }
+	struct kevent event;
+	int numEvents = kevent(kq, NULL, 0, &event, 1, NULL);
+	if (numEvents == -1) {
+		perror("kevent error");
+		return;
+	}
 
 	if (event.flags & EV_EOF)
 	{
@@ -361,12 +361,12 @@ void Server::handleClientRead(int kq, int eventIdent)
 		std::string requestData(buffer);
 		Request parsedRequest;
 		std::string hostHeader;
-		try 
+		try
 		{
 			parsedRequest = Request(requestData);
 			hostHeader = parsedRequest.getHeaderValue("Host");
-		} 
-		catch (const Request::HeaderNotFound& e) 
+		}
+		catch (const Request::HeaderNotFound& e)
 		{
 			std::cerr << "Error: " << e.what() << std::endl;
 			Response res(400, "Bad Request", "Host header not found");
@@ -377,7 +377,7 @@ void Server::handleClientRead(int kq, int eventIdent)
 		{
 			Response res(413, "Payload Too Large", "Request body is too large");
 			send(eventIdent, res.HttpResponse().c_str(), res.size(), 0);
-			
+
 			return;
 		}
 
@@ -410,11 +410,11 @@ void Server::handleClientRead(int kq, int eventIdent)
 void Server::handleClientWrite(int kq, int eventIdent)
 {
 	struct kevent event;
-    int numEvents = kevent(kq, NULL, 0, &event, 1, NULL);
-    if (numEvents == -1) {
-        perror("kevent error");
-        return;
-    }
+	int numEvents = kevent(kq, NULL, 0, &event, 1, NULL);
+	if (numEvents == -1) {
+		perror("kevent error");
+		return;
+	}
 	std::cout << "Handling write event for fd: " << eventIdent << std::endl;
 
 	std::map<int, std::queue<std::string> >::iterator it = client_write_queues.find(eventIdent);

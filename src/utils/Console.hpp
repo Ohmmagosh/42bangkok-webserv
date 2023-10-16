@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/14 02:21:32 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 23:29:17 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/16 23:59:26 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,11 +109,11 @@ class Console {
 
 		static void				modeMsg(int mode, const std::string& msg);
 		static void				cmMsg(int mode, const std::string& content, const std::string& header, const std::string& end);
+		static void				log(int mode, const std::string& msg);
 		const std::string&		getMode(int mode);
 		const std::string&		getModeColor(int mode);
 		void					initMsg(t_mode	mc, const std::string& msg);
 		t_mode					getModeAndColor(int mode);
-		void					log(t_mode mc, const std::string& msg) const;
 
 };
 
