@@ -93,14 +93,10 @@
 			</div>
 			<div class="container">
 				<div class="content">
-					<h2>Download a File</h2>
-					<form id="downloadForm">
-						<label for="filenameInput">Enter Filename:</label>
-						<input type="text" id="filenameInput" name="filename" placeholder="Enter filename to download">
-						<button type="button" onclick="handleFileDownload()">Download</button>
-					</form>
+					<h2>Download the Latest File</h2>
+					<button id="downloadButton" onclick="handleFileDownload()">Download Latest File</button>
 				</div>
-			</div>			
+			</div>		
 		</div>
 	</div>
 	<div class="footer">
@@ -173,17 +169,13 @@
 			});
 		}
 
-		function handleFileDownload() {
-			const filename = document.getElementById('filenameInput').value;
-			if (filename) {
-				// Define the server endpoint URL for downloading files
-				const serverUrl = `http://localhost:8080/download-file?filename=${filename}`;
+		function handleFileDownload() 
+		{
+			// Define the server endpoint URL for downloading the latest uploaded file
+			const serverUrl = `http://localhost:8080/download-latest-file`;
 
-				// Open the file in a new window or tab
-				window.open(serverUrl, '_blank');
-			} else {
-				alert('Please enter a filename to download.');
-			}
+			// Open the file in a new window or tab
+			window.open(serverUrl, '_blank');
 		}
 
 	</script>
