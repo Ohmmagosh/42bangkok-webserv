@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/11 23:54:40 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/16 23:14:56 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,13 @@ Request::Request(const std::string& raw_request) {
 
 	this->setRawReqToVector(raw_request);
 	this->setHeaderAndBody(this->_req);
+	std::map<std::string, std::string>::iterator it = this->_headers.begin();
+	while(it != this->_headers.end()) {
+		std::stringstream	ss;
+		ss << it->first << " : " << it->second << std::endl;
+		Console::modeMsg(0, ss.str());
+		it++;
+	}
 }
 
 Request::~Request() {
@@ -70,6 +77,7 @@ void	Request::setHeader(const std::string& header) {
 		if (colon_p != std::string::npos) {
 			std::string key = line.substr(0, colon_p);
 			std::string value = line.substr(colon_p + 2, line.size() - colon_p - 3);
+			// Console::cmMsg(1, value, "test", "end-end");
 			this->_keys.push_back(key);
 			this->_headers[key] = value;
 		}
@@ -111,13 +119,16 @@ std::ostream& operator<<(std::ostream& os, const Request& req) {
 	if (!req.getMethod().empty()) {
 		os << "Method : " << req.getMethod() << std::endl;
 	}
+	os << "-------------HEADER--------------" << std::endl;
 	std::map<std::string, std::string>::const_iterator it = req.getMapHeader().begin();
 	while (it != req.getMapHeader().end()) {
 		os << it->first << " : " << it->second << std::endl;
 		it++;
 	}
-	std::cout << "-----------body----------" << std::endl;
-	os << req.getBody() << std::endl;
+	if (!req.getBody().empty()) {
+		os << "-----------BODY----------" << std::endl;
+		os << req.getBody();
+	}
 	return (os);
 }
 
