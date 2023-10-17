@@ -10,6 +10,10 @@ class ConfigParser
         std::vector<std::map<std::string, std::string> > servers;
 
         bool parse(const std::string& configFileName);
+    
+    private:
+        std::string trim(const std::string& str);
+
 };
 
 #endif
