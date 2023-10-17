@@ -13,6 +13,13 @@
 
 extern volatile sig_atomic_t got_signal;
 
+struct ServerConfig 
+{
+    int port;
+    std::string name;
+    std::string landingPagePath;
+};
+
 class Server
 {
 	public:
@@ -32,7 +39,8 @@ class Server
 		std::vector<int> serverSockets;
 		// std::vector<int> ports;
 		std::map<int, std::string> client_buffers;
-		std::vector<std::pair<int, std::string> > serverPortNamePairs;
+		// std::vector<std::pair<int, std::string> > serverPortNamePairs;
+		std::vector<ServerConfig> serverConfigs;
 		TBucket rateLimiter;
 		int currentClientCount;
 		Store store;

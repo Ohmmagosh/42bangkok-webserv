@@ -28,9 +28,23 @@ std::string Server::extractHostHeader(const std::string& request)
 
 Server::Server(): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(16000, 1600), currentClientCount(0)
 {
-	serverPortNamePairs.push_back(std::make_pair(8080, "abc"));
-	serverPortNamePairs.push_back(std::make_pair(8081, "anothername"));
-	serverPortNamePairs.push_back(std::make_pair(9090, "yetanothername"));
+	ServerConfig config1;
+	config1.port = 8080;
+	config1.name = "abc";
+	config1.landingPagePath = "src/server/index.html";
+	serverConfigs.push_back(config1);
+
+	ServerConfig config2;
+	config2.port = 8081;
+	config2.name = "anothername";
+	config2.landingPagePath = "src/server/index2.html";
+	serverConfigs.push_back(config2);
+
+	ServerConfig config3;
+	config3.port = 9090;
+	config3.name = "anothername2";
+	config3.landingPagePath = "src/server/index.html";
+	serverConfigs.push_back(config3);
 
 	this->MAX_BODY_SIZE = 10000;
 	this->dlpath = ".";
