@@ -6,14 +6,14 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 21:52:22 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 20:52:47 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/18 03:20:20 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Store.hpp"
 
 Store::Store() {
-
+	this->_multipart = false;
 }
 
 Store::~Store() {
@@ -98,4 +98,12 @@ bool	Store::delFile(const std::string& name) {
 
 bool	Store::validateContentBoundary() const {
 	return true;
+}
+
+void	Store::setMultiPart(bool bu) {
+	this->_multipart = bu;
+}
+
+bool	Store::getMultiPart() const {
+	return this->_multipart;
 }
