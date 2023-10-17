@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/17 00:46:55 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/18 03:26:54 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ Request::~Request() {
 
 }
 
+
 const std::string& Request::getMethod() const {
 	return this->_method;
 }
@@ -44,10 +45,11 @@ const std::string& Request::getBody() const {
 	return this->_body;
 }
 
-const std::string&	Request::getHeaderValue(const std::string& key) const {
+std::string	Request::getHeaderValue(const std::string& key) const {
 	std::map<std::string, std::string>::const_iterator it = this->_headers.find(key);
+	std::string		empty;
 	if (it == this->_headers.end())
-		throw HeaderNotFound(key);
+		return "";
 	return (it->second);
 }
 
@@ -59,43 +61,36 @@ int	Request::getHeaderSize() const {
 	return this->_headers.size();
 }
 
-void	Request::setHeader(const std::string& header) {
+void	Request::setHeader(const std::string& header)
+{
 	std::string			line;
 	std::stringstream	ss(header);
-	if (this->isMethod(header)) {
+
+	if (this->isMethod(header))
+	{
 		ss >> this->_method >> this->_path >> this->_protocol;
-	}
-	while (std::getline(ss,line)) {
-		size_t colon_p = line.find(':');
-		if (colon_p != std::string::npos) {
-			std::string key = line.substr(0, colon_p);
-			std::string value = line.substr(colon_p + 2, line.size() - colon_p - 3);
-			// Console::cmMsg(1, value, "test", "end-end");
-			this->_keys.push_back(key);
-			this->_headers[key] = value;
+		if (this->_path.find("?") != std::string::npos) {
+			std::vector<std::string>	sp = Utility::splite(this->_path, "?");
+			this->setParams(sp[1]);
+		}
+		while (std::getline(ss,line))
+		{
+			size_t colon_p = line.find(':');
+			if (colon_p != std::string::npos)
+			{
+				std::string key = line.substr(0, colon_p);
+				std::string value = line.substr(colon_p + 2, line.size() - colon_p - 3);
+				this->_keys.push_back(key);
+				this->_headers[key] = value;
+			}
 		}
 	}
-}
-
-
-std::vector<std::string>	Request::splite(const std::string& req, const std::string& delim) {
-	std::vector<std::string>	ret;
-	size_t						start = 0;
-	size_t						end = req.find(delim);
-
-	while (end != std::string::npos) {
-		ret.push_back(req.substr(start , end - start));
-		start = end + delim.length();
-		end = req.find(delim, start);
-	}
-	ret.push_back(req.substr(start, end ));
-	return ret;
-
+	return ;
 }
 
 void	Request::setRawReqToVector(const std::string& raw_request) {
 	std::string		delim = "\r\n\r\n";
-	this->_req = this->splite(raw_request, delim);
+	this->_req = Utility::splite(raw_request, delim);
 }
 
 int	Request::getReqVectorSize() const{
@@ -160,4 +155,18 @@ bool	Request::isMethod(const std::string& req_header) {
 
 void	Request::setBody(const std::string& body) {
 	this->_body = body;
+}
+
+void	Request::setParams(const std::string& params) {
+	std::vector<std::string>	parameters;
+	if (params.find("&") == std::string::npos)
+		return ;
+	parameters = Utility::splite(params, "&");
+	for (size_t i = 0; i < parameters.size(); i++) {
+		std::vector<std::string>	param = Utility::splite(parameters[i], "=");
+		if (param.empty())
+			return ;
+		this->_params[param[0]] = param[1];
+	}
+	return ;
 }

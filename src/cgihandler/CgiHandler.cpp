@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/13 20:25:57 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/18 00:31:26 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,16 @@ std::string	CgiHandler::executeCgi() {
 	}
 }
 
-
-// char** CgiHandler::initEnv(const Request & req) {
-// 	char** res = new char*[req.getSize()];
-
-
-// }
+char** CgiHandler::initEnv(const Request & req) {
+	char** res = new char*[req.getHeaderSize()];
+	std::map<std::string, std::string>::const_iterator	it = req.getMapHeader().begin();
+	int i = 0;
+	while(it != req.getMapHeader().end() && i < req.getHeaderSize()) {
+		std::stringstream	ss;
+		ss << it->first << "=" << it->second;
+		res[i] = strdup(ss.str().c_str());
+		it++;
+		i++;
+	}
+	res[req.getHeaderSize()] = NULL;
+}
