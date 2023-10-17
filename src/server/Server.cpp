@@ -114,13 +114,70 @@ std::string getMimeType(const std::string& filename)
 {
 	std::map<std::string, std::string> mimeTypes;
 
-	mimeTypes[".txt"] = "text/plain";
-	mimeTypes[".jpg"] = "image/jpeg";
-	mimeTypes[".jpeg"] = "image/jpeg";
-	mimeTypes[".png"] = "image/png";
 	mimeTypes[".html"] = "text/html";
+	mimeTypes[".htm"] = "text/html";
+	mimeTypes[".shtml"] = "text/html";
 	mimeTypes[".css"] = "text/css";
-	mimeTypes[".js"] = "application/javascript";
+	mimeTypes[".xml"] = "text/xml";
+	mimeTypes[".rss"] = "text/xml";
+	mimeTypes[".gif"] = "image/gif";
+	mimeTypes[".jpeg"] = "image/jpeg";
+	mimeTypes[".jpg"] = "image/jpeg";
+	mimeTypes[".js"] = "application/x-javascript";
+	mimeTypes[".txt"] = "text/plain";
+	mimeTypes[".htc"] = "text/x-component";
+	mimeTypes[".mml"] = "text/mathml";
+	mimeTypes[".png"] = "image/png";
+	mimeTypes[".ico"] = "image/x-icon";
+	mimeTypes[".jng"] = "image/x-jng";
+	mimeTypes[".wbmp"] = "image/vnd.wap.wbmp";
+	mimeTypes[".jar"] = "application/java-archive";
+	mimeTypes[".war"] = "application/java-archive";
+	mimeTypes[".ear"] = "application/java-archive";
+	mimeTypes[".hqx"] = "application/mac-binhex40";
+	mimeTypes[".pdf"] = "application/pdf";
+	mimeTypes[".cco"] = "application/x-cocoa";
+	mimeTypes[".jardiff"] = "application/x-java-archive-diff";
+	mimeTypes[".jnlp"] = "application/x-java-jnlp-file";
+	mimeTypes[".run"] = "application/x-makeself";
+	mimeTypes[".pl"] = "application/x-perl";
+	mimeTypes[".pm"] = "application/x-perl";
+	mimeTypes[".prc"] = "application/x-pilot";
+	mimeTypes[".pdb"] = "application/x-pilot";
+	mimeTypes[".rar"] = "application/x-rar-compressed";
+	mimeTypes[".rpm"] = "application/x-redhat-package-manager";
+	mimeTypes[".sea"] = "application/x-sea";
+	mimeTypes[".swf"] = "application/x-shockwave-flash";
+	mimeTypes[".sit"] = "application/x-stuffit";
+	mimeTypes[".tcl"] = "application/x-tcl";
+	mimeTypes[".tk"] = "application/x-tcl";
+	mimeTypes[".der"] = "application/x-x509-ca-cert";
+	mimeTypes[".pem"] = "application/x-x509-ca-cert";
+	mimeTypes[".crt"] = "application/x-x509-ca-cert";
+	mimeTypes[".xpi"] = "application/x-xpinstall";
+	mimeTypes[".zip"] = "application/zip";
+	mimeTypes[".deb"] = "application/octet-stream";
+	mimeTypes[".bin"] = "application/octet-stream";
+	mimeTypes[".exe"] = "application/octet-stream";
+	mimeTypes[".dll"] = "application/octet-stream";
+	mimeTypes[".dmg"] = "application/octet-stream";
+	mimeTypes[".eot"] = "application/octet-stream";
+	mimeTypes[".iso"] = "application/octet-stream";
+	mimeTypes[".img"] = "application/octet-stream";
+	mimeTypes[".msi"] = "application/octet-stream";
+	mimeTypes[".msp"] = "application/octet-stream";
+	mimeTypes[".msm"] = "application/octet-stream";
+	mimeTypes[".mp3"] = "audio/mpeg";
+	mimeTypes[".ra"] = "audio/x-realaudio";
+	mimeTypes[".mpeg"] = "video/mpeg";
+	mimeTypes[".mpg"] = "video/mpeg";
+	mimeTypes[".mov"] = "video/quicktime";
+	mimeTypes[".flv"] = "video/x-flv";
+	mimeTypes[".avi"] = "video/x-msvideo";
+	mimeTypes[".wmv"] = "video/x-ms-wmv";
+	mimeTypes[".asx"] = "video/x-ms-asf";
+	mimeTypes[".asf"] = "video/x-ms-asf";
+	mimeTypes[".mng"] = "video/x-mng";
 
 	std::string::size_type idx = filename.rfind('.');
 	if (idx != std::string::npos)
@@ -363,16 +420,22 @@ void Server::handleClientRead(int kq, int eventIdent)
 		std::string requestData(buffer);
 		Request parsedRequest;
 		std::string hostHeader;
-		try
+
+		// std::cout << "READEVENT" << std::endl;
+		if (checked_hostnames.find(eventIdent) == checked_hostnames.end())
 		{
-			parsedRequest = Request(requestData);
-			hostHeader = parsedRequest.getHeaderValue("Host");
-		}
-		catch (const Request::HeaderNotFound& e)
-		{
-			std::cerr << "Error: " << e.what() << std::endl;
-			Response res(400, "Bad Request", "Host header not found");
-			send(eventIdent, res.HttpResponse().c_str(), res.size(), MSG_NOSIGNAL);
+			try
+			{
+				parsedRequest = Request(requestData);
+				hostHeader = parsedRequest.getHeaderValue("Host");
+				checked_hostnames.insert(eventIdent); // Add the socket to the set
+			}
+			catch (const Request::HeaderNotFound& e)
+			{
+				std::cerr << "Error: " << e.what() << std::endl;
+				Response res(400, "Bad Request", "Host header not found");
+				send(eventIdent, res.HttpResponse().c_str(), res.size(), MSG_NOSIGNAL);
+			}
 		}
 
 		if (parsedRequest.getBody().size() > MAX_BODY_SIZE)
@@ -443,6 +506,7 @@ void Server::handleClientWrite(int kq, int eventIdent)
 					// Remove client from active_clients and close its socket
 					active_clients.erase(eventIdent);
 					client_write_queues.erase(eventIdent);
+					checked_hostnames.erase(eventIdent);
 					close(eventIdent);
 					currentClientCount--;
 					break;
