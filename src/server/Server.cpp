@@ -90,14 +90,16 @@ void Server::closeServerSocket()
 std::string Server::handleHttpRequest(const std::string& method, const std::string& path, const std::string& protocol, const std::string& hostHeader, std::string reqbuffer)
 {
 	(void)protocol;
-	(void)reqbuffer;
-	HttpRequestHandle ret(method, path);
+	// HttpRequestHandle ret(method, path);
+	Request				req(reqbuffer);
+	Console::modeMsg(1, reqbuffer.c_str());
+
+	HttpRequestHandle	ret(req, "./src/server");
 
 	if (method == "GET" && path == "/download-latest-file")
 	{
 		return handleFileDownloadRequest();
 	}
-
 	// Validate the Host header
 	bool validHost = false;
 	for (std::vector<std::pair<int, std::string> >::const_iterator it = serverPortNamePairs.begin(); it != serverPortNamePairs.end(); ++it) {
@@ -118,8 +120,8 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 		// return generateHttpResponse(400, "Bad Request", "Invalid Host header");
 		return res.HttpResponse();
 	}
-
-	return ret.validateMethod();
+	Console::log(0, "before res\n");
+	return ret.validateMethod(&this->store);
 }
 
 std::string getMimeType(const std::string& filename)
@@ -434,7 +436,7 @@ void Server::handleClientRead(int kq, int eventIdent)
 		std::string hostHeader;
 
 		// std::cout << "READEVENT" << std::endl;
-		if (checked_hostnames.find(eventIdent) == checked_hostnames.end()) 
+		if (checked_hostnames.find(eventIdent) == checked_hostnames.end())
 		{
 			try
 			{
@@ -460,7 +462,7 @@ void Server::handleClientRead(int kq, int eventIdent)
 
 		if (rateLimiter.consume())
 		{
-			std::string reqbuffer(buffer); 
+			std::string reqbuffer(buffer);
 			std::string httpResponse = handleHttpRequest(parsedRequest.getMethod(), parsedRequest.getPath(), parsedRequest.getProtocol(), hostHeader, reqbuffer);
 
 			// Push the response into the client's write queue

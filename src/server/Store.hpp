@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/11 21:52:26 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 20:40:18 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/18 02:39:19 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class Store
 {
 	private:
 		std::vector<FileHandle>	_file;
+		bool					_multipart;
 	public:
 		Store();
 		~Store();
@@ -34,6 +35,8 @@ class Store
 		const std::string	getFileContent(const std::string& path) const;
 		bool				delFile(const std::string& name);
 		bool				validateContentBoundary() const;
+		void				setMultiPart(bool b);
+		bool				getMultiPart() const;
 };
 
 #endif
