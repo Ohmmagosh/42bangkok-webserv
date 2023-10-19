@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
+#    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/10/18 01:30:09 by rchiewli         ###   ########.fr        #
+#    Updated: 2023/10/18 04:11:36 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -136,6 +136,6 @@ fclean: clean
 re: fclean all
 
 run: re
-	./webserv
+	./webserv config.conf
 
 .PHONY: all clean fclean re run
