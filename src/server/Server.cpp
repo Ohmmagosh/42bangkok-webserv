@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "TBucket.hpp"
 #include "Request.hpp"
+#include "configparser.hpp"
 
 volatile sig_atomic_t Server::got_signal = 0;
 
@@ -31,25 +32,52 @@ Server::Server(): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(1
 	ServerConfig config1;
 	config1.port = 8080;
 	config1.name = "abc";
-	config1.landingPagePath = "src/server/index.html";
+	config1.landingPagePath = "index.html";
 	serverConfigs.push_back(config1);
 
 	ServerConfig config2;
 	config2.port = 8081;
 	config2.name = "anothername";
-	config2.landingPagePath = "src/server/index2.html";
+	config2.landingPagePath = "index2.html";
 	serverConfigs.push_back(config2);
 
 	ServerConfig config3;
 	config3.port = 9090;
 	config3.name = "anothername2";
-	config3.landingPagePath = "src/server/index.html";
+	config3.landingPagePath = "index.html";
 	serverConfigs.push_back(config3);
 
 	this->MAX_BODY_SIZE = 10000;
 	this->dlpath = ".";
 	this->dlname = "lorem7000.txt";
 }
+
+Server::Server(const std::string& configFileName): server_fd(0), running(false), MAX_CLIENTS(1024), rateLimiter(16000, 1600), currentClientCount(0)
+{
+    ConfigParser parser;
+    if (!parser.parse(configFileName)) 
+	{
+        std::cerr << "Failed to parse configuration file: " << configFileName << std::endl;
+        // Handle error, maybe throw an exception or exit
+    }
+
+    // Assuming servers is a public member of ConfigParser
+	for (std::vector<ServerConf>::const_iterator it = parser.servers.begin(); it != parser.servers.end(); ++it) 
+	{
+		ServerConfig config;
+		config.port = atoi(it->port.c_str());
+		config.name = it->name;
+		config.landingPagePath = it->landingPagePath;
+		serverConfigs.push_back(config);
+	}
+
+    // Assuming globalConfig is a public member of ConfigParser
+    this->MAX_BODY_SIZE = atoi(parser.globalConfig["MAX_BODY_SIZE"].c_str());
+    this->dlpath = parser.globalConfig["dlpath"];
+    this->dlname = parser.globalConfig["dlname"];
+}
+
+
 
 Server::~Server()
 {
@@ -94,7 +122,7 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 	Request				req(reqbuffer);
 	Console::modeMsg(1, reqbuffer.c_str());
 
-	HttpRequestHandle	ret(req, "./src/server");
+	HttpRequestHandle ret(req, "./src/server", serverConfigs);
 
 	if (method == "GET" && path == "/download-latest-file")
 	{
@@ -102,14 +130,15 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 	}
 	// Validate the Host header
 	bool validHost = false;
-	for (std::vector<std::pair<int, std::string> >::const_iterator it = serverPortNamePairs.begin(); it != serverPortNamePairs.end(); ++it) {
+	for (std::vector<ServerConfig>::const_iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it)
+	{
 		std::stringstream ss;
-		ss << it->second << ":" << it->first;
+		ss << it->name << ":" << it->port;
 		std::stringstream localhostWithPort;
-		localhostWithPort << "localhost:" << it->first;
+		localhostWithPort << "localhost:" << it->port;
 		std::stringstream ipWithPort;
-		ipWithPort << "127.0.0.1:" << it->first;
-		if (hostHeader == ss.str() || hostHeader == localhostWithPort.str() || hostHeader == ipWithPort.str() || hostHeader == "10.13.8.3:" + std::to_string(it->first)) {
+		ipWithPort << "127.0.0.1:" << it->port;
+		if (hostHeader == ss.str() || hostHeader == localhostWithPort.str() || hostHeader == ipWithPort.str() || hostHeader == "10.13.8.3:" + std::to_string(it->port)) {
 			validHost = true;
 			break;
 		}
@@ -271,7 +300,7 @@ void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
 		struct sockaddr_in serverAddr;
 		memset(&serverAddr, 0, sizeof(serverAddr));
 		serverAddr.sin_family = AF_INET;
-		int port = serverPortNamePairs[i].first;
+		int port = serverConfigs[i].port;
 		serverAddr.sin_addr.s_addr = INADDR_ANY;
 		serverAddr.sin_port = htons(port);
 
@@ -287,7 +316,7 @@ void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
 			return ;
 		}
 
-		std::cout << "Server " << i + 1 << " listening on port " << serverPortNamePairs[i].first << std::endl;
+		std::cout << "Server " << i + 1 << " listening on port " << serverConfigs[i].port << std::endl;
 
 		fcntl(serverSocket, F_SETFL, O_NONBLOCK | FD_CLOEXEC);
 
@@ -562,6 +591,7 @@ void Server::mainEventLoop(int kq, int& currentClientCount, size_t NUM_SERVERS)
 			return ;
 		}
 
+
 		for (int i = 0; i < numEvents; ++i)
 		{
 			struct kevent event = events[i];
@@ -593,7 +623,7 @@ void Server::start()
 
 	int kq = setupKqueue();
 
-	size_t NUM_SERVERS = serverPortNamePairs.size();
+	size_t NUM_SERVERS = serverConfigs.size();
 	setupServerSockets(kq, NUM_SERVERS);
 
 	running = true;

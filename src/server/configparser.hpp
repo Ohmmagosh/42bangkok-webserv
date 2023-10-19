@@ -3,11 +3,32 @@
 
 # include "../stdlib.hpp"
 
+struct ServerConf
+{
+    int port;
+    std::string name;
+    std::string landingPagePath;
+    bool is_default;
+    std::vector<std::string> methods;
+    std::string redirect;
+    bool directory_listing;
+
+};
+
+struct NonServerConf
+{
+    int MAX_BODY_SIZE;
+    std::string dlpath;
+    std::string dlname;
+    std::string defaultErrorPage;
+    // ... any other global configurations
+};
+
 class ConfigParser
 {
     public:
         std::map<std::string, std::string> globalConfig;
-        std::vector<std::map<std::string, std::string> > servers;
+        std::vector<ServerConf> servers;
 
         bool parse(const std::string& configFileName);
     

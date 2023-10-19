@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequestHandle.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/18 03:33:51 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/19 14:00:39 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,10 @@ HttpRequestHandle::HttpRequestHandle()
 HttpRequestHandle::HttpRequestHandle(const std::string &method): _cgi_path("./src/server"), _method(method)
 {
 	//should from config
+}
+
+HttpRequestHandle::HttpRequestHandle(const Request& req, const std::string& cgi_path, const std::vector<ServerConfig>& serverConfigs): _req(req), _cgi_path(cgi_path), _serverConfigs(serverConfigs) 
+{
 }
 
 HttpRequestHandle::HttpRequestHandle(const Request& req, const std::string& cgi_path): _req(req), _cgi_path(cgi_path){
@@ -61,19 +65,78 @@ std::string HttpRequestHandle::validateMethod(Store *st)
 	}
 }
 
+int HttpRequestHandle::getPortFromRequest(const Request& req)
+{
+    std::string hostHeader = req.getHeaderValue("Host");
+    std::string::size_type colonPos = hostHeader.find_last_of(':');
+    if (colonPos != std::string::npos) 
+	{
+        std::string portStr = hostHeader.substr(colonPos + 1);
+        std::istringstream iss(portStr);
+        int port;
+        iss >> port;
+        if (!iss.fail()) 
+		{
+            return port;
+        }
+    }
+    return -1; // Return -1 or any other value to indicate that the port wasn't found
+}
+
+// std::string HttpRequestHandle::getMethod(const Request& req)
+// {
+// 	std::stringstream path;
+// 	if (!this->_cgi_path.empty() || this->_cgi_path != "") {
+// 		if (req.getPath() == "/" || req.getPath() == "/index.html")
+// 			path << this->_cgi_path << "/index.html";
+// 		else
+// 			path << this->_cgi_path << req.getPath();
+// 		return this->readFile(path);
+// 	}
+// 	Response err404(404, "not Found", "file not found");
+// 	return err404.HttpResponse();
+// }
+
 std::string HttpRequestHandle::getMethod(const Request& req)
 {
-	std::stringstream path;
-	if (!this->_cgi_path.empty() || this->_cgi_path != "") {
-		if (req.getPath() == "/" || req.getPath() == "/index.html")
-			path << this->_cgi_path << "/index.html";
-		else
-			path << this->_cgi_path << req.getPath();
-		return this->readFile(path);
-	}
+	int requestPort = getPortFromRequest(req);
+    // Find the corresponding ServerConfig for the port
+    std::string landingPage;
+    for (std::vector<ServerConfig>::const_iterator it = _serverConfigs.begin(); it != _serverConfigs.end(); ++it) 
+	{
+        if (it->port == requestPort) 
+		{
+
+            landingPage = it->landingPagePath;
+            break;
+        }
+    }
+
+    if (landingPage.empty()) 
+	{
+        Response err404(404, "not Found", "file not found");
+        return err404.HttpResponse();
+    }
+
+    std::stringstream path;
+    if (!_cgi_path.empty() || _cgi_path != "") 
+	{
+        if (req.getPath() == "/" || req.getPath() == "/index.html")
+            path << _cgi_path << "/" << landingPage;
+        else
+            path << _cgi_path << req.getPath();
+		std::cout << "-------path << _cgi_path << req.getPath()-----------" << std::endl;
+		std::cout << path.str() << std::endl;
+		std::cout << _cgi_path << std::endl;
+		std::cout << req.getPath() << std::endl;
+		std::cout << "-------------------" << std::endl;
+        return this->readFile(path);
+    }
+	
 	Response err404(404, "not Found", "file not found");
-	return err404.HttpResponse();
+    return err404.HttpResponse();
 }
+
 
 std::string HttpRequestHandle::postMethod(const Request& req, Store *st)
 {

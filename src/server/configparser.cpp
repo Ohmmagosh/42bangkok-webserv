@@ -3,19 +3,6 @@
 #include "Request.hpp"
 #include "configparser.hpp"
 
-std::string ConfigParser::trim(const std::string& str) 
-{
-    std::string::size_type start = str.find_first_not_of(" \t\n\r");
-    std::string::size_type end = str.find_last_not_of(" \t\n\r");
-
-    if (start == std::string::npos || end == std::string::npos) 
-    {
-        return "";
-    }
-
-    return str.substr(start, end - start + 1);
-}
-
 bool ConfigParser::parse(const std::string& configFileName) 
 {
     std::ifstream configFile(configFileName.c_str());
@@ -27,7 +14,7 @@ bool ConfigParser::parse(const std::string& configFileName)
 
     std::string line;
     bool isServerSection = false;
-    std::map<std::string, std::string> currentServer;
+    ServerConf currentServer;  // Note: Using ServerConf struct
 
     while (std::getline(configFile, line)) 
     {
@@ -45,12 +32,12 @@ bool ConfigParser::parse(const std::string& configFileName)
         {
             if (line[0] == '-') 
             {
-                if (!currentServer.empty()) 
+                if (currentServer.port != 0)  // Assuming port 0 is invalid, adjust as needed
                 {
                     servers.push_back(currentServer);
-                    currentServer.clear();
+                    currentServer = ServerConf();  // Reset the struct
                 }
-            } 
+            }  
             else 
             {
                 size_t pos = line.find(':');
@@ -58,7 +45,13 @@ bool ConfigParser::parse(const std::string& configFileName)
                 {
                     std::string key = trim(line.substr(0, pos));
                     std::string value = trim(line.substr(pos + 1));
-                    currentServer[key] = value;
+                    
+                    if (key == "port")
+                        currentServer.port = std::stoi(value);
+                    else if (key == "name")
+                        currentServer.name = value;
+                    else if (key == "landingPagePath")
+                        currentServer.landingPagePath = value;
                 }
             }
         }
@@ -73,9 +66,10 @@ bool ConfigParser::parse(const std::string& configFileName)
             }
         }
     }
-    if (!currentServer.empty()) 
+    if (currentServer.port != 0)
     {
         servers.push_back(currentServer);
     }
     return true;
 }
+

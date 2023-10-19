@@ -33,7 +33,9 @@ int main(int argc, char* argv[])
             std::cout << std::endl;
         }
     }
-	Server server;
+    
+    std::string conf(argv[1]);
+	Server server(conf);
 	server.start();
 	return 0;
 }

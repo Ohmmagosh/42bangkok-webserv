@@ -13,17 +13,18 @@
 
 extern volatile sig_atomic_t got_signal;
 
-struct ServerConfig 
-{
-    int port;
-    std::string name;
-    std::string landingPagePath;
-};
+// struct ServerConfig 
+// {
+//     int port;
+//     std::string name;
+//     std::string landingPagePath;
+// };
 
 class Server
 {
 	public:
 		Server();
+		Server(const std::string& configFileName);
 		~Server();
 		void start();
 		void stop();
