@@ -9,9 +9,9 @@ struct ServerConf
     std::string name;
     std::string landingPagePath;
     bool is_default;
-    std::vector<std::string> methods;
     std::string redirect;
     bool directory_listing;
+    std::vector<std::string> methods;
 
 };
 

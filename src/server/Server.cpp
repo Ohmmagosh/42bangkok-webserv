@@ -124,32 +124,36 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 
 	HttpRequestHandle ret(req, "./src/server", serverConfigs);
 
-	if (method == "GET" && path == "/download-latest-file")
-	{
-		return handleFileDownloadRequest();
-	}
+	// if (method == "GET" && path == "/download-latest-file")
+	// {
+	// 	return handleFileDownloadRequest();
+	// }
 	// Validate the Host header
-	bool validHost = false;
-	for (std::vector<ServerConfig>::const_iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it)
-	{
-		std::stringstream ss;
-		ss << it->name << ":" << it->port;
-		std::stringstream localhostWithPort;
-		localhostWithPort << "localhost:" << it->port;
-		std::stringstream ipWithPort;
-		ipWithPort << "127.0.0.1:" << it->port;
-		if (hostHeader == ss.str() || hostHeader == localhostWithPort.str() || hostHeader == ipWithPort.str() || hostHeader == "10.13.8.3:" + std::to_string(it->port)) {
-			validHost = true;
-			break;
-		}
-	}
+	// bool validHost = false;
+	// for (std::vector<ServerConfig>::const_iterator it = serverConfigs.begin(); it != serverConfigs.end(); ++it)
+	// {
+	// 	std::stringstream ss;
+	// 	ss << it->name << ":" << it->port;
+	// 	std::stringstream localhostWithPort;
+	// 	localhostWithPort << "localhost:" << it->port;
+	// 	std::stringstream ipWithPort;
+	// 	ipWithPort << "127.0.0.1:" << it->port;
+	// 	if (hostHeader == ss.str() || hostHeader == localhostWithPort.str() || hostHeader == ipWithPort.str() || hostHeader == "10.13.8.3:" + std::to_string(it->port)) {
+	// 		validHost = true;
+	// 		break;
+	// 	}
+	// }
+	// if (this->validateServerName()) {
+	// 	Response res(400, "Bad Request", "Invalid Host header");
+	// 	// return generateHttpResponse(400, "Bad Request", "Invalid Host header");
+	// 	return res.HttpResponse();
+	// }
 
 	if (!validHost) {
 		Response res(400, "Bad Request", "Invalid Host header");
 		// return generateHttpResponse(400, "Bad Request", "Invalid Host header");
 		return res.HttpResponse();
 	}
-	Console::log(0, "before res\n");
 	return ret.validateMethod(&this->store);
 }
 
