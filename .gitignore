@@ -3,3 +3,4 @@ a.out
 .vscode
 test
 *.o
+main2.cpp
