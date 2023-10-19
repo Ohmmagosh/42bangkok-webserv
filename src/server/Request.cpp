@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/19 07:35:34 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/19 07:50:40 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,7 +277,7 @@ void	Request::setQueryUrl() {
 	std::string	url = this->getUrl();
 	if (url.empty())
 		return ;
-	if (url.find("?")) {
+	if (url.find("?") != std::string::npos) {
 		std::vector<std::string>	sp = Utility::splite(url, "?");
 		if (sp[1].empty())
 			return ;
@@ -374,7 +374,7 @@ bool	Request::validateParams() {
 	std::string	url = this->getUrl();
 	if (url.empty())
 		return false;
-	if (url.find("?"))
+	if (url.find("?") != std::string::npos)
 		return true;
 	return false;
 }
