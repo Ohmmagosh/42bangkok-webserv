@@ -1,167 +1,229 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Conf.cpp                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lkaewsae <lkaewsae@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/17 22:59:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/08/24 00:33:37 by lkaewsae         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Conf.hpp"
 
-Conf::Conf() {
-
-}
-
-Conf::Conf(Conf const & rhs) {
-	*this = rhs;
-}
-
-Conf & Conf::operator=(Conf const & rhs) {
-	if (this != &rhs) {
-		this->_server = rhs._server;
-		this->_pages = rhs._pages;
-		this->_http = rhs._http;
-	}
-	return (*this);
-}
-
-Conf::~Conf() {
-
-}
-
-std::map<std::string, std::string>::const_iterator	Conf::findKey(const std::map<std::string, std::string> &imap, const std::string& key) {
-	std::map<std::string, std::string>::const_iterator	ret = imap.find(key);
-	return ret;
-}
-
-std::string	Conf::getServerValue(const std::string & key){
-	const std::map<std::string, std::string>::const_iterator it = findKey(this->_server, key);
-
-	if (it == this->_server.end())
-		throw ValueNotFound();
-	return it->second;
-}
-
-std::string	Conf::getPagesValue(const std::string & key){
-	const std::map<std::string, std::string>::const_iterator it = findKey(this->_pages, key);
-
-	if (it == this->_pages.end())
-		throw ValueNotFound();
-	return it->second;
-}
-
-std::string	Conf::getHttpValue(const std::string & key){
-	const std::map<std::string, std::string>::const_iterator it = findKey(this->_http, key);
-
-	if (it == this->_http.end())
-		throw ValueNotFound();
-	return it->second;
-}
-
-std::string	Conf::getLocationValue(const std::string & key){
-	const std::map<std::string, std::string>::const_iterator it = findKey(this->_location, key);
-
-	if (it == this->_location.end())
-		throw ValueNotFound();
-	return it->second;
-}
-
-// std::string	Conf::getLocationmapValue(const std::string & key){
-// 	const std::map<std::string, std::string>::const_iterator it = findKey(this->_locationmap, key);
-
-// 	if (it == this->_locationmap.end())
-// 		throw ValueNotFound();
-// 	return it->second;
-// }
-
-void	Conf::setServerValue(const std::string & key, const std::string & value) {
-	this->_server.insert(std::make_pair(key, value));
-}
-
-void	Conf::setPagesValue(const std::string & key, const std::string & value) {
-	this->_pages.insert(std::make_pair(key, value));
-}
-
-void	Conf::setHttpValue(const std::string & key, const std::string & value) {
-	this->_http.insert(std::make_pair(key, value));
-}
-
-void	Conf::setLocationValue(const std::string & key, const std::string & value) {
-	this->_location.insert(std::make_pair(key, value));
-}
-
-// void	Conf::setLocationmapValue(const std::string & key, const std::string & value) {
-// 	this->_locationmap.insert(std::make_pair(key, value));
-// }
-
-static bool IsNotSpace(int c)
+Conf::Conf()
 {
-	return (c != ' ' && c != '\t' && c != '\n' && c != '\r' && c != '\f' && c != '\v');
 }
 
-void Conf::readConfigFile(const std::string &configFile)
+Conf::~Conf()
 {
-	std::istringstream iss(configFile);
-	std::string currenttext;
-	std::string line;
-	std::string route;
-	std::string root;
+}
 
-	while (std::getline(iss, line))
+t_cgi Conf::parseCgiSection(std::ifstream& configFile) 
+{
+    t_cgi currentCgi;
+    std::string line;
+
+    while (std::getline(configFile, line)) 
+    {
+        line = Utility::trim(line, " ");
+        if (line.empty() || line[0] == '#')
+            continue;
+
+        size_t pos = line.find(':');
+        if (pos != std::string::npos) 
+        {
+            std::string key = Utility::trim(line.substr(0, pos), " ");
+            std::string value = Utility::trim(line.substr(pos + 1), " ");
+
+            if (key == "extension")
+                currentCgi.extension = value;
+            else if (key == "executable")
+                currentCgi.executable = value;
+        }
+        else 
+        {
+            // If we encounter a line without ':', it means we've reached the end of the cgi section
+            break;
+        }
+    }
+
+    return currentCgi;
+}
+
+
+
+t_upload Conf::parseUploadSection(std::ifstream& configFile) 
+{
+    t_upload currentUpload;
+    std::string line;
+
+    while (std::getline(configFile, line)) 
+    {
+        line = Utility::trim(line, " ");
+        if (line.empty() || line[0] == '#')
+            continue;
+
+        size_t pos = line.find(':');
+        if (pos != std::string::npos) 
+        {
+            std::string key = Utility::trim(line.substr(0, pos), " ");
+            std::string value = Utility::trim(line.substr(pos + 1), " ");
+
+            if (key == "enabled")
+                currentUpload.enabled = (value == "true");
+            else if (key == "save_path")
+                currentUpload.savePath = value;
+        }
+        else 
+        {
+            // If we encounter a line without ':', it means we've reached the end of the upload section
+            break;
+        }
+    }
+
+    return currentUpload;
+}
+
+std::vector<t_routes> Conf::parseRoutesSection(std::ifstream& configFile) 
+{
+    std::vector<t_routes> routesList;
+    t_routes currentRoute;
+    std::string line;
+
+    while (std::getline(configFile, line)) 
+    {
+        line = Utility::trim(line, " ");
+        if (line.empty() || line[0] == '#')
+            continue;
+
+        if (line[0] == '-') 
+        {
+            if (!currentRoute.path.empty()) 
+            {
+                routesList.push_back(currentRoute);
+                currentRoute = t_routes();
+            }
+        } 
+        else 
+        {
+            size_t pos = line.find(':');
+            if (pos != std::string::npos) 
+            {
+                std::string key = Utility::trim(line.substr(0, pos), " ");
+                std::string value = Utility::trim(line.substr(pos + 1), " ");
+
+                if (key == "path")
+                    currentRoute.path = value;
+                else if (key == "root")
+                    currentRoute.root = value;
+                else if (key == "methods") 
+                {
+                    size_t start = value.find('[') + 1;
+                    size_t end = value.find(']');
+                    std::string methodsStr = value.substr(start, end - start);
+                    std::stringstream ss(methodsStr);
+                    std::string method;
+                    while (std::getline(ss, method, ',')) 
+                    {
+                        currentRoute.method.push_back(Utility::trim(method, " "));
+                    }
+                }
+                else if (key == "redirect")
+                    currentRoute.redirection = value;
+                else if (key == "directory_listing")
+                    currentRoute.dirListing = (value == "on");
+                else if (key == "default_file")
+                    currentRoute.defaultFile = value;
+                else if (key == "cgi")
+                    currentRoute.cgi = parseCgiSection(configFile);
+                else if (key == "upload")
+                    currentRoute.upload = parseUploadSection(configFile);
+            }
+            else 
+            {
+                // If we encounter a line without ':', it means we've reached the end of the routes section
+                break;
+            }
+        }
+    }
+
+    if (!currentRoute.path.empty()) 
+    {
+        routesList.push_back(currentRoute);
+    }
+
+    return routesList;
+}
+
+
+bool Conf::parseConfigFile(const std::string& filePath, t_globalConf& globalConfig, std::vector<t_serverConf>& serverConfigs) 
+{
+    std::ifstream configFile(filePath);
+    if (!configFile.is_open()) 
 	{
-		line.erase(line.begin(), std::find_if(line.begin(), line.end(), IsNotSpace));
-		line.erase(std::find_if(line.rbegin(), line.rend(), IsNotSpace).base(), line.end());
-		//std::cout << "line : " << line << std::endl;
-		if (line.empty() || line[0] == '#')
+        std::cerr << "Failed to open config file: " << filePath << std::endl;
+        return false;
+    }
+
+    std::string line;
+    bool inServerSection = false;
+    t_serverConf currentServer;
+
+    while (std::getline(configFile, line)) 
+	{
+        line = Utility::trim(line, " ");
+        if (line.empty() || line[0] == '#') 
 			continue;
-		if (line[0] == '[' && line[line.size() - 1] == ']')
+
+        if (line == "servers:") 
 		{
-			currenttext = line.substr(1, line.size() - 2);
-		}
-		std::size_t found = line.find("location");
-		if (found!=std::string::npos)
+            inServerSection = true;
+            continue;
+        }
+
+        if (inServerSection) 
 		{
-			currenttext = "location";
-		}
-		else
-		{
-			// std::cout << "line : " << line << std::endl;
-			std::istringstream linesplit(line);
-			std::string key, value;
-			if (std::getline(linesplit, key, '='))
+            if (line.find("host:") != std::string::npos) 
 			{
-				std::getline(linesplit, value);
-				key.erase(key.begin(), std::find_if(key.begin(), key.end(), IsNotSpace));
-				key.erase(std::find_if(key.rbegin(), key.rend(), IsNotSpace).base(), value.end());
-				// Store the key-value pair in the map
-				if (!currenttext.empty())
+                if (!currentServer.host.empty()) 
 				{
-					// std::cout << "currenttext : " << currenttext << std::endl;
-					if (currenttext == "server")
-						this->_server[key] = value;
-					else if (currenttext == "pages")
-						this->_pages[key] = value;
-					else if (currenttext == "http")
-						this->_http[key] = value;
-					else  if (currenttext == "location")
-					{
-						std::istringstream linelocation(key);
-						std::string locationKey, locationValue;
-						std::getline(linelocation, locationKey, ' ');
-						std::getline(linelocation, locationValue);
-						locationKey.erase(locationKey.begin(), std::find_if(locationKey.begin(), locationKey.end(), IsNotSpace));
-						locationKey.erase(std::find_if(locationKey.rbegin(), locationKey.rend(), IsNotSpace).base(), value.end());
-						if (locationKey == "route")
-							this->_location[locationKey] = locationValue;
-						else if (locationKey == "root")
-							this->_location[locationKey] = locationValue;
-					}
+                    serverConfigs.push_back(currentServer);
+                    currentServer = t_serverConf();
+                }
+                currentServer.host = Utility::trim(line.substr(line.find(':') + 1), " ");
+            } 
+			else if (line.find("port:") != std::string::npos) 
+			{
+                currentServer.port = atoi(Utility::trim(line.substr(line.find(':') + 1), " ").c_str());
+            } 
+			else if (line.find("server_name:") != std::string::npos) {
+                currentServer.serverName = Utility::trim(line.substr(line.find(':') + 1), " ");
+            } 
+			else if (line.find("default:") != std::string::npos) 
+			{
+                currentServer.isDefault = (Utility::trim(line.substr(line.find(':') + 1), " ") == "true");
+            } 
+			if (line.find("routes:") != std::string::npos) 
+			{
+				std::vector<t_routes> newRoutes = parseRoutesSection(configFile);
+				for (std::vector<t_routes>::iterator it = newRoutes.begin(); it != newRoutes.end(); ++it) 
+				{
+					currentServer.routes.push_back(*it);
 				}
 			}
-		}
-	}
+        } 
+		else 
+		{
+            if (line.find("default_error_pages:") != std::string::npos) 
+			{
+                while (std::getline(configFile, line) && line[0] != '-') 
+				{
+                    int errorCode = atoi(line.substr(0, line.find(':')).c_str());
+                    std::string errorPage = Utility::trim(line.substr(line.find(':') + 1), " ");
+                    globalConfig.default_error_pages[errorCode] = errorPage;
+                }
+            } 
+			else if (line.find("client_body_limit:") != std::string::npos) 
+			{
+                globalConfig.client_body_limit = atoi(Utility::trim(line.substr(line.find(':') + 1), " ").c_str());
+            }
+        }
+    }
+
+    if (!currentServer.host.empty()) 
+	{
+        serverConfigs.push_back(currentServer);
+    }
+
+    return true;
 }
