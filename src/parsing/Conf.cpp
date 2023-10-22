@@ -8,222 +8,263 @@ Conf::~Conf()
 {
 }
 
-t_cgi Conf::parseCgiSection(std::ifstream& configFile) 
+bool    Conf::parseConfigFile(const std::string& filePath)
 {
-    t_cgi currentCgi;
+    std::ifstream file(filePath);
     std::string line;
 
-    while (std::getline(configFile, line)) 
+    if (!file.is_open()) 
     {
-        line = Utility::trim(line, " ");
-        if (line.empty() || line[0] == '#')
-            continue;
-
-        size_t pos = line.find(':');
-        if (pos != std::string::npos) 
-        {
-            std::string key = Utility::trim(line.substr(0, pos), " ");
-            std::string value = Utility::trim(line.substr(pos + 1), " ");
-
-            if (key == "extension")
-                currentCgi.extension = value;
-            else if (key == "executable")
-                currentCgi.executable = value;
-        }
-        else 
-        {
-            // If we encounter a line without ':', it means we've reached the end of the cgi section
-            break;
-        }
+        return false; // Return false if the file could not be opened
     }
 
-    return currentCgi;
-}
-
-
-
-t_upload Conf::parseUploadSection(std::ifstream& configFile) 
-{
-    t_upload currentUpload;
-    std::string line;
-
-    while (std::getline(configFile, line)) 
+    parseGlobalSection(file);
+    
+    while (std::getline(file, line)) 
     {
-        line = Utility::trim(line, " ");
-        if (line.empty() || line[0] == '#')
+        std::string trimmed = Utility::trim(line, " ");
+        
+        // Skip empty lines
+        if (trimmed.empty()) 
             continue;
 
-        size_t pos = line.find(':');
-        if (pos != std::string::npos) 
-        {
-            std::string key = Utility::trim(line.substr(0, pos), " ");
-            std::string value = Utility::trim(line.substr(pos + 1), " ");
-
-            if (key == "enabled")
-                currentUpload.enabled = (value == "true");
-            else if (key == "save_path")
-                currentUpload.savePath = value;
-        }
-        else 
-        {
-            // If we encounter a line without ':', it means we've reached the end of the upload section
-            break;
-        }
-    }
-
-    return currentUpload;
-}
-
-std::vector<t_routes> Conf::parseRoutesSection(std::ifstream& configFile) 
-{
-    std::vector<t_routes> routesList;
-    t_routes currentRoute;
-    std::string line;
-
-    while (std::getline(configFile, line)) 
-    {
-        line = Utility::trim(line, " ");
-        if (line.empty() || line[0] == '#')
-            continue;
-
-        if (line[0] == '-') 
-        {
-            if (!currentRoute.path.empty()) 
-            {
-                routesList.push_back(currentRoute);
-                currentRoute = t_routes();
-            }
+        if (trimmed == "server {") 
+        {  // Start of a server section
+            parseServerSection(file);
         } 
         else 
         {
-            size_t pos = line.find(':');
-            if (pos != std::string::npos) 
-            {
-                std::string key = Utility::trim(line.substr(0, pos), " ");
-                std::string value = Utility::trim(line.substr(pos + 1), " ");
-
-                if (key == "path")
-                    currentRoute.path = value;
-                else if (key == "root")
-                    currentRoute.root = value;
-                else if (key == "methods") 
-                {
-                    size_t start = value.find('[') + 1;
-                    size_t end = value.find(']');
-                    std::string methodsStr = value.substr(start, end - start);
-                    std::stringstream ss(methodsStr);
-                    std::string method;
-                    while (std::getline(ss, method, ',')) 
-                    {
-                        currentRoute.method.push_back(Utility::trim(method, " "));
-                    }
-                }
-                else if (key == "redirect")
-                    currentRoute.redirection = value;
-                else if (key == "directory_listing")
-                    currentRoute.dirListing = (value == "on");
-                else if (key == "default_file")
-                    currentRoute.defaultFile = value;
-                else if (key == "cgi")
-                    currentRoute.cgi = parseCgiSection(configFile);
-                else if (key == "upload")
-                    currentRoute.upload = parseUploadSection(configFile);
-            }
-            else 
-            {
-                // If we encounter a line without ':', it means we've reached the end of the routes section
-                break;
-            }
+            // Handle unexpected data or errors
+            // Log or throw an error if needed
         }
-    }
-
-    if (!currentRoute.path.empty()) 
-    {
-        routesList.push_back(currentRoute);
-    }
-
-    return routesList;
-}
-
-
-bool Conf::parseConfigFile(const std::string& filePath, t_globalConf& globalConfig, std::vector<t_serverConf>& serverConfigs) 
-{
-    std::ifstream configFile(filePath);
-    if (!configFile.is_open()) 
-	{
-        std::cerr << "Failed to open config file: " << filePath << std::endl;
-        return false;
-    }
-
-    std::string line;
-    bool inServerSection = false;
-    t_serverConf currentServer;
-
-    while (std::getline(configFile, line)) 
-	{
-        line = Utility::trim(line, " ");
-        if (line.empty() || line[0] == '#') 
-			continue;
-
-        if (line == "servers:") 
-		{
-            inServerSection = true;
-            continue;
-        }
-
-        if (inServerSection) 
-		{
-            if (line.find("host:") != std::string::npos) 
-			{
-                if (!currentServer.host.empty()) 
-				{
-                    serverConfigs.push_back(currentServer);
-                    currentServer = t_serverConf();
-                }
-                currentServer.host = Utility::trim(line.substr(line.find(':') + 1), " ");
-            } 
-			else if (line.find("port:") != std::string::npos) 
-			{
-                currentServer.port = atoi(Utility::trim(line.substr(line.find(':') + 1), " ").c_str());
-            } 
-			else if (line.find("server_name:") != std::string::npos) {
-                currentServer.serverName = Utility::trim(line.substr(line.find(':') + 1), " ");
-            } 
-			else if (line.find("default:") != std::string::npos) 
-			{
-                currentServer.isDefault = (Utility::trim(line.substr(line.find(':') + 1), " ") == "true");
-            } 
-			if (line.find("routes:") != std::string::npos) 
-			{
-				std::vector<t_routes> newRoutes = parseRoutesSection(configFile);
-				for (std::vector<t_routes>::iterator it = newRoutes.begin(); it != newRoutes.end(); ++it) 
-				{
-					currentServer.routes.push_back(*it);
-				}
-			}
-        } 
-		else 
-		{
-            if (line.find("default_error_pages:") != std::string::npos) 
-			{
-                while (std::getline(configFile, line) && line[0] != '-') 
-				{
-                    int errorCode = atoi(line.substr(0, line.find(':')).c_str());
-                    std::string errorPage = Utility::trim(line.substr(line.find(':') + 1), " ");
-                    globalConfig.default_error_pages[errorCode] = errorPage;
-                }
-            } 
-			else if (line.find("client_body_limit:") != std::string::npos) 
-			{
-                globalConfig.client_body_limit = atoi(Utility::trim(line.substr(line.find(':') + 1), " ").c_str());
-            }
-        }
-    }
-
-    if (!currentServer.host.empty()) 
-	{
-        serverConfigs.push_back(currentServer);
     }
 
     return true;
+}
+
+void    Conf::parseGlobalSection(std::ifstream& file) 
+{
+    std::string line;
+    
+    // Flags to identify inside which block we are
+    bool insideErrorPages = false;
+
+    while (std::getline(file, line)) 
+    {
+        std::string trimmed = Utility::trim(line, " ");
+        
+        // Skip empty lines
+        if (trimmed.empty()) 
+            continue;
+        
+        // Check if we are entering or exiting a block
+        if (trimmed.back() == '{') 
+        {
+            std::string key = Utility::trim(trimmed.substr(0, trimmed.size() - 1), " ");
+            
+            if (key == "default_error_pages") 
+            {
+                insideErrorPages = true;
+            }
+        } 
+        else if (trimmed == "}") 
+        {
+            if (insideErrorPages) 
+            {
+                insideErrorPages = false;
+            }
+        } 
+        else 
+        {
+            size_t pos = trimmed.find(':');
+            if (pos != std::string::npos) {
+                std::string key = Utility::trim(trimmed.substr(0, pos), " ");
+                std::string value = Utility::trim(trimmed.substr(pos + 1), " ");
+                
+                // Remove the semicolon if present at the end
+                if (value.back() == ';') 
+                {
+                    value.erase(value.size() - 1);
+                }
+
+                if (insideErrorPages) 
+                {
+                    std::stringstream ss(key);
+                    int statusCode;
+                    ss >> statusCode;
+                    globalConfig.default_error_pages[statusCode] = value;
+                } 
+                else 
+                {
+                    if (key == "client_body_limit") 
+                    {
+                        std::stringstream ss(value);
+                        ss >> globalConfig.client_body_limit;
+                    }
+                }
+            }
+        }
+        
+        if (trimmed == "servers {") 
+            break;
+    }
+}
+
+void Conf::parseServerSection(std::ifstream& file) 
+{
+    std::string line;
+    t_serverConf currentServer;
+
+    while (std::getline(file, line)) 
+    {
+        std::string trimmed = Utility::trim(line, " ");
+
+        size_t pos = trimmed.find(':');
+        if (pos != std::string::npos) 
+        {
+            std::string key = Utility::trim(trimmed.substr(0, pos), " ");
+            std::string value = Utility::trim(trimmed.substr(pos + 1), " ");
+
+            // Remove the semicolon if present at the end
+            if (value[value.size() - 1] == ';') 
+            {
+                value.erase(value.size() - 1);
+            }
+
+            // Assign the parsed values to the currentServer structure
+            if (key == "host") {
+                currentServer.host = value;
+            } else if (key == "port") {
+                std::istringstream iss(value);
+                iss >> currentServer.port;
+            } else if (key == "server_name") {
+                currentServer.serverName = value;
+            } else if (key == "default") {
+                currentServer.isDefault = (value == "true");
+            }
+        }
+
+        if (trimmed == "location {") 
+        {
+            currentRoute = t_routes();  // reset
+            parseRouteSection(file);
+            // Once the route is fully parsed, you can also add it to the server's list of routes here.
+            currentServer.routes.push_back(currentRoute);
+        }
+
+        // ... Your other server section parsing logic ...
+
+        if (trimmed == "}") 
+        {
+            serverConfigs.push_back(currentServer);
+            break;
+        }
+    }
+}
+
+void Conf::parseRouteSection(std::ifstream& file) 
+{
+    // (void)file;
+    std::string line;
+
+    while (std::getline(file, line)) 
+    {
+        std::string trimmed = Utility::trim(line, " ");
+
+        if (trimmed == "cgi {") {
+            parseCgiSection(file);
+        } else if (trimmed == "upload {") {
+            // parseUploadSection(file);
+        }
+
+        if (trimmed == "}") 
+        { // Exiting the location block
+            break;
+        }
+    }
+}
+
+void Conf::parseCgiSection(std::ifstream& file) 
+{
+    std::string line;
+    t_cgi cgiConfig; // assuming this is the structure to hold CGI configs
+
+    while (std::getline(file, line)) {
+        std::string trimmed = Utility::trim(line, " ");
+        
+        // Skip empty lines and comments
+        if (trimmed.empty() || trimmed[0] == '#')
+            continue;
+        
+        // Check if we've reached the end of the CGI section
+        if (trimmed == "}") 
+            break;
+        
+        size_t pos = trimmed.find(':');
+        if (pos != std::string::npos) {
+            std::string key = Utility::trim(trimmed.substr(0, pos), " ");
+            std::string value = Utility::trim(trimmed.substr(pos + 1), " ");
+            
+            // Remove the semicolon if present at the end
+            if (value.back() == ';') 
+                value.erase(value.size() - 1);
+
+            if (key == "extension") {
+                cgiConfig.extension = value;
+            } else if (key == "executable") {
+                cgiConfig.executable = value;
+            }
+            // ... Add other CGI configurations if any
+        }
+    }
+
+    // You should probably add the populated cgiConfig to your route structure
+    currentRoute.cgi = cgiConfig;  // assuming currentRoute is a reference or pointer to the current route being parsed
+}
+
+void Conf::printGlobalConfig() const
+{
+    std::cout << "---- Global Configuration ----" << std::endl;
+    
+    std::cout << "client_body_limit: " << globalConfig.client_body_limit << std::endl;
+    
+    std::cout << "default_error_pages: " << std::endl;
+    for (std::map<int, std::string>::const_iterator it = globalConfig.default_error_pages.begin(); it != globalConfig.default_error_pages.end(); ++it) 
+    {
+        std::cout << "  " << it->first << ": " << it->second << std::endl;
+    }
+    
+    std::cout << "-------------------------------" << std::endl;
+}
+
+void Conf::printServerConf() const 
+{
+    std::vector<t_serverConf>::const_iterator serverIt;
+    for (serverIt = serverConfigs.begin(); serverIt != serverConfigs.end(); ++serverIt) 
+    {
+        std::cout << "Server Config:" << std::endl;
+        std::cout << "----------------------" << std::endl;
+        std::cout << "Host: " << serverIt->host << std::endl;
+        std::cout << "Port: " << serverIt->port << std::endl;
+        std::cout << "Server Name: " << serverIt->serverName << std::endl;
+        std::cout << "Default: " << (serverIt->isDefault ? "True" : "False") << std::endl;
+        
+        std::vector<t_routes>::const_iterator routeIt;
+        for (routeIt = serverIt->routes.begin(); routeIt != serverIt->routes.end(); ++routeIt) {
+            std::cout << "    Route Path: " << routeIt->path << std::endl;
+            std::cout << "    Root: " << routeIt->root << std::endl;
+            std::cout << "    Redirect: " << routeIt->redirection << std::endl;
+            std::cout << "    Directory Listing: " << (routeIt->dirListing ? "On" : "Off") << std::endl;
+            std::cout << "    Default File: " << routeIt->defaultFile << std::endl;
+
+            std::cout << "    CGI:" << std::endl;
+            std::cout << "        Extension: " << routeIt->cgi.extension << std::endl;
+            std::cout << "        Executable: " << routeIt->cgi.executable << std::endl;
+
+            std::cout << "    Upload:" << std::endl;
+            std::cout << "        Enabled: " << (routeIt->upload.enabled ? "True" : "False") << std::endl;
+            std::cout << "        Save Path: " << routeIt->upload.savePath << std::endl;
+        }
+        std::cout << "----------------------" << std::endl << std::endl;
+    }
 }

@@ -3,6 +3,13 @@
 
 # include "../stdlib.hpp"
 
+enum ParseState 
+{
+    NONE,
+    GLOBAL,
+    SERVER
+};
+
 typedef struct  s_upload
 {
     bool                        enabled;
@@ -86,15 +93,38 @@ class Conf
 	public:
 		Conf();
 		~Conf();
+        bool                         parseConfigFile(const std::string& filePath);
+        void                         parseGlobalSection(std::ifstream& file);
+        void                         parseServerSection(std::ifstream& file);
+        void                         parseCgiSection(std::ifstream& file);
+        void                         parseRouteSection(std::ifstream& file);
+
+        // //getter
+        // std::map<int, std::string>  getDefaultErrorPages() const;
+        // int                         getClientBodyLimit() const;
+        // std::string                 getHost(size_t serverIndex) const;
+        // int                         getPort(size_t serverIndex) const;
+        // std::string                 getServerName(size_t serverIndex) const;
+        // bool                        getDefault(size_t serverIndex) const;
+
+        // //printer
+        void                        printGlobalConfig() const;
+        void                        printServerConf() const;
+        // void                        printDefaultErrorPages() const;
+        // void                        printHost(size_t serverIndex) const;
+        // void                        printPort(size_t serverIndex) const;
+        // void                        printServerName(size_t serverIndex) const;
+        // void                        printDefault(size_t serverIndex) const;
 
     private:
         t_globalConf                globalConfig;
         std::vector<t_serverConf>   serverConfigs;
+        std::stack<void*>           currentContext;
+        t_routes                    currentRoute;
 
-        t_upload                     parseUploadSection(std::ifstream& configFile);
-        t_cgi                        parseCgiSection(std::ifstream& configFile);
-        bool                         parseConfigFile(const std::string& filePath, t_globalConf& globalConfig, std::vector<t_serverConf>& serverConfigs);
-        std::vector<t_routes>        parseRoutesSection(std::ifstream& configFile);
+        // t_upload                     parseUploadSection(std::ifstream& configFile);
+        // t_cgi                        parseCgiSection(std::ifstream& configFile);
+        // std::vector<t_routes>        parseRoutesSection(std::ifstream& configFile);
 
 
 
