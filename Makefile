@@ -6,7 +6,7 @@
 #    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/10/20 17:19:03 by rchiewli         ###   ########.fr        #
+#    Updated: 2023/10/23 23:38:08 by rchiewli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,14 +27,14 @@ MODULE1		= Parsing.cpp \
 MODULE2		= Server.cpp \
 				Response.cpp \
 				Store.cpp \
-				FileHandle.cpp 
-#				HttpRequestHandle.cpp \
-# Request.cpp
+				FileHandle.cpp \
+				Request.cpp
+ #HttpRequestHandle.cpp
 
 MODULE3		=
 
 MODULE4		= Console.cpp \
-				Utility.cpp
+				Uti.cpp
 
 
 MODULE1_DIR	= ./src/parsing/

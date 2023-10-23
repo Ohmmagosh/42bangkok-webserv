@@ -9,18 +9,23 @@ int main(int argc, char* argv[])
         std::cerr << "Usage: " << argv[0] << " <config_file_name>" << std::endl;
         return 1;
     }
+    
+    Server serv;
 
-    Conf confParser;
+    serv.start();
+    // Conf confParser;
 
-    if (!confParser.parseConfigFile(argv[1]))
-    {
-        std::cerr << "Error parsing the configuration file." << std::endl;
-        return 1;
-    }
+    // if (!confParser.parseConfigFile(argv[1]))
+    // {
+    //     std::cerr << "Error parsing the configuration file." << std::endl;
+    //     return 1;
+    // }
 
-    confParser.printGlobalConfig();
-    std::cout << "-----------------zzzzz--------------" << std::endl;
-    confParser.printServerConf();
+    // confParser.printGlobalConfig();
+    // std::cout << "-----------------zzzzz--------------" << std::endl;
+    // confParser.printServerConf();
+
+
 
     return 0;
 }
