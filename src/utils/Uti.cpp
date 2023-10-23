@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 22:42:35 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/20 02:46:25 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/23 15:02:00 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,4 +59,12 @@ std::string	Uti::trim(const std::string& str, const std::string& delim) {
 	if (start == std::string::npos)
 		return "";
 	return str.substr(start, end - start + 1);
+}
+
+int	Uti::strToInt(const std::string& str) {
+	int	ret;
+	std::stringstream	ss(str);
+
+	ss >> ret;
+	return ret;
 }
