@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   stdlib.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 21:01:17 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/17 18:44:09 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/20 21:33:11 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@
 # include <fcntl.h>
 # include <signal.h>
 # include "utils/Console.hpp"
-# include "utils/Utility.hpp"
+# include "utils/Uti.hpp"
 
 #define READ_BUFFER_SIZE 256000
 
