@@ -32,11 +32,11 @@ bool    Conf::parseConfigFile(const std::string& filePath)
         {  // Start of a server section
             parseServerSection(file);
         } 
-        else 
-        {
-            // Handle unexpected data or errors
-            // Log or throw an error if needed
-        }
+    else if (trimmed != "servers {") 
+    {
+        // Handle unexpected data or errors
+        // Log or throw an error if needed
+    }
     }
 
     return true;
@@ -118,8 +118,8 @@ void Conf::parseServerSection(std::ifstream& file)
     while (std::getline(file, line)) 
     {
         std::string trimmed = Utility::trim(line, " ");
-
         size_t pos = trimmed.find(':');
+
         if (pos != std::string::npos) 
         {
             std::string key = Utility::trim(trimmed.substr(0, pos), " ");
@@ -132,56 +132,126 @@ void Conf::parseServerSection(std::ifstream& file)
             }
 
             // Assign the parsed values to the currentServer structure
-            if (key == "host") {
+            if (key == "host") 
+            {
                 currentServer.host = value;
-            } else if (key == "port") {
+            } 
+            else if (key == "port") 
+            {
                 std::istringstream iss(value);
                 iss >> currentServer.port;
-            } else if (key == "server_name") {
+            } 
+            else if (key == "server_name") 
+            {
                 currentServer.serverName = value;
-            } else if (key == "default") {
+            } 
+            else if (key == "default") 
+            {
                 currentServer.isDefault = (value == "true");
             }
         }
 
-        if (trimmed == "location {") 
+        // std::cout << "Processing line in parseServerSection: [" << trimmed << "]" << std::endl;
+        if (trimmed.find("location ") == 0) 
         {
-            currentRoute = t_routes();  // reset
-            parseRouteSection(file);
-            // Once the route is fully parsed, you can also add it to the server's list of routes here.
-            currentServer.routes.push_back(currentRoute);
-        }
+            size_t startPath = trimmed.find(" ");
+            size_t endPath = trimmed.find(" {");
 
-        // ... Your other server section parsing logic ...
+            if (startPath != std::string::npos && endPath != std::string::npos && startPath < endPath)
+            {
+                std::string locationPath = trimmed.substr(startPath + 1, endPath - startPath - 1);
+                currentRoute.path = locationPath;  // Assuming your t_routes structure has a path member
+            }
+    
+            parseRouteSection(file);
+            currentServer.routes.push_back(currentRoute);
+            currentRoute = s_routes();
+        }
 
         if (trimmed == "}") 
         {
+            currentServer.routes.push_back(currentRoute);
             serverConfigs.push_back(currentServer);
-            break;
+            currentServer = s_serverConf();  // reset for next server
+            currentRoute = s_routes();  // reset for next route
+            return;
         }
     }
 }
 
 void Conf::parseRouteSection(std::ifstream& file) 
 {
-    // (void)file;
     std::string line;
+    int depth = 1;
 
-    while (std::getline(file, line)) 
+    while (std::getline(file, line) && depth > 0) 
     {
         std::string trimmed = Utility::trim(line, " ");
+        std::cout << "Entered parseRouteSection with line: [" << trimmed << "]" << std::endl;
 
-        if (trimmed == "cgi {") {
+        if (trimmed.find("{") != std::string::npos) 
+        {
+            depth++;
+        }
+        if (trimmed.find("}") != std::string::npos) 
+        {
+            depth--;
+        }
+        if (depth == 0) 
+        {
+            break; // Exit the loop if we've closed the location block
+        }
+
+        size_t pos = trimmed.find(':');
+        if (pos != std::string::npos) 
+        {
+            std::string key = Utility::trim(trimmed.substr(0, pos), " ");
+            std::string value = Utility::trim(trimmed.substr(pos + 1), " ");
+            
+            if (!value.empty() && value[value.size() - 1] == ';') 
+            {
+                value.erase(value.size() - 1);
+            }
+
+            if (key == "path") 
+            {
+                currentRoute.path = value;
+            } 
+            else if (key == "root") 
+            {
+                currentRoute.root = value;
+            } 
+            else if (key == "redirect") 
+            {
+                currentRoute.redirection = value;
+            } 
+            else if (key == "directory_listing") 
+            {
+                currentRoute.dirListing = (value == "on");
+            } 
+            else if (key == "default_file") 
+            {
+                currentRoute.defaultFile = value;
+            }
+            // ... Add other route-specific configurations here...
+        }
+
+        if (trimmed == "cgi {") 
+        {
             parseCgiSection(file);
-        } else if (trimmed == "upload {") {
+        } 
+        else if (trimmed == "upload {") 
+        {
             // parseUploadSection(file);
         }
+        // if (trimmed == "}") 
+        // { // Exiting the location block
+        //     break;
+        // }
 
-        if (trimmed == "}") 
-        { // Exiting the location block
-            break;
-        }
+        std::cout << "Exiting parseRouteSection after processing line: [" << trimmed << "]" << std::endl;
     }
+
 }
 
 void Conf::parseCgiSection(std::ifstream& file) 
@@ -217,8 +287,6 @@ void Conf::parseCgiSection(std::ifstream& file)
             // ... Add other CGI configurations if any
         }
     }
-
-    // You should probably add the populated cgiConfig to your route structure
     currentRoute.cgi = cgiConfig;  // assuming currentRoute is a reference or pointer to the current route being parsed
 }
 
@@ -249,6 +317,7 @@ void Conf::printServerConf() const
         std::cout << "Server Name: " << serverIt->serverName << std::endl;
         std::cout << "Default: " << (serverIt->isDefault ? "True" : "False") << std::endl;
         
+        std::cout << "--- Routes ---\n";
         std::vector<t_routes>::const_iterator routeIt;
         for (routeIt = serverIt->routes.begin(); routeIt != serverIt->routes.end(); ++routeIt) {
             std::cout << "    Route Path: " << routeIt->path << std::endl;

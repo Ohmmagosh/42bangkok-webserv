@@ -3,13 +3,6 @@
 
 # include "../stdlib.hpp"
 
-enum ParseState 
-{
-    NONE,
-    GLOBAL,
-    SERVER
-};
-
 typedef struct  s_upload
 {
     bool                        enabled;
