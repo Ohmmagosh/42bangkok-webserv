@@ -1,29 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Utility.cpp                                        :+:      :+:    :+:   */
+/*   Uti.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/15 22:42:35 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/19 05:00:08 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/23 15:02:00 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Utility.hpp"
+#include "Uti.hpp"
 
-Utility::Utility() {
-
-}
-
-
-
-Utility::~Utility() {
+Uti::Uti() {
 
 }
 
 
-std::vector<std::string>	Utility::splite(const std::string& str, const std::string& delim) {
+
+Uti::~Uti() {
+
+}
+
+
+std::vector<std::string>	Uti::splite(const std::string& str, const std::string& delim) {
 	std::vector<std::string>	ret;
 	size_t						start = 0;
 	size_t						end = str.find(delim);
@@ -37,7 +37,7 @@ std::vector<std::string>	Utility::splite(const std::string& str, const std::stri
 	return ret;
 }
 
-std::vector<std::string>	Utility::spliteHeader(const std::string& str, const std::string& delim) {
+std::vector<std::string>	Uti::spliteHeader(const std::string& str, const std::string& delim) {
 	std::vector<std::string>	ret;
 	size_t						start = 0;
 	size_t						end = str.find(delim);
@@ -53,10 +53,18 @@ std::vector<std::string>	Utility::spliteHeader(const std::string& str, const std
 	return ret;
 }
 
-std::string	Utility::trim(const std::string& str, const std::string& delim) {
+std::string	Uti::trim(const std::string& str, const std::string& delim) {
 	std::string::size_type	start = str.find_first_not_of(delim);
 	std::string::size_type	end = str.find_last_not_of(delim);
 	if (start == std::string::npos)
 		return "";
 	return str.substr(start, end - start + 1);
+}
+
+int	Uti::strToInt(const std::string& str) {
+	int	ret;
+	std::stringstream	ss(str);
+
+	ss >> ret;
+	return ret;
 }
