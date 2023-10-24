@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequestHandle.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/18 01:27:41 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/19 13:24:00 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,26 @@
 # include "Request.hpp"
 # include "Store.hpp"
 
+struct ServerConfig 
+{
+    int port;
+    std::string name;
+    std::string landingPagePath;
+};
+
 class HttpRequestHandle
 {
 	private:
 		Request		_req;
 		std::string	_cgi_path;
 		std::string	_method;
+		std::vector<ServerConfig> _serverConfigs;
 	public:
 		HttpRequestHandle();
 		HttpRequestHandle(const std::string& method);
 		HttpRequestHandle(const HttpRequestHandle & rhs);
 		HttpRequestHandle(const Request& req, const std::string& cgi_path);
+		HttpRequestHandle(const Request& req, const std::string& cgi_path, const std::vector<ServerConfig>& serverConfigs);
 		~HttpRequestHandle();
 		HttpRequestHandle &operator=(const HttpRequestHandle & rhs);
 
@@ -37,6 +46,7 @@ class HttpRequestHandle
 		std::string	postMethod(const Request& req, Store *st);
 		std::string deleteMethod(const Request& req);
 		std::string	readFile(std::stringstream& path);
+		int getPortFromRequest(const Request& req);
 };
 
 #endif

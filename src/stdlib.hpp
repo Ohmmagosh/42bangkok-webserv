@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 21:01:17 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/20 21:33:11 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/24 14:18:53 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,6 @@
 # include <ostream>
 # include <fstream>
 # include <sstream>
-// # include <stdio.h>
-// # include <yaml-cpp/yaml.h>
 # include <streambuf>
 # include <unistd.h>
 # include <cctype>
@@ -49,6 +47,6 @@
 # include "utils/Console.hpp"
 # include "utils/Uti.hpp"
 
-#define READ_BUFFER_SIZE 256000
+#define READ_BUFFER_SIZE 2560000
 
 #endif

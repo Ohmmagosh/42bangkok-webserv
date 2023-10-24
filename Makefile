@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
+#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/10/18 04:11:36 by psuanpro         ###   ########.fr        #
+#    Updated: 2023/10/23 23:38:08 by rchiewli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,21 +21,20 @@ CPPFLAGS	= -g -Wall -Werror -Wextra
 
 SRC_DIR		= ./src/
 
-MODULE1		= Parsing.cpp
+MODULE1		= Parsing.cpp \
+				Conf.cpp
 
 MODULE2		= Server.cpp \
-				Request.cpp \
-				HttpRequestHandle.cpp \
-				TBucket.cpp \
 				Response.cpp \
 				Store.cpp \
 				FileHandle.cpp \
-				configparser.cpp
+				Request.cpp
+ #HttpRequestHandle.cpp
 
 MODULE3		=
 
 MODULE4		= Console.cpp \
-				Utility.cpp
+				Uti.cpp
 
 
 MODULE1_DIR	= ./src/parsing/
