@@ -17,6 +17,7 @@ class Server
 {
 	public:
 		Server();
+		Server(const Conf& config);
 		~Server();
 		void start();
 		void stop();
@@ -24,11 +25,11 @@ class Server
 		static volatile sig_atomic_t got_signal;
 
     private:
-		Conf 				config;
-		std::vector<int> 	serverSockets;
-        bool				running;
-		int 				currentClientCount;
-        int					server_fd;
+		Conf 				_config;
+		std::vector<int> 	_serverSockets;
+        bool				_running;
+		int 				_currentClientCount;
+        int					_server_fd;
         std::set<int> 		active_clients;
 		std::map<int, int> 	client_to_port_map;
 	// 	// struct kevent events;

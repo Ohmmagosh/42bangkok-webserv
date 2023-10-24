@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Conf.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/24 14:24:07 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/24 17:57:10 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,22 @@ bool Conf::parseConfigFile(const std::string &filePath)
 	// }
 	// std::cout << "--------------END--------------" << std::endl;
 	return true;
+}
+
+const t_globalConf&	Conf::getGlobalConf() const {
+	return this->_globalConfig;
+}
+
+const std::vector<t_serverConf>&	Conf::getServerConf() const {
+	return this->_serverConfigs;
+}
+
+const t_con	Conf::getAllConfig() const {
+	t_con	ret;
+
+	ret.global = this->_globalConfig;
+	ret.server = this->_serverConfigs;
+	return ret;
 }
 
 void	Conf::setServerHost(t_serverConf *sv, const std::string& line) {

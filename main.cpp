@@ -10,21 +10,22 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    Server serv;
+    std::string file(argv[1]);
 
+    Conf confParser;
+    if (!confParser.parseConfigFile(argv[1]))
+    {
+        std::cerr << "Error parsing the configuration file." << std::endl;
+        return 1;
+    }
+
+
+    confParser.printGlobalConfig();
+    std::cout << "-----------------zzzzz--------------" << std::endl;
+    confParser.printServerConf();
+
+    Server serv(confParser);
     serv.start();
-    // Conf confParser;
-
-    // if (!confParser.parseConfigFile(argv[1]))
-    // {
-    //     std::cerr << "Error parsing the configuration file." << std::endl;
-    //     return 1;
-    // }
-
-    // confParser.printGlobalConfig();
-    // std::cout << "-----------------zzzzz--------------" << std::endl;
-    // confParser.printServerConf();
-
 
 
     return 0;

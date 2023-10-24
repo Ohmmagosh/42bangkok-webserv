@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Conf.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:39 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/24 14:23:40 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/24 17:57:04 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,12 @@ typedef struct	s_globalConf
 	}
 }				t_globalConf;
 
+typedef struct 	s_con
+{
+	t_globalConf				global;
+	std::vector<t_serverConf>	server;
+}				t_con;
+
 class Conf
 {
 	public:
@@ -104,6 +110,12 @@ class Conf
 		void						parseCgiSection(std::ifstream& file);
 		void						parseRouteSection(std::ifstream& file);
 
+
+		//GETTER
+
+		const t_con								getAllConfig() const;
+		const t_globalConf&						getGlobalConf() const;
+		const std::vector<t_serverConf>&		getServerConf() const;
 		//HELPER
 		bool						validateFindStr(const std::string& line, const std::string& sfind);
 
