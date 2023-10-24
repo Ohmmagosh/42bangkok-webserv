@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+         #
+#    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/10/24 17:26:40 by rchiewli         ###   ########.fr        #
+#    Updated: 2023/10/24 23:05:25 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,8 +28,8 @@ MODULE2		= Server.cpp \
 				Response.cpp \
 				Store.cpp \
 				FileHandle.cpp \
-				Request.cpp
- #HttpRequestHandle.cpp
+				Request.cpp \
+ 				HttpRequestHandle.cpp
 
 MODULE3		=
 

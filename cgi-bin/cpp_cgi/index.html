@@ -96,7 +96,7 @@
 					<h2>Download the Latest File</h2>
 					<button id="downloadButton" onclick="handleFileDownload()">Download Latest File</button>
 				</div>
-			</div>		
+			</div>
 		</div>
 	</div>
 	<div class="footer">
@@ -110,30 +110,7 @@
 			// Your GET request code here
 		}
 		function handlePost(e) {akjsdgjkasgdkhagd
-			alert(e.target.value)
-			// const data = document.getElementById('postDataInput').value;
-			// if (data) {
-			// 	// Define the server endpoint URL
-			// 	const serverUrl = 'https://your-server-endpoint.com/post-data'; // Replace with your server endpoint
-
-			// 	// Send POST request using Fetch API
-			// 	fetch(serverUrl, {
-			// 		method: 'POST',
-			// 		headers: {
-			// 			'Content-Type': 'application/json'
-			// 		},
-			// 		body: JSON.stringify({ data: data }) // Sending data as JSON
-			// 	})
-			// 	.then(response => response.json()) // Assuming server responds with json
-			// 	.then(data => {
-			// 		alert('Data successfully sent and received response:', data);
-			// 	})
-			// 	.catch(error => {
-			// 		alert('Error sending data:', error);
-			// 	});
-			// } else {
-			// 	alert('Please enter data to POST.');
-			// }
+			alert(e.target.value);
 		}
 
 		function handleDelete() {
@@ -153,7 +130,7 @@
 
 		function handleFileUpload() {
 			const formData = new FormData(document.getElementById('uploadForm'));
-			
+
 			fetch('http://localhost:8080/upload-file', {
 				method: 'POST',
 				body: formData
@@ -169,7 +146,7 @@
 			});
 		}
 
-		function handleFileDownload() 
+		function handleFileDownload()
 		{
 			// Define the server endpoint URL for downloading the latest uploaded file
 			const serverUrl = `http://localhost:8080/download-latest-file`;
