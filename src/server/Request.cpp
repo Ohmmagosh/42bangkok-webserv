@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/19 21:09:25 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/24 18:13:38 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ void	Request::setAllBody(const std::string& body) {
 }
 
 void	Request::setHeaderAndBody(const std::string& raw_req) {
-	std::vector<std::string>	sp = Utility::splite(raw_req, "\r\n\r\n");
+	std::vector<std::string>	sp = Uti::splite(raw_req, "\r\n\r\n");
 	this->setAllHeader(sp[0]);
 	this->setAllBody(sp[1]);
 }
@@ -119,12 +119,12 @@ void	Request::setQueryUrl() {
 	if (url.empty())
 		return ;
 	if (url.find("?") != std::string::npos) {
-		std::vector<std::string>	sp = Utility::splite(url, "?");
+		std::vector<std::string>	sp = Uti::splite(url, "?");
 		if (sp[1].empty())
 			return ;
-		std::vector<std::string>	sa = Utility::splite(sp[1], "&");
+		std::vector<std::string>	sa = Uti::splite(sp[1], "&");
 		for (size_t i = 0; i < sa.size(); i++) {
-			std::vector<std::string> se = Utility::splite(sa[i], "=");
+			std::vector<std::string> se = Uti::splite(sa[i], "=");
 			this->_query_url[se[0]] = se[1];
 		}
 	}
@@ -134,7 +134,7 @@ void	Request::setQueryUrl() {
 void	Request::setHeaderC(const std::string& line) {
 	std::vector<std::string>	sp;
 	std::stringstream			ss;
-	sp = Utility::spliteHeader(line, ":");
+	sp = Uti::spliteHeader(line, ":");
 	this->_headers[sp[0]] = sp[1];
 }
 
@@ -156,8 +156,8 @@ void	Request::setHeaderMethod(const std::string& line) {
 }
 
 void	Request::setBoundaryFromContent(const std::string& content) {
-	std::vector<std::string>	sp = Utility::splite(Utility::trim(content, " "), " ");
-	std::vector<std::string>	bp = Utility::splite(sp[1], "=");
+	std::vector<std::string>	sp = Uti::splite(Uti::trim(content, " "), " ");
+	std::vector<std::string>	bp = Uti::splite(sp[1], "=");
 	this->setBoundary(bp[1]);
 }
 
@@ -180,7 +180,7 @@ bool	Request::validateMultiPart() {
 void	Request::validateHeadersCandNoC(const std::string& line) {
 	std::vector<std::string>	sp;
 	if (line.find(":") != std::string::npos) {
-		sp = Utility::splite(line, ":");
+		sp = Uti::splite(line, ":");
 		this->setHeaderC(line);
 	}else {
 		this->setHeaderNoC(line);
@@ -205,7 +205,7 @@ bool	Request::validateBoundaryBody() const {
 	std::stringstream	ss(body);
 	std::string			buff;
 	while(std::getline(ss, buff)) {
-		if (Utility::trim(buff, "-\r\n").compare(Utility::trim(boundary, "-\r\n")) == 0)
+		if (Uti::trim(buff, "-\r\n").compare(Uti::trim(boundary, "-\r\n")) == 0)
 			return true;
 	}
 	return false;
