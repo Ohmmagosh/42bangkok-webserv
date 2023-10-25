@@ -6,12 +6,12 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/24 23:59:32 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/26 05:40:15 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequestHandle.hpp"
-#include <string>
+
 
 HttpRequestHandle::HttpRequestHandle()
 {
@@ -49,34 +49,49 @@ HttpRequestHandle &HttpRequestHandle::operator=(const HttpRequestHandle &rhs)
 	return *this;
 }
 
-// std::string HttpRequestHandle::validateMethod(Store *st)
-// {
-// 	if (this->_req.getMethod() == "GET" && st->getMultiPart() == false) {
-// 		return this->getMethod(this->_req);
-// 	}
-// 	else if (this->_req.getMethod() == "POST" || st->getMultiPart()) {
-// 		return this->postMethod(this->_req, st);
-// 	}
-// 	else if (this->_req.getMethod() == "DELETE" && st->getMultiPart() == false) {
-// 		return this->deleteMethod(this->_req);
-// 	}
-// 	else {
-// 		Response error(501, "Not Implement", "This method is not implemented");
-// 		return error.HttpResponse();
-// 	}
-// }
 
-bool	HttpRequestHandle::validateMethodAllowRoute(const std::string& url, const t_con& config) {
+bool	HttpRequestHandle::validateUrlAllow(const std::string& url, const t_con& config, const std::string& vmethod) {
+
+	for (size_t i = 0; i < config.server.size(); i++) {
+		for (size_t j = 0; j < config.server[i].location.size(); j++) {
+			if (config.server[i].location[j].path == url) {
+				if (this->validateMethodAllow(config.server[i].location[j].method, vmethod))
+					return true;
+			}
+		}
+	}
 	return false;
 }
 
-std::string	HttpRequestHandle::getMethod(const Request& req, const t_con& config) {
-	for (size_t i = 0; i < config.server.size(); i++) {
-		for (size_t j = 0; j < config.server[i].location.size(); j++) {
-			std::cout << REDB << config.server[i].location[j].path << RES << std::endl;
-		}
+bool	HttpRequestHandle::validateMethodAllow(std::vector<std::string> method, const std::string& vmethod) {
+	for (size_t i = 0; i < method.size(); i++) {
+		if (method[i] == vmethod)
+			return true;
 	}
+	return false;
+}
 
+bool	HttpRequestHandle::validateCgi() {
+
+}
+
+std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Request& req, const t_con& config) {
+	CgiHandler cgi;
+	(void)req;
+
+	if (url == "/") {
+		cgi.initArgv(cgi.getExecuteByUrl(url, config.server),cgi.getRootByUrl(url, config.server) + "main.py" );
+		StringMatrix	argv(cgi.getArgv());
+		return cgi.executeCgi(argv);
+	}
+	Response res404(404, "Not found", "");
+	return	res404.HttpResponse();
+}
+
+std::string	HttpRequestHandle::getMethod(const Request& req, const t_con& config) {
+	if (this->validateUrlAllow(req.getUrl(), config, "GET")) {
+		return this->getMethodRoute(req.getUrl(), req, config);
+	}
 	return req.getUrl();
 }
 
@@ -84,6 +99,12 @@ std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& co
 
 	if (req.getMethod() == "GET") {
 		return this->getMethod(req, config);
+	}
+	else if (req.getMethod() == "POST") {
+		return "POST";
+	}
+	else if (req.getMethod() == "DELETE") {
+		return "DELETE";
 	}
 	return "HELLO";
 }
@@ -106,6 +127,7 @@ int HttpRequestHandle::getPortFromRequest(Request req)
 	}
 	return -1; // Return -1 or any other value to indicate that the port wasn't found
 }
+
 
 // std::string HttpRequestHandle::getMethod(const Request& req)
 // {

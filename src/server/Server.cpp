@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Response.hpp"
 
 volatile sig_atomic_t Server::got_signal = 0;
 
@@ -159,10 +160,10 @@ void Server::closeActiveClients()
 
 void Server::closeServerSocket()
 {
-	if (_server_fd != -1)
+	if (this->_server_fd != -1)
 	{
-		close(_server_fd);
-		_server_fd = -1;
+		close(this->_server_fd);
+		this->_server_fd = -1;
 	}
 }
 
@@ -210,7 +211,8 @@ void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
 		if (serverSocket < 0)
 		{
 			perror("Error creating socket");
-			return ;
+			std::cerr << "Failed to create server socket for server number " << i << std::endl;
+			return;
 		}
 
 		int opt = 1;
@@ -262,13 +264,15 @@ void Server::handleEventError(struct kevent& event)
 
 void Server::handleNewClientConnection(int kq, int eventIdent)
 {
-	struct sockaddr_in client_address;
-	socklen_t client_addrlen = sizeof(client_address);
-	int new_socket = accept(eventIdent, (struct sockaddr*)&client_address, &client_addrlen);
-	if (new_socket < 0)
-	{
+    struct sockaddr_in client_address;
+    socklen_t client_addrlen = sizeof(client_address);
+    int new_socket = accept(eventIdent, (struct sockaddr*)&client_address, &client_addrlen);
+    if (new_socket < 0)
+    {
 		perror("new_socket");
-	}
+		std::cerr << "Failed to accept client connection on server FD: " << eventIdent << std::endl;
+		return;
+    }
 
 	struct sockaddr_in server_address;
 	socklen_t server_addrlen = sizeof(server_address);
@@ -346,11 +350,14 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 	// std::cout << "------- name end -------" << std::endl;
 	// return  ret.validateMethod(store);
 
-	std::cout << YELB << "------------ret-------------" << RES << std::endl;
-	std::cout << ret.validateMethod(parsedrequest, config) << std::endl;
-	std::cout << YELB << "----------ret-end-----------" << RES << std::endl;
-	std::string resp = createSimpleHttpResponse();
-	return (resp);
+	// std::cout << YELB << "------------ret-------------" << RES << std::endl;
+	// std::cout << ret.validateMethod(parsedrequest, config) << std::endl;
+	// std::cout << YELB << "----------ret-end-----------" << RES << std::endl;
+	Response restest(200,"OK", ret.validateMethod(parsedrequest, config));
+	// return ret.validateMethod(parsedrequest, config);
+	return restest.HttpResponse();
+	// std::string resp = createSimpleHttpResponse();
+	// return (resp);
 }
 
 void Server::handleRead(int kq, struct kevent& event)
@@ -372,37 +379,37 @@ void Server::handleRead(int kq, struct kevent& event)
 	char buffer[READ_BUFFER_SIZE];
 	ssize_t bytesRead = recv(eventIdent, buffer, sizeof(buffer) - 1, 0);
 
-	if (bytesRead < 0)
-	{
-		// Handle EAGAIN or EWOULDBLOCK
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-		{
-			return;
-		}
-		perror("recv error");
-		return;
-	}
-	else if (bytesRead == 0)
-	{
-		// Check if there's any unsent data for the client
-		if (!client_write_queues[eventIdent].empty())
-		{
-			return;
-		}
-		handleClientDisconnection(kq, eventIdent);
-	}
-	else
-	{
-		buffer[bytesRead] = '\0';
-		// std::cout << "------- This is buffer -------" << std::endl;
-		// std::cout << "\n" << buffer << '\n' << bytesRead << "bytes\n" << "\n" << std::endl;
-		// std::cout << "------- End of buffer -------" << std::endl;
+    if (bytesRead < 0)
+    {
+        // Handle EAGAIN or EWOULDBLOCK
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
+        {
+            return;
+        }
+        perror("recv error");
+        return;
+    }
+    else if (bytesRead == 0)
+    {
+        // Check if there's any unsent data for the client
+        if (!client_write_queues[eventIdent].empty())
+        {
+            return;
+        }
+		std::cout << "Client with FD: " << eventIdent << " closed connection" << std::endl;
+        handleClientDisconnection(kq, eventIdent);
+    }
+    else
+    {
+        buffer[bytesRead] = '\0';
+        std::cout << "------- This is buffer -------" << std::endl;
+        std::cout << "\n" << buffer << '\n' << bytesRead << "bytes\n" << "\n" << std::endl;
+        std::cout << "------- End of buffer -------" << std::endl;
 
 		// Process the received data
 		std::string requestData(buffer);
 		Request parsedRequest(requestData);
 		testlen++;
-		std::cout << YELB << "hello : " << testlen << RES <<std::endl;
 		if (parsedRequest.getBody().size() > (size_t)config.global.client_body_limit)
 		{
 			Response res(413, "Payload Too Large", "Request body is too large");
@@ -452,6 +459,7 @@ void Server::handleWrite(int kq, int eventIdent)
 				else
 				{
 					perror("send error");
+					std::cerr << "Failed to send response to client with FD: " << eventIdent << std::endl;
 					// Remove client from active_clients and close its socket
 					active_clients.erase(eventIdent);
 					client_write_queues.erase(eventIdent);
@@ -472,6 +480,7 @@ void Server::handleWrite(int kq, int eventIdent)
 					EV_SET(&kev, eventIdent, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
 					if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
 					{
+						std::cout << "encounter 1" << std::endl;
 						perror("Error removing write event from kqueue");
 					}
 				}
@@ -479,12 +488,13 @@ void Server::handleWrite(int kq, int eventIdent)
 		}
 		if (write_queue.empty())
 		{
-			struct kevent kev;
-			EV_SET(&kev, eventIdent, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-			if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
-			{
-				perror("Error removing write event from kqueue");
-			}
+			// struct kevent kev;
+			// EV_SET(&kev, eventIdent, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+			// if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
+			// {
+			// 	std::cout << "encounter 2" << std::endl;
+			// 	perror("Error removing write event from kqueue");
+			// }
 
 			// NEW: Check if client has closed its side of the connection
 			char temp_buf[1];
