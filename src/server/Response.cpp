@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:09:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/16 20:52:20 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/26 22:34:33 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,10 +111,6 @@ size_t	Response::size() const {
 
 std::string Response::getStatusMessage(size_t statusCode) {
 	return this->_statusMessage[statusCode];
-}
-
-const char* Response::resStr() const {
-	return this->_res.str().c_str();
 }
 
 

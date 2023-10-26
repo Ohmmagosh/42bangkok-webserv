@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/26 05:39:30 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/27 00:02:34 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,17 +44,17 @@ class HttpRequestHandle
 		~HttpRequestHandle();
 		HttpRequestHandle &operator=(const HttpRequestHandle & rhs);
 
-		const std::string&	validateMethod(const Request& req, const t_con& config);
+		std::string					validateMethod(const Request& req, const t_con& config);
 		bool						validateMethodAllow(std::vector<std::string> method, const std::string& vmethod);
 		bool						validateUrlAllow(const std::string& url, const t_con& config, const std::string& vmethod);
-		bool						validateCgi();
+		bool						validateCgi(const std::string& url, const t_con& config);
 
-		const std::string&	getMethodRoute(const std::string& url, const Request& req, const t_con& config);
-		const std::string&	getMethod(const Request& req, const t_con& config);
+		std::string					getMethodRoute(const std::string& url, const Request& req, const t_con& config);
+		std::string					getMethod(const Request& req, const t_con& config);
 		int							getPortFromRequest(Request req);
-		const std::string&	postMethod(const Request& req, Store *st);
-		const std::string&	deleteMethod(const Request& req);
-		std::string			readFile(std::stringstream& path);
+		const std::string&			postMethod(const Request& req, Store *st);
+		const std::string&			deleteMethod(const Request& req);
+		std::string					readFile(std::stringstream& path);
 };
 
 #endif

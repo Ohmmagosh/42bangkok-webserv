@@ -26,95 +26,6 @@ std::string Server::createSimpleHttpResponse()
 	return response.str();
 }
 
-// Conf initializeMockConfig()
-// {
-//     Conf serverconf;
-//     std::vector<t_serverConf> Sconf;
-//     Sconf.resize(3);
-//     t_globalConf Gconf;
-
-//     std::cout << "Global Configuration" << std::endl;
-//     Gconf.client_body_limit = 1000000;
-//     Gconf.default_error_pages[404] = "/path/to/404.html";
-//     Gconf.default_error_pages[500] = "/path/to/500.html";
-
-//     std::cout <<  "Server Configuration for 127.0.0.1:8080" << std::endl;
-//     Sconf[0].host = "127.0.0.1";
-//     Sconf[0].port = 8080;
-//     Sconf[0].serverName = "example.com";
-//     Sconf[0].isDefault = true;
-
-//     // Sconf[0].routes.resize(2);
-//     // Sconf[0].routes[0].path = "/kapouet";
-//     // Sconf[0].routes[0].root = "/tmp/www";
-//     // Sconf[0].routes[0].method.resize(3);
-//     // Sconf[0].routes[0].method[0] = "GET";
-//     // Sconf[0].routes[0].method[1] = "POST";
-//     // Sconf[0].routes[0].method[2] = "DELETE";
-//     // Sconf[0].routes[0].redirection = "http://another-url.com";
-//     // Sconf[0].routes[0].dirListing = false;
-//     // Sconf[0].routes[0].defaultFile = "index.html";
-//     // Sconf[0].routes[0].cgi.extension = ".php";
-//     // Sconf[0].routes[0].cgi.executable = "/path/to/php-cgi";
-//     // Sconf[0].routes[0].upload.enabled = true;
-//     // Sconf[0].routes[0].upload.savePath = "/path/to/uploaded/files";
-
-//     // Sconf[0].routes[1].path = "/api1";
-//     // Sconf[0].routes[1].root = "";
-//     // Sconf[0].routes[1].method.resize(1);
-//     // Sconf[0].routes[1].method[0] = "GET";
-//     // Sconf[0].routes[1].redirection = "";
-//     // Sconf[0].routes[1].dirListing = false;
-//     // Sconf[0].routes[1].defaultFile = "";
-//     // Sconf[0].routes[1].cgi.extension = ".py";
-//     // Sconf[0].routes[1].cgi.executable = "/path/to/php-cgi";
-//     // Sconf[0].routes[1].upload.enabled = true;
-//     // Sconf[0].routes[1].upload.savePath = "/path/to/python-cgi";
-
-//     std::cout << "Server Configuration for 127.0.0.1:8081" << std::endl;
-//     Sconf[1].host = "127.0.0.1";
-//     Sconf[1].port = 8081;
-//     Sconf[1].serverName = "another-example.com";
-//     Sconf[1].isDefault = false;
-
-//     // Sconf[1].routes.resize(1);
-//     // Sconf[1].routes[0].path = "/api2";
-//     // Sconf[1].routes[0].root = "";
-//     // Sconf[1].routes[0].method.resize(1);
-//     // Sconf[1].routes[0].method[0] = "GET";
-//     // Sconf[1].routes[0].redirection = "";
-//     // Sconf[1].routes[0].dirListing = false;
-//     // Sconf[1].routes[0].defaultFile = "";
-//     // Sconf[1].routes[0].cgi.extension = ".py";
-//     // Sconf[1].routes[0].cgi.executable = "/path/to/python-cgi";
-//     // Sconf[1].routes[0].upload.enabled = false;
-//     // Sconf[1].routes[0].upload.savePath = "";
-
-//     std::cout << "Server Configuration for 127.0.0.1:8082" << std::endl;
-//     Sconf[2].host = "127.0.0.1";
-//     Sconf[2].port = 8082;
-//     Sconf[2].serverName = "another-example2.com";
-//     Sconf[2].isDefault = false;
-
-//     // Sconf[2].routes.resize(1);
-//     // Sconf[2].routes[0].path = "/api3";
-//     // Sconf[2].routes[0].root = "";
-//     // Sconf[2].routes[0].method.resize(1);
-//     // Sconf[2].routes[0].method[0] = "GET";
-//     // Sconf[2].routes[0].redirection = "";
-//     // Sconf[2].routes[0].dirListing = false;
-//     // Sconf[2].routes[0].defaultFile = "";
-//     // Sconf[2].routes[0].cgi.extension = ".py";
-//     // Sconf[2].routes[0].cgi.executable = "/path/to/python-cgi";
-//     // Sconf[2].routes[0].upload.enabled = false;
-//     // Sconf[2].routes[0].upload.savePath = "";
-
-//     serverconf._globalConfig = Gconf;
-//     serverconf._serverConfigs = Sconf;
-
-//     return serverconf;
-// }
-
 Server::Server()
 {
 	// config = initializeMockConfig();
@@ -352,7 +263,7 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 	// std::cout << YELB << "------------ret-------------" << RES << std::endl;
 	// std::cout << ret.validateMethod(parsedrequest, config) << std::endl;
 	// std::cout << YELB << "----------ret-end-----------" << RES << std::endl;
-	Response restest(200, ret.validateMethod(parsedrequest, config));
+	// Response restest(200, ret.validateMethod(parsedrequest, config));
 	// return ret.validateMethod(parsedrequest, config);
 	// return restest.HttpResponse();
 	return ret.validateMethod(parsedrequest, config);
@@ -413,7 +324,7 @@ void Server::handleRead(int kq, struct kevent& event)
 		if (parsedRequest.getBody().size() > (size_t)config.global.client_body_limit)
 		{
 			Response res(413);
-			send(eventIdent, res.resStr(), res.size(), 0);
+			send(eventIdent, res.HttpResponse().c_str(), res.size(), 0);
 			return;
 		}
 

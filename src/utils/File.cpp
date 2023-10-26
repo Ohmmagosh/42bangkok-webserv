@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 04:27:56 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/26 04:38:04 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/27 00:29:47 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	File::readFile() {
 	std::ifstream	f(this->_name);
 
 	if(!f.is_open()) {
-		std::cerr << "cannot open file" << std::endl;
+		return ;
 	}
 
 	std::string	buff;
@@ -40,6 +40,6 @@ void	File::readFile() {
 	return ;
 }
 
-const std::string&	File::getContent() const {
+std::string	File::getContent() const {
 	return this->_content;
 }
