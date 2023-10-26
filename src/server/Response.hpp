@@ -19,12 +19,18 @@
 class Response
 {
 	private:
-		std::stringstream	_res;
+		std::stringstream					_res;
+		std::map<size_t, std::string>	_statusMessage;
 	public:
 		Response();
-		Response(int statusCode, const std::string& statusMessage, const std::string& content);
+		Response(size_t statusCode, const std::string& content);
+		Response(size_t statusCode);
 		~Response();
 		std::string	HttpResponse() const;
+		std::string errResponse() const;
+		std::string getStatusMessage(size_t statusCode);
+		const char* resStr() const;
+		void	initMessage();
 		size_t		size() const;
 };
 

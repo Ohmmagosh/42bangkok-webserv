@@ -341,8 +341,7 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 
 	if (!matchedServerConf)
 	{
-		Response res(400, "Bad Request", "Invalid Host header");
-		return res.HttpResponse();
+		return Response(400).HttpResponse();
 	}
 	// std::cout << "------- name -------" << std::endl;
 	// std::cout << "Incoming Server Name: " << hostHeader << std::endl;
@@ -353,9 +352,10 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 	// std::cout << YELB << "------------ret-------------" << RES << std::endl;
 	// std::cout << ret.validateMethod(parsedrequest, config) << std::endl;
 	// std::cout << YELB << "----------ret-end-----------" << RES << std::endl;
-	Response restest(200,"OK", ret.validateMethod(parsedrequest, config));
+	Response restest(200, ret.validateMethod(parsedrequest, config));
 	// return ret.validateMethod(parsedrequest, config);
-	return restest.HttpResponse();
+	// return restest.HttpResponse();
+	return ret.validateMethod(parsedrequest, config);
 	// std::string resp = createSimpleHttpResponse();
 	// return (resp);
 }
@@ -412,8 +412,8 @@ void Server::handleRead(int kq, struct kevent& event)
 		testlen++;
 		if (parsedRequest.getBody().size() > (size_t)config.global.client_body_limit)
 		{
-			Response res(413, "Payload Too Large", "Request body is too large");
-			send(eventIdent, res.HttpResponse().c_str(), res.size(), 0);
+			Response res(413);
+			send(eventIdent, res.resStr(), res.size(), 0);
 			return;
 		}
 

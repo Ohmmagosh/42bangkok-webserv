@@ -17,23 +17,23 @@ HttpRequestHandle::HttpRequestHandle()
 {
 }
 
-HttpRequestHandle::HttpRequestHandle(const std::string &method): _cgi_path("./src/server"), _method(method)
-{
-	//should from config
-}
+// HttpRequestHandle::HttpRequestHandle(const std::string &method): _cgi_path("./src/server"), _method(method)
+// {
+// 	//should from config
+// }
 
-HttpRequestHandle::HttpRequestHandle(const Request& req, const std::string& cgi_path, const std::vector<ServerConfig>& serverConfigs): _req(req), _cgi_path(cgi_path), _serverConfigs(serverConfigs)
-{
-}
+// HttpRequestHandle::HttpRequestHandle(const Request& req, const std::string& cgi_path, const std::vector<ServerConfig>& serverConfigs): _req(req), _cgi_path(cgi_path), _serverConfigs(serverConfigs)
+// {
+// }
 
-HttpRequestHandle::HttpRequestHandle(const Request& req, const std::string& cgi_path): _req(req), _cgi_path(cgi_path){
+// HttpRequestHandle::HttpRequestHandle(const Request& req, const std::string& cgi_path): _req(req), _cgi_path(cgi_path){
 
-}
+// }
 
-HttpRequestHandle::HttpRequestHandle(const HttpRequestHandle &rhs)
-{
-	*this = rhs;
-}
+// HttpRequestHandle::HttpRequestHandle(const HttpRequestHandle &rhs)
+// {
+// 	*this = rhs;
+// }
 
 HttpRequestHandle::~HttpRequestHandle()
 {
@@ -74,8 +74,8 @@ bool	HttpRequestHandle::validateMethodAllow(std::vector<std::string> method, con
 bool	HttpRequestHandle::validateCgi() {
 
 }
-
-std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Request& req, const t_con& config) {
+//Method GET
+const std::string&	HttpRequestHandle::getMethodRoute(const std::string& url, const Request& req, const t_con& config) {
 	CgiHandler cgi;
 	(void)req;
 
@@ -84,18 +84,24 @@ std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Requ
 		StringMatrix	argv(cgi.getArgv());
 		return cgi.executeCgi(argv);
 	}
-	Response res404(404, "Not found", "");
-	return	res404.HttpResponse();
+
+	return	Response(404).HttpResponse();
 }
 
-std::string	HttpRequestHandle::getMethod(const Request& req, const t_con& config) {
+const std::string&	HttpRequestHandle::getMethod(const Request& req, const t_con& config) {
 	if (this->validateUrlAllow(req.getUrl(), config, "GET")) {
 		return this->getMethodRoute(req.getUrl(), req, config);
 	}
-	return req.getUrl();
+	return Response(404).HttpResponse();
 }
 
-std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& config) {
+//Method POST
+
+
+
+//Method DELETE
+
+const std::string&	HttpRequestHandle::validateMethod(const Request& req,const t_con& config) {
 
 	if (req.getMethod() == "GET") {
 		return this->getMethod(req, config);
@@ -106,7 +112,7 @@ std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& co
 	else if (req.getMethod() == "DELETE") {
 		return "DELETE";
 	}
-	return "HELLO";
+	return Response(404).HttpResponse();
 }
 
 
