@@ -48,7 +48,10 @@
 # include "utils/Uti.hpp"
 # include "utils/StringMatrix.hpp"
 # include "utils/File.hpp"
+# include "utils/Detail.hpp"
 
 #define READ_BUFFER_SIZE 2560000
+
+
 
 #endif
