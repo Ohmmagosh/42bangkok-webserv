@@ -36,7 +36,8 @@ MODULE3		= CgiHandler.cpp
 MODULE4		= Console.cpp \
 				Uti.cpp \
 				StringMatrix.cpp \
-				File.cpp
+				File.cpp \
+				Detail.cpp
 
 
 MODULE1_DIR	= ./src/parsing/
