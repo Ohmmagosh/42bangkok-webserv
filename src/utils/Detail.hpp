@@ -3,27 +3,28 @@
 
 # include <iostream>
 # include <string>
-
-typedef struct  s_detail {
-  bool        status;
-  std::string detail;
-}               t_detail;
+# include "../struct.hpp"
 
 class Detail {
-    public:
-        Detail();
-        Detail(bool status, std::string detail);
-        ~Detail();
+		public:
+				Detail();
+				Detail(bool status, const std::string& detail, const t_serverConf& serverConf);
+				Detail::Detail(bool status);
+				Detail::Detail(bool status, const std::string& detail);
+				Detail::Detail(bool status, const t_serverConf& serverConf);
+				~Detail();
 
-        bool        getStatus() const;
-        std::string getDetail() const;
+				bool				getStatus() const;
+				std::string	getDetail() const;
+				t_detail		getDetailStruct() const;
 
-        void        setStatus(bool status);
-        void        setDetail(std::string detail);
-        t_detail    getDetailStruct() const;
-    private:
-        bool        _status;
-        std::string _detail;
+				void				setStatus(bool status);
+				void				setDetail(std::string detail);
+				void				setServerConf(t_serverConf serverConf);
+		private:
+				bool					_status;
+				std::string		_detail;
+				t_serverConf	_serverConf;
 };
 
 

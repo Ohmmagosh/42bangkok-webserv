@@ -70,10 +70,10 @@ std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Requ
 		// 	StringMatrix	argv(cgi.getArgv());
 		// 	return cgi.executeCgi(argv);
 		// }
-		return Response(500, "<h1>do not have cgi</h1>").HttpResponse();
-
+		return Response(404, "<h1>do not have cgi</h1>").HttpResponse();
 	}else {
 		if (url == "/" || url == "/index.html") {
+			//return default file
 			std::string	path = cgi.getRootByUrl(url, config.server);
 			path += "/";
 			path += cgi.getDefaultFileByUrl(url, config.server);
@@ -96,6 +96,25 @@ std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Requ
 		}
 	}
 	return	Response(404).HttpResponse();
+}
+
+t_detail	HttpRequestHandle::validateHostRequestAndGetServer(const Request& req, const t_con& config) {
+	std::string host = req.getHeadersByValue("Host");
+	if (host.find("localhost") != std::string::npos) {
+		std::string	port = host.substr(host.find_last_of(':') + 1);
+		for (size_t i = 0; i < config.server.size(); i++) {
+			if (config.server[i].port == atoi(port.c_str()))
+				return Detail(true, port, config.server[i]).getDetailStruct();
+		}
+		return Detail(false).getDetailStruct();
+	}
+	else {
+		for (size_t i = 0; i < config.server.size(); i++) {
+			if (config.server[i].serverName == host)
+				return Detail(true, config.server[i]);
+		}
+	}
+	return Detail(false).getDetailStruct();
 }
 
 std::string	HttpRequestHandle::getMethod(const Request& req, const t_con& config) {
