@@ -36,6 +36,7 @@ class CgiHandler {
 
 		void		initArgv(const std::string& cgi_exec, const std::string& lc_root, const std::string& def_file);
 		void		initArgv(const std::string& cgi_exec, const std::string& def_file);
+		void		initEnv(const std::vector<std::string>& env);
 		void		addBackArgv(const std::vector<std::string>& av);
 
 		const std::vector<std::string>&	getArgv() const;

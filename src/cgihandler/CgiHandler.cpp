@@ -114,6 +114,13 @@ const std::vector<std::string>& CgiHandler::getEnv() const {
 	return this->_env;
 }
 
+void	CgiHandler::initEnv(const std::vector<std::string>& env) {
+	for (size_t i = 0; i < env.size(); i++) {
+		this->_env.push_back(env[i]);
+	}
+	return ;
+}
+
 
 // char** CgiHandler::initEnv(const Request & req) {
 // 	char** res = new char*[req.getHeaderSize()];
