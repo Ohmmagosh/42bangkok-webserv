@@ -38,7 +38,7 @@ class Request {
 		std::string									getVersion() const;
 		std::string									getBoundary() const;
 		const std::vector<std::string>&				getHeaderNoC() const;
-		std::string									getHeadersByValue(const std::string& key);
+		std::string									getHeadersByValue(const std::string& key) const;
 		const std::map<std::string, std::string>&	getHeaderC() const;
 		const std::map<std::string, std::string>&	getQueryUrl() const;
 		std::string							getQueryUrlByValue(const std::string& val);

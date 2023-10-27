@@ -50,7 +50,7 @@ const std::vector<std::string>&	Request::getHeaderNoC() const {
 	return this->_headers_no_c;
 }
 
-std::string	Request::getHeadersByValue(const std::string& key) {
+std::string	Request::getHeadersByValue(const std::string& key) const {
 	return this->_headers[key];
 }
 

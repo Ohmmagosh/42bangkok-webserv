@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/17 21:01:17 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/24 14:18:53 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/26 04:38:45 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,12 @@
 # include <signal.h>
 # include "utils/Console.hpp"
 # include "utils/Uti.hpp"
+# include "utils/StringMatrix.hpp"
+# include "utils/File.hpp"
+# include "utils/Detail.hpp"
 
 #define READ_BUFFER_SIZE 2560000
+
+
 
 #endif

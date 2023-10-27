@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequestHandle.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/19 13:24:00 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/27 00:02:34 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,39 +14,50 @@
 # define HTTPREQUESTHANDLE_HPP
 
 # include "../stdlib.hpp"
+# include "../struct.hpp"
 # include "Response.hpp"
 # include "Request.hpp"
 # include "Store.hpp"
+# include "../parsing/Conf.hpp"
+# include "../cgihandler/CgiHandler.hpp"
 
-struct ServerConfig 
+
+struct ServerConfig
 {
-    int port;
-    std::string name;
-    std::string landingPagePath;
+	int port;
+	std::string name;
+	std::string landingPagePath;
 };
 
 class HttpRequestHandle
 {
 	private:
-		Request		_req;
-		std::string	_cgi_path;
-		std::string	_method;
-		std::vector<ServerConfig> _serverConfigs;
+		Request										_req;
+		std::string								_cgi_path;
+		std::string								_method;
+		std::vector<ServerConfig>	_serverConfigs;
 	public:
 		HttpRequestHandle();
-		HttpRequestHandle(const std::string& method);
-		HttpRequestHandle(const HttpRequestHandle & rhs);
-		HttpRequestHandle(const Request& req, const std::string& cgi_path);
-		HttpRequestHandle(const Request& req, const std::string& cgi_path, const std::vector<ServerConfig>& serverConfigs);
+		// HttpRequestHandle(const std::string& method);
+		// HttpRequestHandle(const HttpRequestHandle & rhs);
+		// HttpRequestHandle(const Request& req, const std::string& cgi_path);
+		// HttpRequestHandle(const Request& req, const std::string& cgi_path, const std::vector<ServerConfig>& serverConfigs);
 		~HttpRequestHandle();
 		HttpRequestHandle &operator=(const HttpRequestHandle & rhs);
 
-		std::string	validateMethod(Store *st);
-		std::string	getMethod(const Request& req);
-		std::string	postMethod(const Request& req, Store *st);
-		std::string deleteMethod(const Request& req);
-		std::string	readFile(std::stringstream& path);
-		int getPortFromRequest(const Request& req);
+		std::string									validateMethod(const Request& req, const t_con& config);
+		bool												validateMethodAllow(std::vector<std::string> method, const std::string& vmethod);
+		bool												validateUrlAllow(const std::string& url, const t_con& config, const std::string& vmethod);
+		bool												validateCgi(const std::string& url, const t_con& config);
+		T_detail										validateHostRequestAndGetServer(const Request& req, const t_con& server);
+
+
+		std::string					getMethodRoute(const std::string& url, const Request& req, const t_con& config);
+		std::string					getMethod(const Request& req, const t_con& config);
+		int									getPortFromRequest(Request req);
+		const std::string&	postMethod(const Request& req, Store *st);
+		const std::string&	deleteMethod(const Request& req);
+		std::string					readFile(std::stringstream& path);
 };
 
 #endif

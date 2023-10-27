@@ -1,122 +1,34 @@
 #include "Server.hpp"
+#include "Response.hpp"
 
 volatile sig_atomic_t Server::got_signal = 0;
 
 std::string Server::createSimpleHttpResponse()
 {
-    std::string body = "<!DOCTYPE html>"
-                       "<html>"
-                       "<head>"
-                       "<title>Test Page</title>"
-                       "</head>"
-                       "<body>"
-                       "<h1>Welcome to My Test Page!</h1>"
-                       "<p>This is a simple test page served by your C++ server.</p>"
-                       "</body>"
-                       "</html>";
+	std::string body = "<!DOCTYPE html>"
+					   "<html>"
+					   "<head>"
+					   "<title>Test Page</title>"
+					   "</head>"
+					   "<body>"
+					   "<h1>Welcome to My Test Page!</h1>"
+					   "<p>This is a simple test page served by your C++ server.</p>"
+					   "</body>"
+					   "</html>";
 
-    std::ostringstream response;
-    response << "HTTP/1.1 200 OK\r\n";
-    response << "Content-Type: text/html; charset=UTF-8\r\n";
-    response << "Content-Length: " << body.length() << "\r\n";
-    response << "\r\n";  // End of headers
-    response << body;
+	std::ostringstream response;
+	response << "HTTP/1.1 200 OK\r\n";
+	response << "Content-Type: text/html; charset=UTF-8\r\n";
+	response << "Content-Length: " << body.length() << "\r\n";
+	response << "\r\n";  // End of headers
+	response << body;
 
-    return response.str();
+	return response.str();
 }
-
-// Conf initializeMockConfig()
-// {
-//     Conf serverconf;
-//     std::vector<t_serverConf> Sconf;
-//     Sconf.resize(3);
-//     t_globalConf Gconf;
-
-//     std::cout << "Global Configuration" << std::endl;
-//     Gconf.client_body_limit = 1000000;
-//     Gconf.default_error_pages[404] = "/path/to/404.html";
-//     Gconf.default_error_pages[500] = "/path/to/500.html";
-
-//     std::cout <<  "Server Configuration for 127.0.0.1:8080" << std::endl;
-//     Sconf[0].host = "127.0.0.1";
-//     Sconf[0].port = 8080;
-//     Sconf[0].serverName = "example.com";
-//     Sconf[0].isDefault = true;
-
-//     // Sconf[0].routes.resize(2);
-//     // Sconf[0].routes[0].path = "/kapouet";
-//     // Sconf[0].routes[0].root = "/tmp/www";
-//     // Sconf[0].routes[0].method.resize(3);
-//     // Sconf[0].routes[0].method[0] = "GET";
-//     // Sconf[0].routes[0].method[1] = "POST";
-//     // Sconf[0].routes[0].method[2] = "DELETE";
-//     // Sconf[0].routes[0].redirection = "http://another-url.com";
-//     // Sconf[0].routes[0].dirListing = false;
-//     // Sconf[0].routes[0].defaultFile = "index.html";
-//     // Sconf[0].routes[0].cgi.extension = ".php";
-//     // Sconf[0].routes[0].cgi.executable = "/path/to/php-cgi";
-//     // Sconf[0].routes[0].upload.enabled = true;
-//     // Sconf[0].routes[0].upload.savePath = "/path/to/uploaded/files";
-
-//     // Sconf[0].routes[1].path = "/api1";
-//     // Sconf[0].routes[1].root = "";
-//     // Sconf[0].routes[1].method.resize(1);
-//     // Sconf[0].routes[1].method[0] = "GET";
-//     // Sconf[0].routes[1].redirection = "";
-//     // Sconf[0].routes[1].dirListing = false;
-//     // Sconf[0].routes[1].defaultFile = "";
-//     // Sconf[0].routes[1].cgi.extension = ".py";
-//     // Sconf[0].routes[1].cgi.executable = "/path/to/php-cgi";
-//     // Sconf[0].routes[1].upload.enabled = true;
-//     // Sconf[0].routes[1].upload.savePath = "/path/to/python-cgi";
-
-//     std::cout << "Server Configuration for 127.0.0.1:8081" << std::endl;
-//     Sconf[1].host = "127.0.0.1";
-//     Sconf[1].port = 8081;
-//     Sconf[1].serverName = "another-example.com";
-//     Sconf[1].isDefault = false;
-
-//     // Sconf[1].routes.resize(1);
-//     // Sconf[1].routes[0].path = "/api2";
-//     // Sconf[1].routes[0].root = "";
-//     // Sconf[1].routes[0].method.resize(1);
-//     // Sconf[1].routes[0].method[0] = "GET";
-//     // Sconf[1].routes[0].redirection = "";
-//     // Sconf[1].routes[0].dirListing = false;
-//     // Sconf[1].routes[0].defaultFile = "";
-//     // Sconf[1].routes[0].cgi.extension = ".py";
-//     // Sconf[1].routes[0].cgi.executable = "/path/to/python-cgi";
-//     // Sconf[1].routes[0].upload.enabled = false;
-//     // Sconf[1].routes[0].upload.savePath = "";
-
-//     std::cout << "Server Configuration for 127.0.0.1:8082" << std::endl;
-//     Sconf[2].host = "127.0.0.1";
-//     Sconf[2].port = 8082;
-//     Sconf[2].serverName = "another-example2.com";
-//     Sconf[2].isDefault = false;
-
-//     // Sconf[2].routes.resize(1);
-//     // Sconf[2].routes[0].path = "/api3";
-//     // Sconf[2].routes[0].root = "";
-//     // Sconf[2].routes[0].method.resize(1);
-//     // Sconf[2].routes[0].method[0] = "GET";
-//     // Sconf[2].routes[0].redirection = "";
-//     // Sconf[2].routes[0].dirListing = false;
-//     // Sconf[2].routes[0].defaultFile = "";
-//     // Sconf[2].routes[0].cgi.extension = ".py";
-//     // Sconf[2].routes[0].cgi.executable = "/path/to/python-cgi";
-//     // Sconf[2].routes[0].upload.enabled = false;
-//     // Sconf[2].routes[0].upload.savePath = "";
-
-//     serverconf._globalConfig = Gconf;
-//     serverconf._serverConfigs = Sconf;
-
-//     return serverconf;
-// }
 
 Server::Server()
 {
-    // config = initializeMockConfig();
+	// config = initializeMockConfig();
 }
 
 Server::Server(const Conf& config)
@@ -173,18 +85,18 @@ void Server::setupSignalHandlers()
 
 void Server::handleClientDisconnection(int kq, int eventIdent)
 {
-    active_clients.erase(eventIdent);
+	active_clients.erase(eventIdent);
 
-    struct kevent client_change;
-    EV_SET(&client_change, eventIdent, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-    if (kevent(kq, &client_change, 1, NULL, 0, NULL) == -1)
-    {
-        perror("Error deleting client event from kqueue");
-    }
+	struct kevent client_change;
+	EV_SET(&client_change, eventIdent, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+	if (kevent(kq, &client_change, 1, NULL, 0, NULL) == -1)
+	{
+		perror("Error deleting client event from kqueue");
+	}
 
-    client_write_queues.erase(eventIdent);
-    close(eventIdent);
-    this->_currentClientCount--;
+	client_write_queues.erase(eventIdent);
+	close(eventIdent);
+	this->_currentClientCount--;
 }
 
 int Server::setupKqueue()
@@ -203,7 +115,7 @@ void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
 
 	config = this->_config.getAllConfig();
 	// config.global.
-    std::cout << "setupserversocket" << std::endl;
+	std::cout << "setupserversocket" << std::endl;
 	for (size_t i = 0; i < NUM_SERVERS; ++i)
 	{
 		int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -274,100 +186,109 @@ void Server::handleNewClientConnection(int kq, int eventIdent)
     }
 
 	struct sockaddr_in server_address;
-    socklen_t server_addrlen = sizeof(server_address);
+	socklen_t server_addrlen = sizeof(server_address);
 	int server_port = 0;
-    if (getsockname(new_socket, (struct sockaddr*)&server_address, &server_addrlen) < 0)
-    {
-        perror("getsockname");
-    }
-    else
-    {
-        server_port = ntohs(server_address.sin_port);
-        std::cout << "Connection accepted on server port: " << server_port << std::endl;
-    }
+	if (getsockname(new_socket, (struct sockaddr*)&server_address, &server_addrlen) < 0)
+	{
+		perror("getsockname");
+	}
+	else
+	{
+		server_port = ntohs(server_address.sin_port);
+		std::cout << "Connection accepted on server port: " << server_port << std::endl;
+	}
 	// std::map<int, int> client_to_port_map;
 	client_to_port_map[new_socket] = server_port;
 
-    std::cout << "New client connected with FD: " << new_socket << "at port " << server_port << std::endl;
+	std::cout << "New client connected with FD: " << new_socket << "at port " << server_port << std::endl;
 
-    if (fcntl(new_socket, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1)
-    {
-        perror("fcntl nonblock");
-        close(new_socket);
-        return;
-    }
+	if (fcntl(new_socket, F_SETFL, O_NONBLOCK | FD_CLOEXEC) == -1)
+	{
+		perror("fcntl nonblock");
+		close(new_socket);
+		return;
+	}
 
-    struct kevent kev;
-    EV_SET(&kev, new_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
-    if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
-    {
-        perror("Error registering new client socket with kqueue");
-    }
-    // Add the new_socket to your data structures and update the count of active clients
-    active_clients.insert(new_socket);
-    this->_currentClientCount++;
+	struct kevent kev;
+	EV_SET(&kev, new_socket, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
+	{
+		perror("Error registering new client socket with kqueue");
+	}
+	// Add the new_socket to your data structures and update the count of active clients
+	active_clients.insert(new_socket);
+	this->_currentClientCount++;
 }
 
-std::string Server::handleHttpRequest(const std::string& method, const std::string& url,Request& parsedrequest, int client_socket)
+std::string Server::handleHttpRequest(const std::string& method, const std::string& url, Request& parsedrequest, int client_socket)
 {
-    // Get the Host header from the request
+	// Get the Host header from the request
 	(void)method;
 	(void)url;
 	t_con config;
+	HttpRequestHandle	ret;
 
 	config = this->_config.getAllConfig();
+
 	// std::cout << "parsedrequest: " << parsedrequest << std::endl;
 	std::string hostHeader = parsedrequest.getHeadersByValue("Host");
 	hostHeader = Uti::trim(Uti::splite(hostHeader, ":")[0], " ");
 	int server_port = client_to_port_map[client_socket];
 	// Store store;
 
-    // Identify the matching server configuration
-    t_serverConf* matchedServerConf = NULL;
-    for (std::vector<t_serverConf>::iterator it = config.server.begin(); it != config.server.end(); ++it)
-    {
-        if (it->port == server_port)
-        {
-            if (hostHeader.empty() || hostHeader.find(it->serverName) != std::string::npos || hostHeader.find("localhost") != std::string::npos)
-            {
-                matchedServerConf = &(*it);
-                break;
-            }
-        }
-    }
+	// Identify the matching server configuration
+	t_serverConf* matchedServerConf = NULL;
+	for (std::vector<t_serverConf>::iterator it = config.server.begin(); it != config.server.end(); ++it)
+	{
+		if (it->port == server_port)
+		{
+			if (hostHeader.empty() || hostHeader.find(it->serverName) != std::string::npos || hostHeader.find("localhost") != std::string::npos)
+			{
+				matchedServerConf = &(*it);
+				break;
+			}
+		}
+	}
 
-    if (!matchedServerConf)
-    {
-        Response res(400, "Bad Request", "Invalid Host header");
-        return res.HttpResponse();
-    }
-	std::cout << "------- name -------" << std::endl;
-	std::cout << "Incoming Server Name: " << hostHeader << std::endl;
-	std::cout << "Matched Server Name: " << matchedServerConf->serverName << std::endl;
-	std::cout << "------- name end -------" << std::endl;
-    // return  ret.validateMethod(store);
+	if (!matchedServerConf)
+	{
+		return Response(400).HttpResponse();
+	}
+	// std::cout << "------- name -------" << std::endl;
+	// std::cout << "Incoming Server Name: " << hostHeader << std::endl;
+	// std::cout << "Matched Server Name: " << matchedServerConf->serverName << std::endl;
+	// std::cout << "------- name end -------" << std::endl;
+	// return  ret.validateMethod(store);
 
-	std::string resp = createSimpleHttpResponse();
-	return (resp);
+	// std::cout << YELB << "------------ret-------------" << RES << std::endl;
+	// std::cout << ret.validateMethod(parsedrequest, config) << std::endl;
+	// std::cout << YELB << "----------ret-end-----------" << RES << std::endl;
+	// Response restest(200, ret.validateMethod(parsedrequest, config));
+	// return ret.validateMethod(parsedrequest, config);
+	// return restest.HttpResponse();
+	return ret.validateMethod(parsedrequest, config);
+	// std::string resp = createSimpleHttpResponse();
+	// return (resp);
 }
 
 void Server::handleRead(int kq, struct kevent& event)
 {
-    int eventIdent = event.ident;
-    std::cout << "Attempting recv on FD: " << eventIdent << std::endl;
+	int eventIdent = event.ident;
+	std::cout << "Attempting recv on FD: " << eventIdent << std::endl;
 	t_con config;
 
+	int testlen = 0;
 	config = this->_config.getAllConfig();
 
-    // Check for EOF event
-    if (event.flags & EV_EOF)
-    {
-        handleClientDisconnection(kq, eventIdent);
-        return;
-    }
+	// Check for EOF event
+	if (event.flags & EV_EOF)
+	{
+		handleClientDisconnection(kq, eventIdent);
+		return;
+	}
 
-    char buffer[READ_BUFFER_SIZE];
-    ssize_t bytesRead = recv(eventIdent, buffer, sizeof(buffer) - 1, 0);
+	char buffer[READ_BUFFER_SIZE];
+	ssize_t bytesRead = recv(eventIdent, buffer, sizeof(buffer) - 1, 0);
 
     if (bytesRead < 0)
     {
@@ -396,33 +317,33 @@ void Server::handleRead(int kq, struct kevent& event)
         std::cout << "\n" << buffer << '\n' << bytesRead << "bytes\n" << "\n" << std::endl;
         std::cout << "------- End of buffer -------" << std::endl;
 
-        // Process the received data
-        std::string requestData(buffer);
-        Request parsedRequest(requestData);
+		// Process the received data
+		std::string requestData(buffer);
+		Request parsedRequest(requestData);
+		testlen++;
+		if (parsedRequest.getBody().size() > (size_t)config.global.client_body_limit)
+		{
+			Response res(413);
+			send(eventIdent, res.HttpResponse().c_str(), res.size(), 0);
+			return;
+		}
 
-        if (parsedRequest.getBody().size() > (size_t)config.global.client_body_limit)
-        {
-            Response res(413, "Payload Too Large", "Request body is too large");
-            send(eventIdent, res.HttpResponse().c_str(), res.size(), 0);
-            return;
-        }
+		std::string httpResponse = handleHttpRequest(parsedRequest.getMethod(), parsedRequest.getUrl(), parsedRequest, eventIdent);
 
-        std::string httpResponse = handleHttpRequest(parsedRequest.getMethod(), parsedRequest.getUrl(), parsedRequest, eventIdent);
+		// Queue the response for the client
+		client_write_queues[eventIdent].push(httpResponse);
 
-        // Queue the response for the client
-        client_write_queues[eventIdent].push(httpResponse);
+		// Register for write event to send the response
+		struct kevent client_change;
+		EV_SET(&client_change, eventIdent, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
+		kevent(kq, &client_change, 1, NULL, 0, NULL);
 
-        // Register for write event to send the response
-        struct kevent client_change;
-        EV_SET(&client_change, eventIdent, EVFILT_WRITE, EV_ADD, 0, 0, NULL);
-        kevent(kq, &client_change, 1, NULL, 0, NULL);
-
-        if (got_signal)
-        {
-            stop();
-            return;
-        }
-    }
+		if (got_signal)
+		{
+			stop();
+			return;
+		}
+	}
 }
 
 void Server::handleWrite(int kq, int eventIdent)
