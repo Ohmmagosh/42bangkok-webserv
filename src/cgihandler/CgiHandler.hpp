@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:13 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/26 05:32:55 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/28 19:07:24 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ class CgiHandler {
 		t_location	getLocationByUrl(const std::string& url, const std::vector<t_serverConf>& server);
 		std::string	getRootByUrl(const std::string& url, const std::vector<t_serverConf>& server);
 		std::string	getExtensionByUrl(const std::string& url, const std::vector<t_serverConf>& server);
+		std::string	getExtensionByUrl(const std::string& url, const t_serverConf& server);
 
 		void		initArgv(const std::string& cgi_exec, const std::string& lc_root, const std::string& def_file);
 		void		initArgv(const std::string& cgi_exec, const std::string& def_file);

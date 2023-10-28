@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/26 22:39:57 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/28 19:09:58 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,10 @@ std::string CgiHandler::getRootByUrl(const std::string& url, const std::vector<t
 std::string CgiHandler::getExtensionByUrl(const std::string& url, const std::vector<t_serverConf>& server) {
 	t_location	location = this->getLocationByUrl(url, server);
 	return location.cgi.extension;
+}
+
+std::string	CgiHandler::getExtensionByUrl(const std::string& url, const t_serverConf& server) {
+	return server.location[0].cgi.extension;
 }
 
 void	CgiHandler::addBackArgv(const std::vector<std::string>& av) {
