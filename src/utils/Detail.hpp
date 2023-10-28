@@ -9,9 +9,9 @@ class Detail {
 		public:
 				Detail();
 				Detail(bool status, const std::string& detail, const t_serverConf& serverConf);
-				Detail::Detail(bool status);
-				Detail::Detail(bool status, const std::string& detail);
-				Detail::Detail(bool status, const t_serverConf& serverConf);
+				Detail(bool status);
+				Detail(bool status, const std::string& detail);
+				Detail(bool status, const t_serverConf& serverConf);
 				~Detail();
 
 				bool				getStatus() const;
