@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/28 19:09:58 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/29 00:12:31 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,8 @@ std::string CgiHandler::getExtensionByUrl(const std::string& url, const std::vec
 }
 
 std::string	CgiHandler::getExtensionByUrl(const std::string& url, const t_serverConf& server) {
-	return server.location[0].cgi.extension;
+	t_location	location = this->getLocationByUrl(url, server);
+	return location.cgi.extension;
 }
 
 void	CgiHandler::addBackArgv(const std::vector<std::string>& av) {
@@ -124,18 +125,3 @@ void	CgiHandler::initEnv(const std::vector<std::string>& env) {
 	}
 	return ;
 }
-
-
-// char** CgiHandler::initEnv(const Request & req) {
-// 	char** res = new char*[req.getHeaderSize()];
-// 	std::map<std::string, std::string>::const_iterator	it = req.getMapHeader().begin();
-// 	int i = 0;
-// 	while(it != req.getMapHeader().end() && i < req.getHeaderSize()) {
-// 		std::stringstream	ss;
-// 		ss << it->first << "=" << it->second;
-// 		res[i] = strdup(ss.str().c_str());
-// 		it++;
-// 		i++;
-// 	}
-// 	res[req.getHeaderSize()] = NULL;
-// }
