@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:39 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/25 01:40:46 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/29 15:43:04 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,90 +15,6 @@
 
 # include "../stdlib.hpp"
 # include "../struct.hpp"
-
-// typedef struct	s_upload
-// {
-// 	bool                        enabled;
-// 	std::string                 savePath;
-
-// 	s_upload()
-// 	{
-// 		enabled  = false;
-// 		savePath = "";
-// 	}
-// }				t_upload;
-
-// typedef struct	s_cgi
-// {
-// 	std::string				extension;
-// 	std::string				executable;
-
-// 	s_cgi()
-// 	{
-// 		extension   = "";
-// 		executable  = "";
-// 	}
-// }				t_cgi;
-
-// typedef struct	s_location
-// {
-// 	std::string					path;
-// 	std::string					root;
-// 	std::vector<std::string>	method;
-// 	std::string					redirection;
-// 	bool						dirListing;
-// 	std::string					defaultFile;
-// 	t_cgi						cgi;
-// 	t_upload					upload;
-
-// 	s_location()
-// 	{
-// 		path        =   "";
-// 		root        =   "";
-// 		method.clear();
-// 		redirection =   "";
-// 		dirListing  =   false;
-// 		defaultFile =   "";
-// 		cgi         =   s_cgi();
-// 		upload      =   s_upload();
-// 	}
-// }				t_location;
-
-// typedef struct	s_serverConf
-// {
-// 	std::string					host;
-// 	int									port;
-// 	std::string					serverName;
-// 	bool								isDefault;
-// 	std::vector<t_location>		location;
-
-// 	s_serverConf()
-// 	{
-// 		host        =   "";
-// 		port        =   0;
-// 		serverName  =   "";
-// 		isDefault   =   false;
-// 		location.clear();
-// 	}
-// }				t_serverConf;
-
-// typedef struct	s_globalConf
-// {
-// 	std::map<int, std::string>	default_error_pages;
-// 	int									client_body_limit;
-
-// 	s_globalConf()
-// 	{
-// 		default_error_pages.clear();
-// 		client_body_limit = 0;
-// 	}
-// }				t_globalConf;
-
-// typedef struct 	s_con
-// {
-// 	t_globalConf				global;
-// 	std::vector<t_serverConf>	server;
-// }				t_con;
 
 class Conf
 {
@@ -126,10 +42,13 @@ class Conf
 		void											setServer(const std::vector<std::string>& sv);
 		void											setGlobalDefault(std::vector<std::string>::const_iterator begin, std::vector<std::string>::const_iterator end);
 		void											setGlobalClient(const std::string& cli);
+		//server
 		void											setServerHost(t_serverConf *sv, const std::string& line);
 		void											setServerPort(t_serverConf *sv, const std::string& line);
 		void											setServerName(t_serverConf *sv, const std::string& line);
 		void											setServerDefault(t_serverConf *sv, const std::string& line);
+		void											setServerRoot(t_serverConf *sv, const std::string& line);
+
 		t_location								setServerLocation(const std::vector<std::string>& locations);
 		std::string								setServerLocationPath(const std::string& line);
 		std::string								setServerLocationRoot(const std::string& line);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Conf.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/24 17:57:10 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/29 15:17:44 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,19 @@ void	Conf::setServerDefault(t_serverConf *sv, const std::string& line) {
 	return;
 }
 
+void	Conf::setServerRoot(t_serverConf *sv, const std::string& line) {
+	std::vector<std::string>	sp = Uti::splite(line, ":");
+	if (sp.size() != 2) {
+		this->_error.push_back("Error : server default not found");
+		sv->serverroot = "";
+		return ;
+	}
+	sp[0] = Uti::trim(sp[0], " ;");
+	sp[1] = Uti::trim(sp[1], " ;");
+	sv->serverroot = sp[1];
+	return;
+}
+
 
 std::string	Conf::setServerLocationRoot(const std::string& line) {
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \t\n;"), ":");
@@ -215,6 +228,7 @@ std::string	Conf::setServerLocationCgiExecutable(const std::string& line) {
 }
 
 std::string	Conf::setServerLocationCgiExtenstion(const std::string& line) {
+	std::cout << CYNB << line << RES << std::endl;
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \n\r\t;"), ":");
 	if (sp.size() < 2) {
 		this->_error.push_back("Error : exetenstion not found");
@@ -223,11 +237,13 @@ std::string	Conf::setServerLocationCgiExtenstion(const std::string& line) {
 	for (size_t i = 0; i < sp.size();i++) {
 		sp[i] = Uti::trim(sp[i], " \t");
 	}
+	std::cout << REDB << sp[1] << RES << std::endl;
 	return sp[1];
 }
 
 t_cgi	Conf::setServerLocationCgi(const std::vector<std::string>& cgi) {
 	t_cgi	ret = s_cgi();
+
 
 	for (size_t i = 1; i < cgi.size();i++) {
 		if (this->validateFindStr(cgi[i], "extension")) {
@@ -296,6 +312,7 @@ t_location	Conf::setServerLocation(const std::vector<std::string>& locations) {
 	std::vector<std::string>	v_upload;
 	int						dept_cgi = 0;
 	int						dept_upload = 0;
+
 	for (size_t i = 0; i < locations.size(); i++) {
 		if (this->validateFindStr(locations[i],"location")) {
 			ret.path = this->setServerLocationPath(locations[i]);
@@ -352,6 +369,7 @@ t_location	Conf::setServerLocation(const std::vector<std::string>& locations) {
 	return ret;
 }
 
+
 void	Conf::setServer(const std::vector<std::string>&	servers) {
 	bool						blocation = false;
 	int							dept = 0;
@@ -367,6 +385,8 @@ void	Conf::setServer(const std::vector<std::string>&	servers) {
 			this->setServerName(&server, servers[i]);
 		else if (servers[i].find("default:") != std::string::npos)
 			this->setServerDefault(&server, servers[i]);
+		else if (servers[i].find("serverroot:") != std::string::npos)
+			this->setServerRoot(&server, servers[i]);
 		else if (servers[i].find("location") != std::string::npos) {
 			blocation = true;
 		}

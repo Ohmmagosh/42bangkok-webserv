@@ -2,6 +2,8 @@ playground
 a.out
 .vscode
 test
+test.cpp
 *.o
 main2.cpp
 webserv
+obj

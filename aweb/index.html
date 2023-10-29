@@ -1,163 +1,122 @@
-
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Welcome to Webserv!</title>
-	<style>
-		body {
-			font-family: Arial, sans-serif;
-			margin: 0;
-			padding: 0;
-			background-color: #f1f1f1;
-		}
+	<head>
+		<title>Welcome to Webserv!</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div class="header">
+			<h1>Welcome to Webserv!</h1>
+		</div>
+		<div class="container">
+			<div class="content">
+				<h2>Hello world!</h2>
+				<p>This is the default page of Webserv. You can customize this page to display any content you like.</p>
+				<p>Enjoy using Webserv to serve your static and dynamic content!</p>
 
-		.header {
-			background-color: #333;
-			color: #fff;
-			padding: 15px;
-			text-align: center;
-		}
+				<h2>Send Data to Server</h2>
+				<form id="dataForm" action="http://localhost:8080/submit-data" method="POST">
+					<label for="dataInput">Enter Data:</label>
+					<input type="text" id="dataInput" name="data" placeholder="Enter data to send">
+					<input type="text" id="dataInput" name="hello" placeholder="Enter data to send">
+					<input type="submit" value="Submit">
+				</form>
 
-		.container {
-			max-width: 800px;
-			margin: 0 auto;
-			padding: 20px;
-		}
+				<form action="multiply.py" method="get">
+					<label for="number1">Number1:</label>
+					<input type="number" id="number1" name="number1">
 
-		.content {
-			padding: 20px;
-			background-color: #fff;
-			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-			border-radius: 8px;
-		}
+					<label for="number2">Number2:</label>
+					<input type="number" id="number2" name="number2">
 
-		.footer {
-			background-color: #333;
-			color: #fff;
-			text-align: center;
-			padding: 10px;
-		}
-		.link-button {
-			display: inline-block;
-			padding: 10px 15px;
-			background-color: #4CAF50;
-			color: white;
-			text-align: center;
-			text-decoration: none;
-			border: none;
-			border-radius: 4px;
-			cursor: pointer;
-			margin-right: 10px;
-		}
+					<input type="submit" value="Submit">
+				</form>
+				<!-- Added GET, POST, and DELETE buttons -->
+				<a href="index2.html" class="link-button">GET</a>
+				<!-- <button onclick="handleGet()">GET</button> -->
+				<!-- <button onclick="handlePost()">POST</button> -->
+				<!-- <button onclick="handleDelete()">DELETE</button> -->
 
-		.link-button:hover {
-			background-color: #45a049;
-		}
-	</style>
-</head>
-<body>
-	<div class="header">
-		<h1>Welcome to Webserv!</h1>
-	</div>
-	<div class="container">
-		<div class="content">
-			<h2>Hello world!</h2>
-			<p>This is the default page of Webserv. You can customize this page to display any content you like.</p>
-			<p>Enjoy using Webserv to serve your static and dynamic content!</p>
+				<!-- <input type="text" id="deleteInput" placeholder="Enter item to delete"> -->
+				<!-- <button onclick="handleDelete()">Delete</button> -->
 
-			<h2>Send Data to Server</h2>
-			<form id="dataForm" action="http://localhost:8080/submit-data" method="POST">
-				<label for="dataInput">Enter Data:</label>
-				<!-- <input type="text" id="dataInput" name="data" placeholder="Enter data to send"> -->
-				<input type="text" id="dataInput" name="hello" placeholder="Enter data to send">
-				<input type="submit" value="Submit">
-			</form>
-
-			<!-- Added GET, POST, and DELETE buttons -->
-			<a href="index2.html" class="link-button">GET</a>
-			<!-- <button onclick="handleGet()">GET</button> -->
-			<!-- <button onclick="handlePost()">POST</button> -->
-			<!-- <button onclick="handleDelete()">DELETE</button> -->
-
-			<!-- <input type="text" id="deleteInput" placeholder="Enter item to delete"> -->
-			<button onclick="handleDelete()">Delete</button>
-
-			<div class="container">
-				<div class="content">
-					<h2>Upload a File</h2>
-					<form id="uploadForm" enctype="multipart/form-data">
-						<input type="file" id="fileInput" name="fileToUpload">
-						<button type="button" onclick="handleFileUpload()">Upload</button>
-					</form>
+				<div class="container">
+					<div class="content">
+						<h2>Upload a File</h2>
+						<form id="uploadForm" enctype="multipart/form-data">
+							<input type="file" id="fileInput" name="fileToUpload">
+							<button type="button" onclick="handleFileUpload()">Upload</button>
+						</form>
+					</div>
 				</div>
-			</div>
-			<div class="container">
-				<div class="content">
-					<h2>Download the Latest File</h2>
-					<button id="downloadButton" onclick="handleFileDownload()">Download Latest File</button>
+				<div class="container">
+					<div class="content">
+						<h2>Download the Latest File</h2>
+						<button id="downloadButton" onclick="handleFileDownload()">Download Latest File</button>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class="footer">
-		Powered by Webserv
-	</div>
+		<div class="footer">
+			Powered by Webserv
+		</div>
 
-	<script>
-		// Functions for GET, POST, and DELETE actions
-		function handleGet() {
-			alert('GET button clicked.');
-			// Your GET request code here
-		}
-		function handlePost(e) {akjsdgjkasgdkhagd
-			alert(e.target.value);
-		}
+		<script>
+			// Functions for GET, POST, and DELETE actions
+			function handleGet() {
+				alert('GET button clicked.');
+				// Your GET request code here
+			}
+			function handlePost(e) {akjsdgjkasgdkhagd
+				alert(e.target.value);
+			}
 
-		function handleDelete() {
-			fetch('http://localhost:8080/delete-data', {
-				method: 'DELETE',
-			})
-			.then(response => response.json())  // assuming server responds with json
-			.then(data => {
-				console.log(data);
-				alert('Data deleted successfully.');
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-				alert('Error deleting data.');
-			});
-		}
+			function handleDelete() {
+				fetch('http://localhost:8080/delete-data', {
+					method: 'DELETE',
+				})
+				.then(response => response.json())  // assuming server responds with json
+				.then(data => {
+					console.log(data);
+					alert('Data deleted successfully.');
+				})
+				.catch((error) => {
+					console.error('Error:', error);
+					alert('Error deleting data.');
+				});
+			}
 
-		function handleFileUpload() {
-			const formData = new FormData(document.getElementById('uploadForm'));
+			function handleFileUpload() {
+				const formData = new FormData(document.getElementById('uploadForm'));
 
-			fetch('http://localhost:8080/upload-file', {
-				method: 'POST',
-				body: formData
-			})
-			.then(response => response.json())
-			.then(data => {
-				console.log(data);
-				alert('File uploaded successfully.');
-			})
-			.catch((error) => {
-				console.error('Error:', error);
-				alert('Error uploading file.');
-			});
-		}
+				fetch('http://localhost:8080/upload-file', {
+					method: 'POST',
+					body: formData
+				})
+				.then(response => response.json())
+				.then(data => {
+					console.log(data);
+					alert('File uploaded successfully.');
+				})
+				.catch((error) => {
+					console.error('Error:', error);
+					alert('Error uploading file.');
+				});
+			}
 
-		function handleFileDownload()
-		{
-			// Define the server endpoint URL for downloading the latest uploaded file
-			const serverUrl = `http://localhost:8080/download-latest-file`;
+			function handleFileDownload()
+			{
+				// Define the server endpoint URL for downloading the latest uploaded file
+				const serverUrl = `http://localhost:8080/download-latest-file`;
 
-			// Open the file in a new window or tab
-			window.open(serverUrl, '_blank');
-		}
+				// Open the file in a new window or tab
+				window.open(serverUrl, '_blank');
+			}
 
-	</script>
-</body>
+		</script>
+	</body>
 </html>
+
 
 
 

@@ -6,13 +6,11 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 02:46:42 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/26 00:43:35 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/29 14:46:09 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "StringMatrix.hpp"
-#include <cstring>
-#include <sys/_types/_size_t.h>
 
 StringMatrix::StringMatrix(): _str(nullptr), _size(0)
 {
@@ -40,6 +38,20 @@ StringMatrix::StringMatrix(const std::vector<std::string>& exe, const std::vecto
 	}
 	for (size_t j = 0; j < file.size(); j++,i++) {
 		this->_str[i] = strdup(file[j].c_str());
+	}
+	this->_str[this->_size] = nullptr;
+}
+
+StringMatrix::StringMatrix(const std::map<std::string, std::string>& env) {
+	this->_size = (env.size());
+	this->_str = new char*[this->_size + 1];
+
+	std::map<std::string, std::string>::const_iterator	it = env.begin();
+	size_t i = 0;
+	for (;it != env.end(); i++,it++) {
+		std::stringstream	ss;
+		ss << it->first << "=" << it->second;
+		this->_str[i] = strdup(ss.str().c_str());
 	}
 	this->_str[this->_size] = nullptr;
 }
