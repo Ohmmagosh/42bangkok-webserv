@@ -58,16 +58,18 @@ typedef struct	s_location
 typedef struct	s_serverConf
 {
 	std::string					host;
-	int									port;
+	int							port;
 	std::string					serverName;
-	bool								isDefault;
+	bool						isDefault;
+	std::string					serverroot;
 	std::vector<t_location>		location;
 
 	s_serverConf()
 	{
-		host        =   "";
-		port        =   0;
-		serverName  =   "";
+		host        = "";
+		port        = 0;
+		serverName  = "";
+		serverroot		= "";
 		isDefault   =   false;
 		location.clear();
 	}
@@ -85,16 +87,18 @@ typedef struct	s_globalConf
 	}
 }				t_globalConf;
 
-typedef struct 	s_con
+typedef struct	s_con
 {
 	t_globalConf				global;
 	std::vector<t_serverConf>	server;
-}				        t_con;
+}				t_con;
 
-typedef struct  s_detail {
-  bool					status;
-  std::string		detail;
-	t_serverConf	server;
-}               t_detail;
+typedef struct	s_detail {
+	bool						status;
+	std::string					detail;
+	t_serverConf				server;
+	std::vector<t_location>		locations;
+	t_location					location;
+}				t_detail;
 
 #endif

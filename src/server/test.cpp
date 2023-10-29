@@ -8,8 +8,6 @@
 #include "../stdlib.hpp"
 #include "Response.hpp"
 
-
-
 class Request {
 	private:
 		std::string							_method;
