@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 10:34:42 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/30 23:43:39 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ std::string	HttpRequestHandle::callCgiGet(const std::string& url, const Request&
 }
 
 std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& req, const t_serverConf& server) {
+
 	t_detail	loc = CgiHandler().getAllLocation(url, server);
 	std::string	path;
 
@@ -106,6 +107,10 @@ std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& r
 	return Response(200, file).HttpResponse();
 }
 
+// std::string	HttpRequestHandle::dirListing() {
+
+// }
+
 std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Request& req, const t_serverConf& server) {
 
 	if (this->validateCgi(url, server)) {
@@ -114,6 +119,9 @@ std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Requ
 		if (url == "/" || url == "/index.html") {
 			return this->defaultRoute(url, server);
 		}
+		// else if (url == "//") {
+
+		// }
 		else {
 			return this->allRoute(url, req, server);
 		}
@@ -150,7 +158,8 @@ std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& co
 	t_detail tmp = this->validateHostRequestAndGetServer(const_cast<Request&>(req), config);
 	if (tmp.status) {
 		if (req.getMethod() == "GET") {
-			return this->getMethod(req, tmp.server);;
+			return this->getMethod(req, tmp.server);
+			// Response(200).HttpResponse();
 		}
 		else if (req.getMethod() == "POST") {
 			return Response(200,"<div>HELLO POST</div>").HttpResponse();

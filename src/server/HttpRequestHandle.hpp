@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 10:33:03 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/30 13:13:26 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,11 +46,13 @@ class HttpRequestHandle
 		bool						validateUrlAllow(const std::string& url, const t_serverConf& server, const std::string& vmethod);
 		bool						validateCgi(const std::string& url, const t_serverConf& server);
 		t_detail					validateHostRequestAndGetServer(Request& req, const t_con& server);
+		bool						validateDirList(const t_serverConf& server);
 
 
 		std::string					callCgiGet(const std::string& url, const Request& req, const t_serverConf& server);
 		std::string					defaultRoute(const std::string& url, const t_serverConf& server);
-		std::string					allRoute(const std::string& url, const Request& req,const t_serverConf& server);
+		std::string					allRoute(const std::string& url, const Request& req, const t_serverConf& server);
+		std::string					dirListing();
 
 
 		std::string					getMethodRoute(const std::string& url, const Request& req, const t_serverConf& config);

@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 13:36:44 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/30 13:39:14 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -546,7 +546,6 @@ void Conf::printServerConf() const
 			std::cout << "    Route Path: " << routeIt->path << std::endl;
 			std::cout << "    Root: " << routeIt->root << std::endl;
 			std::cout << "    Redirect: " << routeIt->redirection << std::endl;
-			std::cout << "    Directory Listing: " << (routeIt->dirListing ? "On" : "Off") << std::endl;
 			std::cout << "    Default File: " << routeIt->defaultFile << std::endl;
 
 			std::cout << "    CGI:" << std::endl;
