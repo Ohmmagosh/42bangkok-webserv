@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/29 11:59:23 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/30 10:33:03 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,18 +38,19 @@ class HttpRequestHandle
 		std::vector<ServerConfig>				_serverConfigs;
 	public:
 		HttpRequestHandle();
-		// HttpRequestHandle(const std::string& method);
-		// HttpRequestHandle(const HttpRequestHandle & rhs);
-		// HttpRequestHandle(const Request& req, const std::string& cgi_path);
-		// HttpRequestHandle(const Request& req, const std::string& cgi_path, const std::vector<ServerConfig>& serverConfigs);
 		~HttpRequestHandle();
 		HttpRequestHandle &operator=(const HttpRequestHandle & rhs);
 
-		std::string									validateMethod(const Request& req, const t_con& config);
-		bool										validateMethodAllow(std::vector<std::string> method, const std::string& vmethod);
-		bool										validateUrlAllow(const std::string& url, const t_serverConf& server, const std::string& vmethod);
-		bool										validateCgi(const std::string& url, const t_serverConf& server);
-		t_detail									validateHostRequestAndGetServer(Request& req, const t_con& server);
+		std::string					validateMethod(const Request& req, const t_con& config);
+		bool						validateMethodAllow(std::vector<std::string> method, const std::string& vmethod);
+		bool						validateUrlAllow(const std::string& url, const t_serverConf& server, const std::string& vmethod);
+		bool						validateCgi(const std::string& url, const t_serverConf& server);
+		t_detail					validateHostRequestAndGetServer(Request& req, const t_con& server);
+
+
+		std::string					callCgiGet(const std::string& url, const Request& req, const t_serverConf& server);
+		std::string					defaultRoute(const std::string& url, const t_serverConf& server);
+		std::string					allRoute(const std::string& url, const Request& req,const t_serverConf& server);
 
 
 		std::string					getMethodRoute(const std::string& url, const Request& req, const t_serverConf& config);
