@@ -37,7 +37,6 @@ typedef struct	s_location
 	std::string					root;
 	std::vector<std::string>	method;
 	std::string					redirection;
-	bool						dirListing;
 	std::string					defaultFile;
 	t_cgi						cgi;
 	t_upload					upload;
@@ -48,7 +47,6 @@ typedef struct	s_location
 		root        =   "";
 		method.clear();
 		redirection =   "";
-		dirListing  =   false;
 		defaultFile =   "";
 		cgi         =   s_cgi();
 		upload      =   s_upload();
@@ -61,6 +59,7 @@ typedef struct	s_serverConf
 	int							port;
 	std::string					serverName;
 	bool						isDefault;
+	bool						dirListing;
 	std::string					serverroot;
 	std::vector<t_location>		location;
 
@@ -69,8 +68,9 @@ typedef struct	s_serverConf
 		host        = "";
 		port        = 0;
 		serverName  = "";
-		serverroot		= "";
-		isDefault   =   false;
+		serverroot	= "";
+		dirListing	= "";
+		isDefault   = false;
 		location.clear();
 	}
 }				t_serverConf;
