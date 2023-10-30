@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:39 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/29 15:43:04 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/30 13:28:34 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,31 +37,31 @@ class Conf
 		bool						validateFindStr(const std::string& line, const std::string& sfind);
 
 		//SETTER
-		void											setGlobal(const std::vector<std::string>& gl);
-		void											setServers(const std::vector<std::string>& sv);
-		void											setServer(const std::vector<std::string>& sv);
-		void											setGlobalDefault(std::vector<std::string>::const_iterator begin, std::vector<std::string>::const_iterator end);
-		void											setGlobalClient(const std::string& cli);
-		//server
-		void											setServerHost(t_serverConf *sv, const std::string& line);
-		void											setServerPort(t_serverConf *sv, const std::string& line);
-		void											setServerName(t_serverConf *sv, const std::string& line);
-		void											setServerDefault(t_serverConf *sv, const std::string& line);
-		void											setServerRoot(t_serverConf *sv, const std::string& line);
-
+		void									setGlobal(const std::vector<std::string>& gl);
+		void									setServers(const std::vector<std::string>& sv);
+		void									setServer(const std::vector<std::string>& sv);
+		void									setGlobalDefault(std::vector<std::string>::const_iterator begin, std::vector<std::string>::const_iterator end);
+		void									setGlobalClient(const std::string& cli);
+		//SERVER
+		void									setServerHost(t_serverConf *sv, const std::string& line);
+		void									setServerPort(t_serverConf *sv, const std::string& line);
+		void									setServerName(t_serverConf *sv, const std::string& line);
+		void									setServerDefault(t_serverConf *sv, const std::string& line);
+		void									setServerRoot(t_serverConf *sv, const std::string& line);
+		void									setServerDirlisting(t_serverConf *sv, std::string& line);
+		//SERVERLOCATION
 		t_location								setServerLocation(const std::vector<std::string>& locations);
 		std::string								setServerLocationPath(const std::string& line);
 		std::string								setServerLocationRoot(const std::string& line);
-		std::vector<std::string>	setServerLocationMethod(const std::string& line);
+		std::vector<std::string>				setServerLocationMethod(const std::string& line);
 		std::string								setServerLocationRedirect(const std::string& line);
-		bool											setServerLocationDirlisting(const std::string& line);
 		std::string								setServerLocationDefaultFile(const std::string& line);
-		void											setServerRouteLocation(t_location *lc, const std::vector<std::string>& line);
+		void									setServerRouteLocation(t_location *lc, const std::vector<std::string>& line);
 		std::string								setServerLocationCgiExtenstion(const std::string& line);
 		std::string								setServerLocationCgiExecutable(const std::string& line);
-		t_cgi											setServerLocationCgi(const std::vector<std::string>& cgi);
-		t_upload									setServerLocationUpload(const std::vector<std::string>& upl);
-		bool											setServerLocationUploadEnable(const std::string& line);
+		t_cgi									setServerLocationCgi(const std::vector<std::string>& cgi);
+		t_upload								setServerLocationUpload(const std::vector<std::string>& upl);
+		bool									setServerLocationUploadEnable(const std::string& line);
 		std::string								setServerLocationCgiUploadPath(const std::string& line);
 
 		// //getter
