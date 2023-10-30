@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 13:29:15 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/30 13:34:15 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,7 @@ std::vector<std::string>	Conf::setServerLocationMethod(const std::string& line) 
 	return ret;
 }
 
-void	Conf::setServerDirlisting(t_serverConf *sv, const std::string& line) {
+void	Conf::setServerDirListing(t_serverConf *sv, const std::string& line) {
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \r\n\t;"), ":");
 	if (sp.size() != 2) {
 		this->_error.push_back("Error : Dirlisting not found or wrong format");
