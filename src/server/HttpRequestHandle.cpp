@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 23:43:39 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 02:53:56 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ bool	HttpRequestHandle::validateUrlAllow(const std::string& url, const t_serverC
 	}
 	return false;
 }
-
 
 bool	HttpRequestHandle::validateMethodAllow(std::vector<std::string> method, const std::string& vmethod) {
 	for (size_t i = 0; i < method.size(); i++) {
@@ -107,9 +106,57 @@ std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& r
 	return Response(200, file).HttpResponse();
 }
 
-// std::string	HttpRequestHandle::dirListing() {
+std::string	HttpRequestHandle::generateHtml(const std::string& title, const std::string& content) {
+	std::stringstream	html;
+	html << "<!DOCTYPE html>\n";
+	html << "<html lang=\"en\">\n";
+	html << "<head>\n";
+	html << "<meta charset=\"UTF-8\">\n";
+	html << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+	html << "<title>" << title << "</title>\n";
+	html << "</head>\n";
+	html << "<body>\n";
+	html << content << '\n';
+	html << "</body>\n";
+	html << "</html>\n";
+	return html.str();
+}
 
-// }
+std::string	HttpRequestHandle::openDir(const std::string& url) {
+	DIR *dir;
+	std::stringstream ss;
+
+	struct dirent *ent;
+	dir = opendir(url.c_str());
+	if (dir != nullptr) {
+		 while ((ent = readdir(dir)) != nullptr) {
+			ss << "<a " << "href=\"" << url << "/dowload" << ent->d_name << "\""<< ent->d_name << std::endl;
+		}
+		closedir(dir);
+		std::string	content = this->generateHtml("Dirlist", ss.str());
+		return Response(200,"").HttpResponse();
+	}
+	return Response(404).HttpResponse();
+}
+
+std::string	HttpRequestHandle::dirListing(const std::string& url, const t_serverConf& server) {
+	std::string	dir_path;
+
+	if (!server.dirListing)
+		return Response(403, "").HttpResponse();
+	if (url == "//")
+		dir_path = server.serverroot;
+	return Response(200, "").HttpResponse();
+}
+
+
+bool	HttpRequestHandle::isDirlist(const std::string& url, const t_serverConf& server) {
+	if (url == "//")
+		return true;
+	if (url != "/" && url[url.size() - 1] == '/')
+		return true;
+	return false;
+}
 
 std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Request& req, const t_serverConf& server) {
 
@@ -119,9 +166,10 @@ std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Requ
 		if (url == "/" || url == "/index.html") {
 			return this->defaultRoute(url, server);
 		}
-		// else if (url == "//") {
-
-		// }
+		else if (this->isDirlist(url, server)) {
+			// return this->dirListing(url, server);
+			return Response(200, "<h1>Dir listing</h1>").HttpResponse();
+		}
 		else {
 			return this->allRoute(url, req, server);
 		}
@@ -159,7 +207,6 @@ std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& co
 	if (tmp.status) {
 		if (req.getMethod() == "GET") {
 			return this->getMethod(req, tmp.server);
-			// Response(200).HttpResponse();
 		}
 		else if (req.getMethod() == "POST") {
 			return Response(200,"<div>HELLO POST</div>").HttpResponse();
@@ -187,7 +234,8 @@ int HttpRequestHandle::getPortFromRequest(Request req)
 			return port;
 		}
 	}
-	return -1; // Return -1 or any other value to indicate that the port wasn't found
+	// Return -1 or any other value to indicate that the port wasn't found
+	return -1;
 }
 
 

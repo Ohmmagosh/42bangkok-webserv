@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 13:39:14 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 00:22:02 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,7 +230,6 @@ std::string	Conf::setServerLocationCgiExecutable(const std::string& line) {
 }
 
 std::string	Conf::setServerLocationCgiExtenstion(const std::string& line) {
-	std::cout << CYNB << line << RES << std::endl;
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \n\r\t;"), ":");
 	if (sp.size() < 2) {
 		this->_error.push_back("Error : exetenstion not found");
@@ -239,7 +238,6 @@ std::string	Conf::setServerLocationCgiExtenstion(const std::string& line) {
 	for (size_t i = 0; i < sp.size();i++) {
 		sp[i] = Uti::trim(sp[i], " \t");
 	}
-	std::cout << REDB << sp[1] << RES << std::endl;
 	return sp[1];
 }
 
@@ -538,6 +536,7 @@ void Conf::printServerConf() const
 		std::cout << "Port: " << serverIt->port << std::endl;
 		std::cout << "Server Name: " << serverIt->serverName << std::endl;
 		std::cout << "Default: " << ((serverIt->isDefault == true) ? "True" : "False") << std::endl;
+		std::cout << "DirListing" << ((serverIt->dirListing == true) ? "TRUE" : "FALSE") << std::endl;
 
 		std::cout << "--- Routes ---\n";
 		std::vector<t_location>::const_iterator routeIt;

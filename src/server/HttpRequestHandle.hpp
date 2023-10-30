@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 13:13:26 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 02:06:30 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,17 @@ class HttpRequestHandle
 		bool						validateCgi(const std::string& url, const t_serverConf& server);
 		t_detail					validateHostRequestAndGetServer(Request& req, const t_con& server);
 		bool						validateDirList(const t_serverConf& server);
+		bool						isDirlist(const std::string& url, const t_serverConf& server);
+		bool						validateUrlDirlist(const std::string& url);
 
 
 		std::string					callCgiGet(const std::string& url, const Request& req, const t_serverConf& server);
 		std::string					defaultRoute(const std::string& url, const t_serverConf& server);
 		std::string					allRoute(const std::string& url, const Request& req, const t_serverConf& server);
-		std::string					dirListing();
+		std::string					dirListing(const std::string& url, const t_serverConf& server);
+		std::string					openDir(const std::string& url);
 
+		std::string					generateHtml(const std::string& title, const std::string& content);
 
 		std::string					getMethodRoute(const std::string& url, const Request& req, const t_serverConf& config);
 		std::string					getMethod(const Request& req, const t_serverConf& config);
