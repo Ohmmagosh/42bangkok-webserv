@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/26 22:39:57 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/29 17:13:23 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ CgiHandler::~CgiHandler() {
 
 }
 
-std::string	CgiHandler::executeCgi(StringMatrix& argv) {
+std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env) {
 	int	pipefd[2];
 	if (pipe(pipefd) == -1) {
 		perror("error pipe");
@@ -30,7 +30,7 @@ std::string	CgiHandler::executeCgi(StringMatrix& argv) {
 	if (pid == 0) { //child
 		close(pipefd[0]); //close read
 		dup2(pipefd[1], STDOUT_FILENO);
-		if (execve(argv[0], argv.getStr(), NULL) == -1)
+		if (execve(argv[0], argv.getStr(), env.getStr()) == -1)
 			perror("execve");
 		exit(EXIT_FAILURE);
 	}else { //parent
@@ -47,44 +47,48 @@ std::string	CgiHandler::executeCgi(StringMatrix& argv) {
 	}
 }
 
-std::string CgiHandler::getExecuteByUrl(const std::string& url, const std::vector<t_serverConf>& server) {
-	for (size_t i = 0; i < server.size(); i++) {
-		for (size_t j = 0; j < server[i].location.size(); j++) {
-			if (server[i].location[j].path == url) {
-				return server[i].location[j].cgi.executable;
-			}
-		}
+t_detail	CgiHandler::getAllLocation(const std::string& url, const t_serverConf& server) {
+	for (size_t i = 0; i < server.location.size(); i++) {
+		if (url == server.location[i].path)
+			return Detail(true, server.location).getDetailStruct();
 	}
+	return Detail(false).getDetailStruct();
+}
+
+
+std::string	CgiHandler::getRootDefaultByUrlFromServer(const t_serverConf& server) {
+	if (server.isDefault)
+		return server.serverroot;
 	return "";
 }
 
-t_location CgiHandler::getLocationByUrl(const std::string& url, const std::vector<t_serverConf>& server) {
-	for (size_t i = 0; i < server.size(); i++) {
-		for (size_t j = 0; j < server[i].location.size(); j++) {
-			if (server[i].location[j].path == url) {
-				return server[i].location[j];
-			}
-		}
+t_location	CgiHandler::getLocationByUrlFromServer(const std::string& url, const t_serverConf& server) {
+	for (size_t i = 0; i < server.location.size(); i++) {
+		if (server.location[i].path == url)
+			return server.location[i];
 	}
-	t_location empty = s_location();
+	t_location empty;
 	return empty;
 }
 
-std::string	CgiHandler::getDefaultFileByUrl(const std::string& url, const std::vector<t_serverConf>& server) {
-	t_location	location = this->getLocationByUrl(url, server);
-
-	return location.defaultFile;
+std::string	CgiHandler::getDefaultFileByUrl(const std::string& url, const t_serverConf& server) {
+	return this->getLocationByUrlFromServer(url, server).defaultFile;
 }
 
-
-std::string CgiHandler::getRootByUrl(const std::string& url, const std::vector<t_serverConf>& server) {
-	t_location	location = this->getLocationByUrl(url, server);
-	return location.root;
+std::string	CgiHandler::getRootByUrlFromServer(const std::string& url, const t_serverConf& server) {
+	return this->getLocationByUrlFromServer(url, server).root;
 }
 
-std::string CgiHandler::getExtensionByUrl(const std::string& url, const std::vector<t_serverConf>& server) {
-	t_location	location = this->getLocationByUrl(url, server);
-	return location.cgi.extension;
+std::string	CgiHandler::getExecuteByUrl(const std::string& url, const t_serverConf& server) {
+	return this->getLocationByUrlFromServer(url, server).cgi.executable;
+}
+std::string	CgiHandler::getExtensionByUrl(const std::string& url, const t_serverConf& server) {
+	for (size_t i = 0; i < server.location.size(); i++) {
+		if (url == server.location[i].path) {
+			return server.location[i].cgi.extension;
+		}
+	}
+	return "";
 }
 
 void	CgiHandler::addBackArgv(const std::vector<std::string>& av) {
@@ -110,6 +114,7 @@ void	CgiHandler::initArgv(const std::string& cgi_exec, const std::string& def_fi
 const std::vector<std::string>& CgiHandler::getArgv() const {
 	return this->_argv;
 }
+
 const std::vector<std::string>& CgiHandler::getEnv() const {
 	return this->_env;
 }
@@ -121,17 +126,12 @@ void	CgiHandler::initEnv(const std::vector<std::string>& env) {
 	return ;
 }
 
-
-// char** CgiHandler::initEnv(const Request & req) {
-// 	char** res = new char*[req.getHeaderSize()];
-// 	std::map<std::string, std::string>::const_iterator	it = req.getMapHeader().begin();
-// 	int i = 0;
-// 	while(it != req.getMapHeader().end() && i < req.getHeaderSize()) {
-// 		std::stringstream	ss;
-// 		ss << it->first << "=" << it->second;
-// 		res[i] = strdup(ss.str().c_str());
-// 		it++;
-// 		i++;
-// 	}
-// 	res[req.getHeaderSize()] = NULL;
-// }
+void	CgiHandler::initEnv(const std::map<std::string, std::string>& env) {
+	std::map<std::string, std::string>::const_iterator it = env.begin();
+	for (;it != env.end(); it++) {
+		std::stringstream	ss;
+		ss << it->first << "=" << it->second;
+		this->_env.push_back(ss.str());
+	}
+	return ;
+}

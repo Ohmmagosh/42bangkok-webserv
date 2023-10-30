@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/24 18:13:38 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/29 14:06:32 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ const std::vector<std::string>&	Request::getHeaderNoC() const {
 	return this->_headers_no_c;
 }
 
-std::string	Request::getHeadersByValue(const std::string& key) const {
+std::string	Request::getHeadersByValue(const std::string& key) {
 	return this->_headers[key];
 }
 
@@ -72,6 +72,15 @@ void	Request::setMethod(const std::string& method) {
 }
 
 void	Request::setUrl(const std::string& url) {
+	if (url.find("?")) {
+		std::vector<std::string>	sp = Uti::splite(url, "?");
+		this->_url = sp[0];
+		std::string	query;
+		query += "?";
+		query += sp[1];
+		this->setQueryUrl(query);
+		return ;
+	}
 	this->_url = url;
 }
 
@@ -100,8 +109,8 @@ void	Request::setAllHeader(const std::string& header) {
 	}
 	if (this->validateBoundary())
 		this->setBoundaryFromContent(this->getHeadersByValue("Content-Type"));
-	if (this->validateParams())
-		this->setQueryUrl();
+	// if (this->validateParams())
+	// 	this->setQueryUrl();
 }
 
 void	Request::setAllBody(const std::string& body) {
@@ -114,8 +123,7 @@ void	Request::setHeaderAndBody(const std::string& raw_req) {
 	this->setAllBody(sp[1]);
 }
 
-void	Request::setQueryUrl() {
-	std::string	url = this->getUrl();
+void	Request::setQueryUrl(const std::string& url) {
 	if (url.empty())
 		return ;
 	if (url.find("?") != std::string::npos) {

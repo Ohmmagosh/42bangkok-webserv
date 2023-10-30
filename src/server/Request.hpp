@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:17:34 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/19 21:09:38 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/29 14:03:34 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,10 @@ class Request {
 		std::string									getVersion() const;
 		std::string									getBoundary() const;
 		const std::vector<std::string>&				getHeaderNoC() const;
-		std::string									getHeadersByValue(const std::string& key) const;
+		std::string									getHeadersByValue(const std::string& key) ;
 		const std::map<std::string, std::string>&	getHeaderC() const;
 		const std::map<std::string, std::string>&	getQueryUrl() const;
-		std::string							getQueryUrlByValue(const std::string& val);
+		std::string									getQueryUrlByValue(const std::string& val);
 
 		//helper
 		bool										validateHeaderMethod(const std::string& line);
@@ -65,7 +65,7 @@ class Request {
 		void										setHeaderAndBody(const std::string& raw_req);
 		void										setAllHeader(const std::string& header);
 		void										setAllBody(const std::string& body);
-		void										setQueryUrl();
+		void										setQueryUrl(const std::string& url);
 };
 
 std::ostream& operator<<(std::ostream& os, const Request& req);

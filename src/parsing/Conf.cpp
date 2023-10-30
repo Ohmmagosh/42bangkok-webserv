@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Conf.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/24 17:57:10 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/30 13:39:14 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,19 @@ void	Conf::setServerDefault(t_serverConf *sv, const std::string& line) {
 	return;
 }
 
+void	Conf::setServerRoot(t_serverConf *sv, const std::string& line) {
+	std::vector<std::string>	sp = Uti::splite(line, ":");
+	if (sp.size() != 2) {
+		this->_error.push_back("Error : server default not found");
+		sv->serverroot = "";
+		return ;
+	}
+	sp[0] = Uti::trim(sp[0], " ;");
+	sp[1] = Uti::trim(sp[1], " ;");
+	sv->serverroot = sp[1];
+	return;
+}
+
 
 std::string	Conf::setServerLocationRoot(const std::string& line) {
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \t\n;"), ":");
@@ -172,16 +185,18 @@ std::vector<std::string>	Conf::setServerLocationMethod(const std::string& line) 
 	return ret;
 }
 
-bool	Conf::setServerLocationDirlisting(const std::string& line) {
+void	Conf::setServerDirListing(t_serverConf *sv, const std::string& line) {
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \r\n\t;"), ":");
 	if (sp.size() != 2) {
 		this->_error.push_back("Error : Dirlisting not found or wrong format");
-		return false;
+		sv->dirListing = false;
+		return ;
 	}
 	for (size_t i = 0; i < sp.size(); i++) {
 		sp[i] = Uti::trim(sp[i], " \t\r\n");
 	}
-	return ((sp[1] == "on") ? true: false);
+	sv->dirListing =  ((sp[1] == "on") ? true: false);
+	return ;
 }
 
 std::string	Conf::setServerLocationDefaultFile(const std::string& line) {
@@ -215,6 +230,7 @@ std::string	Conf::setServerLocationCgiExecutable(const std::string& line) {
 }
 
 std::string	Conf::setServerLocationCgiExtenstion(const std::string& line) {
+	std::cout << CYNB << line << RES << std::endl;
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \n\r\t;"), ":");
 	if (sp.size() < 2) {
 		this->_error.push_back("Error : exetenstion not found");
@@ -223,11 +239,13 @@ std::string	Conf::setServerLocationCgiExtenstion(const std::string& line) {
 	for (size_t i = 0; i < sp.size();i++) {
 		sp[i] = Uti::trim(sp[i], " \t");
 	}
+	std::cout << REDB << sp[1] << RES << std::endl;
 	return sp[1];
 }
 
 t_cgi	Conf::setServerLocationCgi(const std::vector<std::string>& cgi) {
 	t_cgi	ret = s_cgi();
+
 
 	for (size_t i = 1; i < cgi.size();i++) {
 		if (this->validateFindStr(cgi[i], "extension")) {
@@ -288,14 +306,15 @@ std::string	Conf::setServerLocationRedirect(const std::string& line) {
 }
 
 t_location	Conf::setServerLocation(const std::vector<std::string>& locations) {
-	t_location		ret = s_location();
-	t_cgi			cgi = s_cgi();
-	bool			b_cgi = false;
-	bool			b_upload = false;
+	t_location					ret = s_location();
+	t_cgi						cgi = s_cgi();
+	bool						b_cgi = false;
+	bool						b_upload = false;
 	std::vector<std::string>	v_cgi;
 	std::vector<std::string>	v_upload;
-	int						dept_cgi = 0;
-	int						dept_upload = 0;
+	int							dept_cgi = 0;
+	int							dept_upload = 0;
+
 	for (size_t i = 0; i < locations.size(); i++) {
 		if (this->validateFindStr(locations[i],"location")) {
 			ret.path = this->setServerLocationPath(locations[i]);
@@ -308,9 +327,6 @@ t_location	Conf::setServerLocation(const std::vector<std::string>& locations) {
 		}
 		else if (this->validateFindStr(locations[i], "redirect")) {
 			ret.redirection = this->setServerLocationRedirect(locations[i]);
-		}
-		else if (this->validateFindStr(locations[i], "directory_listing")) {
-			ret.dirListing = this->setServerLocationDirlisting(locations[i]);
 		}
 		else if (this->validateFindStr(locations[i], "default_file")) {
 			ret.defaultFile = this->setServerLocationDefaultFile(locations[i]);
@@ -352,6 +368,7 @@ t_location	Conf::setServerLocation(const std::vector<std::string>& locations) {
 	return ret;
 }
 
+
 void	Conf::setServer(const std::vector<std::string>&	servers) {
 	bool						blocation = false;
 	int							dept = 0;
@@ -367,6 +384,10 @@ void	Conf::setServer(const std::vector<std::string>&	servers) {
 			this->setServerName(&server, servers[i]);
 		else if (servers[i].find("default:") != std::string::npos)
 			this->setServerDefault(&server, servers[i]);
+		else if (servers[i].find("serverroot:") != std::string::npos)
+			this->setServerRoot(&server, servers[i]);
+		else if (servers[i].find("directory_listing:") != std::string::npos)
+			this->setServerDirListing(&server, servers[i]);
 		else if (servers[i].find("location") != std::string::npos) {
 			blocation = true;
 		}
@@ -525,7 +546,6 @@ void Conf::printServerConf() const
 			std::cout << "    Route Path: " << routeIt->path << std::endl;
 			std::cout << "    Root: " << routeIt->root << std::endl;
 			std::cout << "    Redirect: " << routeIt->redirection << std::endl;
-			std::cout << "    Directory Listing: " << (routeIt->dirListing ? "On" : "Off") << std::endl;
 			std::cout << "    Default File: " << routeIt->defaultFile << std::endl;
 
 			std::cout << "    CGI:" << std::endl;

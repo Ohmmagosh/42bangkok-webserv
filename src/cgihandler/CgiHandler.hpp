@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:13 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/26 05:32:55 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/29 15:38:53 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,18 +25,21 @@ class CgiHandler {
 	public:
 		CgiHandler();
 		~CgiHandler();
-		std::string	executeCgi(StringMatrix& argv);
-		// char** initEnv(const Request & req);
+		std::string	executeCgi(StringMatrix& argv, StringMatrix& env);
 
-		std::string getExecuteByUrl(const std::string& url, const std::vector<t_serverConf>& server);
-		std::string	getDefaultFileByUrl(const std::string& url, const std::vector<t_serverConf>& server);
-		t_location	getLocationByUrl(const std::string& url, const std::vector<t_serverConf>& server);
-		std::string	getRootByUrl(const std::string& url, const std::vector<t_serverConf>& server);
-		std::string	getExtensionByUrl(const std::string& url, const std::vector<t_serverConf>& server);
+		std::string getExecuteByUrl(const std::string& url, const t_serverConf& server);
+		std::string	getDefaultFileByUrl(const std::string& url, const t_serverConf& serverr);
+		std::string	getRootByUrlFromServer(const std::string& url, const t_serverConf& server);
+		std::string	getRootDefaultByUrlFromServer(const t_serverConf& server);
+		std::string	getExtensionByUrl(const std::string& url, const t_serverConf& server);
+
+		t_detail	getAllLocation(const std::string& url, const t_serverConf& server);
+		t_location	getLocationByUrlFromServer(const std::string& url, const t_serverConf& server);
 
 		void		initArgv(const std::string& cgi_exec, const std::string& lc_root, const std::string& def_file);
 		void		initArgv(const std::string& cgi_exec, const std::string& def_file);
 		void		initEnv(const std::vector<std::string>& env);
+		void		initEnv(const std::map<std::string, std::string>& env);
 		void		addBackArgv(const std::vector<std::string>& av);
 
 		const std::vector<std::string>&	getArgv() const;

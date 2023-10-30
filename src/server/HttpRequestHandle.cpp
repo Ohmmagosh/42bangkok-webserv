@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/27 02:09:47 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/30 23:43:39 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,25 +25,21 @@ HttpRequestHandle &HttpRequestHandle::operator=(const HttpRequestHandle &rhs)
 {
 	if (this != &rhs)
 	{
-		// this->_method = rhs._method;
-		// this->_path = rhs._path;
+
 	}
 	return *this;
 }
 
-
-bool	HttpRequestHandle::validateUrlAllow(const std::string& url, const t_con& config, const std::string& vmethod) {
-
-	for (size_t i = 0; i < config.server.size(); i++) {
-		for (size_t j = 0; j < config.server[i].location.size(); j++) {
-			if (config.server[i].location[j].path == url) {
-				if (this->validateMethodAllow(config.server[i].location[j].method, vmethod))
-					return true;
-			}
+bool	HttpRequestHandle::validateUrlAllow(const std::string& url, const t_serverConf& server, const std::string& vmethod) {
+	for (size_t i = 0; i < server.location.size(); i++) {
+		if (server.location[i].path == url) {
+			if (this->validateMethodAllow(server.location[i].method, vmethod))
+				return true;
 		}
 	}
 	return false;
 }
+
 
 bool	HttpRequestHandle::validateMethodAllow(std::vector<std::string> method, const std::string& vmethod) {
 	for (size_t i = 0; i < method.size(); i++) {
@@ -53,52 +49,88 @@ bool	HttpRequestHandle::validateMethodAllow(std::vector<std::string> method, con
 	return false;
 }
 
-bool	HttpRequestHandle::validateCgi(const std::string& url,const t_con& config) {
-	CgiHandler cgi;
-	size_t	find_url = url.find(cgi.getExtensionByUrl(url, config.server));
-	if (find_url != std::string::npos)
+bool	HttpRequestHandle::validateCgi(const std::string& url, const t_serverConf& server) {
+	std::string	extention = CgiHandler().getExtensionByUrl(url, server);
+	if (extention.empty())
+		return false;
+	if (url.find(extention) != std::string::npos) {
 		return true;
+	}
 	return false;
 }
 
-std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Request& req, const t_con& config) {
-	CgiHandler cgi;
+std::string	HttpRequestHandle::defaultRoute(const std::string& url, const t_serverConf& server) {
 
-	if (this->validateCgi(url, config)) {
-		// if (url == "/") {
-		// 	cgi.initArgv(cgi.getExecuteByUrl(url, config.server),cgi.getRootByUrl(url, config.server) + "main.py" );
-		// 	StringMatrix	argv(cgi.getArgv());
-		// 	return cgi.executeCgi(argv);
-		// }
-		return Response(404, "<h1>do not have cgi</h1>").HttpResponse();
-	}else {
-		if (url == "/" || url == "/index.html") {
-			//return default file
-			std::string	path = cgi.getRootByUrl(url, config.server);
-			path += "/";
-			path += cgi.getDefaultFileByUrl(url, config.server);
-			std::string file = File(path).getContent();
-			if (file.empty()) {
-				return Response(404, "<h1>Not Found</h1>").HttpResponse();
-			}
-			return Response(200, file).HttpResponse();
-		}
-		else {
-			std::string path = cgi.getRootByUrl(url, config.server);
-			path += req.getUrl();
-			std::string	file = File(path).getContent();
-			std::stringstream ss;
-			ss << "<h1> Not found path : " << path << "</h1>" << std::endl;
-			if (file.empty()) {
-				return Response(404, ss.str()).HttpResponse();
-			}
-			return Response(200, file).HttpResponse();
-		}
+	std::string	path = CgiHandler().getRootByUrlFromServer(url, server);
+	path += "/";
+	path += CgiHandler().getDefaultFileByUrl(url, server);
+	std::string file = File(path).getContent();
+	if (file.empty()) {
+		return Response(404, "<h1>Not Found</h1>").HttpResponse();
 	}
-	return	Response(404).HttpResponse();
+	return Response(200, file).HttpResponse();
 }
 
-t_detail	HttpRequestHandle::validateHostRequestAndGetServer(const Request& req, const t_con& config) {
+std::string	HttpRequestHandle::callCgiGet(const std::string& url, const Request& req, const t_serverConf& server)
+{
+	CgiHandler cgi;
+	std::string	path_file;
+
+	path_file += cgi.getRootByUrlFromServer(url, server);
+	path_file += url;
+	cgi.initArgv(cgi.getExecuteByUrl(url, server), path_file);
+	StringMatrix	argv(cgi.getArgv());
+	StringMatrix	env(req.getQueryUrl());
+	return Response(200,cgi.executeCgi(argv, env)).HttpResponse();
+}
+
+std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& req, const t_serverConf& server) {
+
+	t_detail	loc = CgiHandler().getAllLocation(url, server);
+	std::string	path;
+
+	if (loc.status) {
+		if (this->validateMethodAllow(loc.location.method, "GET"))
+			return Response(405).HttpResponse();
+	}
+	path = CgiHandler().getRootByUrlFromServer(url, server);
+	if (path.empty()) {
+		path = CgiHandler().getRootDefaultByUrlFromServer(server);
+	}
+	path += req.getUrl();
+	std::string	file = File(path).getContent();
+	std::stringstream ss;
+	ss << "<h1> Path Not found : " << path << "</h1>" << std::endl;
+	if (file.empty()) {
+		return Response(404, ss.str()).HttpResponse();
+	}
+	return Response(200, file).HttpResponse();
+}
+
+// std::string	HttpRequestHandle::dirListing() {
+
+// }
+
+std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Request& req, const t_serverConf& server) {
+
+	if (this->validateCgi(url, server)) {
+		return this->callCgiGet(url, req, server);
+	}else {
+		if (url == "/" || url == "/index.html") {
+			return this->defaultRoute(url, server);
+		}
+		// else if (url == "//") {
+
+		// }
+		else {
+			return this->allRoute(url, req, server);
+		}
+	}
+	return	Response(404, "<h1> Get not found </h1>").HttpResponse();
+}
+
+t_detail	HttpRequestHandle::validateHostRequestAndGetServer(Request& req, const t_con& config) {
+
 	std::string host = req.getHeadersByValue("Host");
 	if (host.find("localhost") != std::string::npos) {
 		std::string	port = host.substr(host.find_last_of(':') + 1);
@@ -111,30 +143,30 @@ t_detail	HttpRequestHandle::validateHostRequestAndGetServer(const Request& req, 
 	else {
 		for (size_t i = 0; i < config.server.size(); i++) {
 			if (config.server[i].serverName == host)
-				return Detail(true, config.server[i]);
+				return Detail(true, config.server[i]).getDetailStruct();
 		}
 	}
 	return Detail(false).getDetailStruct();
 }
 
-std::string	HttpRequestHandle::getMethod(const Request& req, const t_con& config) {
-
-	if (this->validateUrlAllow(req.getUrl(), config, "GET")) {
-		return this->getMethodRoute(req.getUrl(), req, config);
-	}
-	return Response(404, "<h1>Hello getmethod </h1>").HttpResponse();
+std::string	HttpRequestHandle::getMethod(const Request& req, const t_serverConf& server) {
+	return this->getMethodRoute(req.getUrl(), req, server);
 }
 
 std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& config) {
 
-	if (req.getMethod() == "GET") {
-		return this->getMethod(req, config);
-	}
-	else if (req.getMethod() == "POST") {
-		return Response(200,"<div>HELLO POST</div>").HttpResponse();
-	}
-	else if (req.getMethod() == "DELETE") {
-		return Response(200, "<div>HELLO Delete</div>").HttpResponse();
+	t_detail tmp = this->validateHostRequestAndGetServer(const_cast<Request&>(req), config);
+	if (tmp.status) {
+		if (req.getMethod() == "GET") {
+			return this->getMethod(req, tmp.server);
+			// Response(200).HttpResponse();
+		}
+		else if (req.getMethod() == "POST") {
+			return Response(200,"<div>HELLO POST</div>").HttpResponse();
+		}
+		else if (req.getMethod() == "DELETE") {
+			return Response(200, "<div>HELLO Delete</div>").HttpResponse();
+		}
 	}
 	return Response(404, "<h1>HELLO not found</h1>").HttpResponse();
 }
