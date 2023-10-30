@@ -254,23 +254,9 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 	{
 		return Response(400).HttpResponse();
 	}
-	// std::cout << "------- name -------" << std::endl;
-	// std::cout << "Incoming Server Name: " << hostHeader << std::endl;
-	// std::cout << "Matched Server Name: " << matchedServerConf->serverName << std::endl;
-	// std::cout << "------- name end -------" << std::endl;
-	// return  ret.validateMethod(store);
 
-	// std::cout << YELB << "------------ret-------------" << RES << std::endl;
-	// std::cout << ret.validateMethod(parsedrequest, config) << std::endl;
-	// std::cout << YELB << "----------ret-end-----------" << RES << std::endl;
-	// Response restest(200, ret.validateMethod(parsedrequest, config));
-	// return ret.validateMethod(parsedrequest, config);
-	// return restest.HttpResponse();
 	return ret.validateMethod(parsedrequest, config);
-	// return Response(404, "<h1> NOT found</h1>").HttpResponse();
-	// return this->createSimpleHttpResponse();
-	// std::string resp = createSimpleHttpResponse();
-	// return (resp);
+
 }
 
 void Server::handleRead(int kq, struct kevent& event)
