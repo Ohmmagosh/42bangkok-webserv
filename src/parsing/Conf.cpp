@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 13:34:15 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/30 13:36:44 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -387,7 +387,7 @@ void	Conf::setServer(const std::vector<std::string>&	servers) {
 		else if (servers[i].find("serverroot:") != std::string::npos)
 			this->setServerRoot(&server, servers[i]);
 		else if (servers[i].find("directory_listing:") != std::string::npos)
-			this->setServerDirListing(&server, server[i]);
+			this->setServerDirListing(&server, servers[i]);
 		else if (servers[i].find("location") != std::string::npos) {
 			blocation = true;
 		}
