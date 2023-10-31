@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
+/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:09:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/20 01:36:54 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/10/31 14:03:54 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Response
 		Response();
 		Response(size_t statusCode, const std::string& content);
 		Response(size_t statusCode);
+		Response(size_t statusCode, const std::string& redirect, const std::string& content);
 		~Response();
 		std::string	HttpResponse() const;
 		std::string getStatusMessage(size_t statusCode);

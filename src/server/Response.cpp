@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:09:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/26 22:34:33 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 14:10:00 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,16 @@ Response::Response(size_t statusCode, const std::string& content) {
 	this->_res << "Content-Length: " << content.size() << "\r\n";
 	this->_res << "\r\n";
 	this->_res << content;
+}
+
+Response::Response(size_t statusCode, const std::string& redirect, const std::string& content) {
+	this->initMessage();
+	this->_res << "HTTP/1.1 " << statusCode << " " << this->getStatusMessage(statusCode) << "\r\n";
+	if (!redirect.empty())
+		this->_res << "Location: " << redirect << "\r\n";
+	this->_res << "\r\n";
+	if (!content.empty())
+		this->_res << content;
 }
 
 Response::Response(size_t statusCode) {
