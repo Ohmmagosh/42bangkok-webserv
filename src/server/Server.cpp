@@ -254,7 +254,6 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 	{
 		return Response(400).HttpResponse();
 	}
-
 	return ret.validateMethod(parsedrequest, config);
 
 }
