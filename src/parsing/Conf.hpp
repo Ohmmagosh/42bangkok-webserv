@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:39 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 13:36:15 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 17:45:37 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ class Conf
 		void									setServerName(t_serverConf *sv, const std::string& line);
 		void									setServerDefault(t_serverConf *sv, const std::string& line);
 		void									setServerRoot(t_serverConf *sv, const std::string& line);
+		void									setServerAllowDelete(t_serverConf *sv, const std::string& line);
 		void									setServerDirListing(t_serverConf *sv,const std::string& line);
 		//SERVERLOCATION
 		t_location								setServerLocation(const std::vector<std::string>& locations);
@@ -73,8 +74,8 @@ class Conf
 		// bool                        getDefault(size_t serverIndex) const;
 
 		// //printer
-		void                        printGlobalConfig() const;
-		void                        printServerConf() const;
+		void                        			printGlobalConfig() const;
+		void                        			printServerConf() const;
 		// void                        printDefaultErrorPages() const;
 		// void                        printHost(size_t serverIndex) const;
 		// void                        printPort(size_t serverIndex) const;
