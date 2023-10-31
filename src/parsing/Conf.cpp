@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 17:48:40 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 18:10:16 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,6 @@ void	Conf::setServerRoot(t_serverConf *sv, const std::string& line) {
 	sv->serverroot = sp[1];
 	return;
 }
-
 
 std::string	Conf::setServerLocationRoot(const std::string& line) {
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \t\n;"), ":");
