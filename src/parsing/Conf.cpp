@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/30 13:39:14 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 18:10:16 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,7 +145,6 @@ void	Conf::setServerRoot(t_serverConf *sv, const std::string& line) {
 	return;
 }
 
-
 std::string	Conf::setServerLocationRoot(const std::string& line) {
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \t\n;"), ":");
 	if (sp.size() < 2) {
@@ -185,6 +184,19 @@ std::vector<std::string>	Conf::setServerLocationMethod(const std::string& line) 
 	return ret;
 }
 
+void	Conf::setServerAllowDelete(t_serverConf *sv, const std::string& line) {
+	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \r\n\t;"), ":");
+	if (sp.size() != 2) {
+		this->_error.push_back("Error : Dirlisting not found or wrong format");
+		sv->dirListing = false;
+		return ;
+	}
+	for (size_t i = 0; i < sp.size(); i++) {
+		sp[i] = Uti::trim(sp[i], " \t\r\n");
+	}
+	sv->allow_delete = ((sp[1] == "true") ? true : false);
+	return ;
+}
 void	Conf::setServerDirListing(t_serverConf *sv, const std::string& line) {
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \r\n\t;"), ":");
 	if (sp.size() != 2) {
@@ -230,7 +242,6 @@ std::string	Conf::setServerLocationCgiExecutable(const std::string& line) {
 }
 
 std::string	Conf::setServerLocationCgiExtenstion(const std::string& line) {
-	std::cout << CYNB << line << RES << std::endl;
 	std::vector<std::string>	sp = Uti::splite(Uti::trim(line, " \n\r\t;"), ":");
 	if (sp.size() < 2) {
 		this->_error.push_back("Error : exetenstion not found");
@@ -239,7 +250,6 @@ std::string	Conf::setServerLocationCgiExtenstion(const std::string& line) {
 	for (size_t i = 0; i < sp.size();i++) {
 		sp[i] = Uti::trim(sp[i], " \t");
 	}
-	std::cout << REDB << sp[1] << RES << std::endl;
 	return sp[1];
 }
 
@@ -386,6 +396,8 @@ void	Conf::setServer(const std::vector<std::string>&	servers) {
 			this->setServerDefault(&server, servers[i]);
 		else if (servers[i].find("serverroot:") != std::string::npos)
 			this->setServerRoot(&server, servers[i]);
+		else if (servers[i].find("allow_delete:") != std::string::npos)
+			this->setServerRoot(&server, servers[i]);
 		else if (servers[i].find("directory_listing:") != std::string::npos)
 			this->setServerDirListing(&server, servers[i]);
 		else if (servers[i].find("location") != std::string::npos) {
@@ -525,8 +537,6 @@ void Conf::printGlobalConfig() const
 	std::cout << "-------------------------------" << std::endl;
 }
 
-
-
 void Conf::printServerConf() const
 {
 	std::vector<t_serverConf>::const_iterator serverIt;
@@ -538,6 +548,8 @@ void Conf::printServerConf() const
 		std::cout << "Port: " << serverIt->port << std::endl;
 		std::cout << "Server Name: " << serverIt->serverName << std::endl;
 		std::cout << "Default: " << ((serverIt->isDefault == true) ? "True" : "False") << std::endl;
+		std::cout << "allow_delete: " << ((serverIt->dirListing == true) ? "TRUE" : "FALSE") << std::endl;
+		std::cout << "DirListing: " << ((serverIt->dirListing == true) ? "TRUE" : "FALSE") << std::endl;
 
 		std::cout << "--- Routes ---\n";
 		std::vector<t_location>::const_iterator routeIt;

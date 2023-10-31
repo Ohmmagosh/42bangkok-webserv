@@ -6,7 +6,7 @@
 #    By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/16 20:52:32 by psuanpro          #+#    #+#              #
-#    Updated: 2023/10/26 05:02:14 by psuanpro         ###   ########.fr        #
+#    Updated: 2023/10/31 15:44:19 by psuanpro         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,7 @@ MAIN		= main.cpp
 MAIN_DIR	= ./
 
 CC			= g++
-CPPFLAGS	= -g -Wall -Werror -Wextra
+CPPFLAGS	= -g -Wall -Werror -Wextra -fsanitize=address
 
 
 SRC_DIR		= ./src/

@@ -60,6 +60,7 @@ typedef struct	s_serverConf
 	std::string					serverName;
 	bool						isDefault;
 	bool						dirListing;
+	bool						allow_delete;
 	std::string					serverroot;
 	std::vector<t_location>		location;
 
@@ -69,8 +70,9 @@ typedef struct	s_serverConf
 		port        = 0;
 		serverName  = "";
 		serverroot	= "";
-		dirListing	= "";
 		isDefault   = false;
+		dirListing	= false;
+		allow_delete = false;
 		location.clear();
 	}
 }				t_serverConf;

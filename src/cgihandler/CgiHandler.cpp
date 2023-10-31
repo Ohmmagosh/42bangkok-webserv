@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/29 17:13:23 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 15:39:52 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ CgiHandler::~CgiHandler() {
 }
 
 std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env) {
+
 	int	pipefd[2];
 	if (pipe(pipefd) == -1) {
 		perror("error pipe");
@@ -50,7 +51,7 @@ std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env) {
 t_detail	CgiHandler::getAllLocation(const std::string& url, const t_serverConf& server) {
 	for (size_t i = 0; i < server.location.size(); i++) {
 		if (url == server.location[i].path)
-			return Detail(true, server.location).getDetailStruct();
+			return Detail(true, server.location[i]).getDetailStruct();
 	}
 	return Detail(false).getDetailStruct();
 }

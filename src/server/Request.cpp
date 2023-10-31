@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/29 14:06:32 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 18:04:33 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,8 +109,6 @@ void	Request::setAllHeader(const std::string& header) {
 	}
 	if (this->validateBoundary())
 		this->setBoundaryFromContent(this->getHeadersByValue("Content-Type"));
-	// if (this->validateParams())
-	// 	this->setQueryUrl();
 }
 
 void	Request::setAllBody(const std::string& body) {
