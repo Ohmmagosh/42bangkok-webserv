@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 18:12:32 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/10/31 18:25:50 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,7 @@ std::string	HttpRequestHandle::dirListing(const std::string& url, const t_server
 
 
 bool	HttpRequestHandle::isDirlist(const std::string& url, const t_serverConf& server) {
+	(void)server;
 	if (url == "//")
 		return true;
 	if (url != "/" && url[url.size() - 1] == '/')
