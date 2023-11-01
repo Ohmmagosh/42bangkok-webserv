@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/01 16:54:28 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/01 18:34:55 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,10 +204,23 @@ t_detail	HttpRequestHandle::validateHostRequestAndGetServer(Request& req, const 
 	return Detail(false).getDetailStruct();
 }
 
-std::string	HttpRequestHandle::getMethod(const Request& req, const t_serverConf& server) {
-	return this->getMethodRoute(req.getUrl(), req, server);
+std::string	HttpRequestHandle::getMethod(const Request& req, const t_serverConf& config) {
+	return this->getMethodRoute(req.getUrl(), req, config);
 }
 
+bool	HttpRequestHandle::validateAllowDelete(const t_serverConf& server) {
+	if (!server.allow_delete)
+		return false;
+	return true;
+}
+
+std::string	HttpRequestHandle::deleteMethod(const std::string& url, const Request& req, const t_serverConf& server) {
+	std::cout << "url : " << url << std::endl;
+	(void)req;
+	if (!this->validateAllowDelete(server))
+		return Response(405).HttpResponse();
+	return Response(200, url).HttpResponse();
+}
 
 std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& config) {
 
@@ -222,10 +235,7 @@ std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& co
 			return Response(200, "<div>HELLO Post</div>").HttpResponse();
 		}
 		else if (req.getMethod() == "DELETE") {
-			std::cout << "\e[43m" << "--------------hello DELETE--------------" << "\e[0m" << std::endl;
-			std::stringstream ss;
-			ss << req;
-			return Response(200, ss.str()).HttpResponse();
+			return this->deleteMethod(req.getUrl(), req, tmp.server);
 		}
 	}
 	return Response(404, "<h1>HELLO not found</h1>").HttpResponse();
