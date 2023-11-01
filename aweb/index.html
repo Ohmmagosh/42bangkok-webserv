@@ -93,34 +93,30 @@
 			function deleteFile(filename) {
 				return fetch(`/${filename}`, {
 					method: 'DELETE',
-					headers: {
-						'Content-Type': 'application/json'
-					},
 				}).then(response => {
 					if (!response.ok) {
-						throw new Error('Network response was not ok');
+					throw new Error('Error: ' + response.statusText);
 					}
-					return response.json();
+					console.log('File deleted successfully!');
+					// Here you can update the DOM or call another function to reflect the deletion
 				});
 			}
 
-				document.getElementById('deleteForm').addEventListener('submit', function(event) {
-					event.preventDefault();
+			document.getElementById('deleteForm').addEventListener('submit', function(event) {
+			event.preventDefault();
 
-					const filename = document.getElementById('filename').value;
+			const filename = document.getElementById('filename').value;
 
-					deleteFile(filename)
-					.then(data => {
-						if (data.success) {
-							alert('File deleted successfully!');
-						} else {
-							alert('Error deleting file: ' + data.message);
-						}
-					})
-					.catch(error => {
-						alert('Error: ' + error.message);
-					});
+			deleteFile(filename)
+				.then(() => {
+					// Handle the success operation, update the DOM or redirect, etc.
+					console.log(`File ${filename} deleted successfully.`);
+				})
+				.catch(error => {
+					// Handle the error, update the DOM to show the error, etc.
+					console.error(error.message);
 				});
+			});
 
 			function handleFileUpload() {
 				const formData = new FormData(document.getElementById('uploadForm'));
