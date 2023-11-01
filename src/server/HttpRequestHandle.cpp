@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 04:03:35 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 04:39:36 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,12 +114,12 @@ std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& r
 std::string	HttpRequestHandle::generateHtml(const std::string& title, const std::string& content) {
 	std::stringstream	html;
 	html << "<!DOCTYPE html>\n";
-	html << "<html lang=\"en\">\n";
-	html << "<head>\n";
-	html << "<meta charset=\"UTF-8\">\n";
-	html << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
-	html << "<title>" << title << "</title>\n";
-	html << "</head>\n";
+	html << "\t<html lang=\"en\">\n";
+	html << "\t\t<head>\n";
+	html << "\t\t\t<meta charset=\"UTF-8\">\n";
+	html << "\t\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+	html << "\t\t\t<title>" << title << "</title>\n";
+	html << "\t\t</head>\n";
 	html << "<body>\n";
 	html << content << '\n';
 	html << "</body>\n";
@@ -135,11 +135,11 @@ std::string	HttpRequestHandle::openDir(const std::string& url) {
 	dir = opendir(url.c_str());
 	if (dir != nullptr) {
 		 while ((ent = readdir(dir)) != nullptr) {
-			ss << "<a " << "href=\"" << url << "/dowload" << ent->d_name << "\""<< ent->d_name << std::endl;
+			ss << "<h3>" << ent->d_name  << "</h3>" << std::endl;
 		}
 		closedir(dir);
-		std::string	content = this->generateHtml("Dirlist", ss.str());
-		return Response(200,"").HttpResponse();
+		std::string	content = this->generateHtml("Directory listing", ss.str());
+		return Response(200, content).HttpResponse();
 	}
 	return Response(404).HttpResponse();
 }
@@ -148,15 +148,18 @@ std::string	HttpRequestHandle::dirListing(const std::string& url, const t_server
 	std::string	dir_path;
 
 	if (!server.dirListing)
-		return Response(403, "").HttpResponse();
+		return Response(403).HttpResponse();
 	if (url == "//")
 		dir_path = server.serverroot;
-	return Response(200, "").HttpResponse();
+	else {
+		dir_path = server.serverroot;
+		dir_path += url;
+	}
+	return this->openDir(dir_path);
 }
 
 
-bool	HttpRequestHandle::isDirlist(const std::string& url, const t_serverConf& server) {
-	(void)server;
+bool	HttpRequestHandle::isDirlist(const std::string& url) {
 	if (url == "//")
 		return true;
 	if (url != "/" && url[url.size() - 1] == '/')
@@ -173,10 +176,10 @@ std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Requ
 		if (url == "/" || url == "/index.html") {
 			return this->defaultRoute(url, server);
 		}
-		// else if (this->isDirlist(url, server)) {
-		// 	// return this->dirListing(url, server);
-		// 	return Response(200, "<h1>Dir listing</h1>").HttpResponse();
-		// }
+		else if (this->isDirlist(url)) {
+			std::cout << "\e[43m" << "--------------Dir listing--------------" << "\e[0m" << std::endl;
+			return this->dirListing(url, server);
+		}
 		else {
 			std::cout << "\e[43m" << "--------------allRoute--------------" << "\e[0m" << std::endl;
 			return this->allRoute(url, req, server);
