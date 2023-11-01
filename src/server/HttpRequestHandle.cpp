@@ -6,11 +6,12 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 03:24:07 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 04:03:35 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequestHandle.hpp"
+#include <string>
 
 
 HttpRequestHandle::HttpRequestHandle()
@@ -214,13 +215,10 @@ bool	HttpRequestHandle::validateAllowDelete(const t_serverConf& server) {
 	return true;
 }
 
-std::string	HttpRequestHandle::deleteMethod(const std::string& url, const Request& req, const t_serverConf& server) {
-	std::cout << "url : " << url << std::endl;
-	(void)req;
+std::string	HttpRequestHandle::deleteMethod(const std::string& url, const t_serverConf& server) {
 	if (this->validateAllowDelete(server))
 		return Response(405, "<h1>Method not allow</h1>").HttpResponse();
 	std::string	path = CgiHandler().getRootDefaultByUrlFromServer(server);
-	std::cout << GRNB << path << RES << std::endl;
 	path += url;
 	int status = File().deleteFile(path);
 	if (status == -1)
@@ -228,6 +226,13 @@ std::string	HttpRequestHandle::deleteMethod(const std::string& url, const Reques
 	else if (status == -2)
 		return Response(500).HttpResponse();
 	return Response(200).HttpResponse();
+}
+
+std::string	HttpRequestHandle::postMethod(const Request& req, const t_serverConf& config) {
+	(void)req;
+	(void)config;
+	std::cout << "\e[43m" << "--------------hello POST--------------" << "\e[0m" << std::endl;
+	return Response(200, "<div>HELLO Post</div>").HttpResponse();
 }
 
 std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& config) {
@@ -239,10 +244,10 @@ std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& co
 			return this->getMethod(req, tmp.server);
 		}
 		else if (req.getMethod() == "POST") {
-			return Response(200, "<div>HELLO Post</div>").HttpResponse();
+			return this->postMethod(req, tmp.server);
 		}
 		else if (req.getMethod() == "DELETE") {
-			return this->deleteMethod(req.getUrl(), req, tmp.server);
+			return this->deleteMethod(req.getUrl(), tmp.server);
 		}
 	}
 	return Response(404, req.getMethod()).HttpResponse();

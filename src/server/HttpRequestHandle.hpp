@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/01 18:30:57 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 03:47:39 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,8 @@ class HttpRequestHandle
 		std::string					getMethod(const Request& req, const t_serverConf& config);
 
 		int							getPortFromRequest(Request req);
-		const std::string&			postMethod();
-		std::string					deleteMethod(const std::string& url, const Request& req, const t_serverConf& config);
+		std::string					postMethod(const Request& req, const t_serverConf& config);
+		std::string					deleteMethod(const std::string& url, const t_serverConf& config);
 		std::string					readFile(std::stringstream& path);
 };
 
