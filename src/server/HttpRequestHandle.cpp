@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/01 15:54:11 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/01 16:29:14 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,8 @@ std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& r
 	t_detail	loc = CgiHandler().getAllLocation(url, server);
 	std::string	path;
 
-	if (loc.status) {
-		if (this->validateMethodAllow(loc.location.method, "GET"))
-			return Response(405).HttpResponse();
+	if (loc.status && !this->validateMethodAllow(loc.location.method, "GET")) {
+		return Response(405).HttpResponse();
 	}
 	path = CgiHandler().getRootByUrlFromServer(url, server);
 	if (path.empty()) {
@@ -161,17 +160,19 @@ bool	HttpRequestHandle::isDirlist(const std::string& url, const t_serverConf& se
 
 std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Request& req, const t_serverConf& server) {
 
+	std::cout << "\e[43m" << "--------------Get Method route--------------" << "\e[0m" << std::endl;
 	if (this->validateCgi(url, server)) {
 		return this->callCgiGet(url, req, server);
 	}else {
 		if (url == "/" || url == "/index.html") {
 			return this->defaultRoute(url, server);
 		}
-		else if (this->isDirlist(url, server)) {
-			// return this->dirListing(url, server);
-			return Response(200, "<h1>Dir listing</h1>").HttpResponse();
-		}
+		// else if (this->isDirlist(url, server)) {
+		// 	// return this->dirListing(url, server);
+		// 	return Response(200, "<h1>Dir listing</h1>").HttpResponse();
+		// }
 		else {
+			std::cout << "\e[43m" << "--------------allRoute--------------" << "\e[0m" << std::endl;
 			return this->allRoute(url, req, server);
 		}
 	}
@@ -206,8 +207,10 @@ std::string	HttpRequestHandle::getMethod(const Request& req, const t_serverConf&
 std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& config) {
 
 	t_detail tmp = this->validateHostRequestAndGetServer(const_cast<Request&>(req), config);
+	std::cout << "\e[43m" << "--------------HELLO--------------" << "\e[0m" << std::endl;
 	if (tmp.status) {
 		if (req.getMethod() == "GET") {
+			std::cout << "\e[43m" << "--------------hello GET--------------" << "\e[0m" << std::endl;
 			return this->getMethod(req, tmp.server);
 		}
 		else if (req.getMethod() == "POST") {
