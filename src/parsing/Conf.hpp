@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:39 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 18:10:13 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/01 15:38:52 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,10 +65,9 @@ class Conf
 		bool									setServerLocationUploadEnable(const std::string& line);
 		std::string								setServerLocationCgiUploadPath(const std::string& line);
 
-
 		// //printer
-		void                        			printGlobalConfig() const;
-		void                        			printServerConf() const;
+		void									printGlobalConfig() const;
+		void									printServerConf() const;
 
 	private:
 		t_globalConf				_globalConfig;
