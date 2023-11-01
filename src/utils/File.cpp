@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 04:27:56 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 03:22:10 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 04:02:14 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ std::string	File::getContent() const {
 }
 
 int	File::deleteFile(const std::string& filename) const{
-	if (access(filename.c_str(), F_OK | X_OK ) != 0)
+	if (access(filename.c_str(), F_OK ) != 0)
 		return -1;
 	if (std::remove(filename.c_str()) !=  0)
 		return -2;
