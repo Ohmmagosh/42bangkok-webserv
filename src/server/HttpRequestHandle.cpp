@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 18:25:50 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/01 15:54:11 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,9 @@ std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& co
 			return Response(200, "<div>HELLO Post</div>").HttpResponse();
 		}
 		else if (req.getMethod() == "DELETE") {
-			return Response(200, "<div>HELLO Delete</div>").HttpResponse();
+			std::stringstream ss;
+			ss << req;
+			return Response(200, ss.str()).HttpResponse();
 		}
 	}
 	return Response(404, "<h1>HELLO not found</h1>").HttpResponse();
