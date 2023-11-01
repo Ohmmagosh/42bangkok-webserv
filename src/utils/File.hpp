@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 04:28:01 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/27 00:27:09 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 03:20:40 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@
 # include <string>
 # include <fstream>
 # include <iostream>
+# include <unistd.h>
+# include <cstdio>
 
 
 class	File {
@@ -28,7 +30,8 @@ class	File {
 		File(const std::string& name);
 		~File();
 
-		std::string	getContent() const;
+		std::string			getContent() const;
+		int					deleteFile(const std::string& filename) const;
 
 };
 

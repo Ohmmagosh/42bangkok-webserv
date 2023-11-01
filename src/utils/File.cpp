@@ -6,11 +6,13 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 04:27:56 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/27 00:29:47 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 03:22:10 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "File.hpp"
+
+
 
 
 File::File(){
@@ -42,4 +44,12 @@ void	File::readFile() {
 
 std::string	File::getContent() const {
 	return this->_content;
+}
+
+int	File::deleteFile(const std::string& filename) const{
+	if (access(filename.c_str(), F_OK | X_OK ) != 0)
+		return -1;
+	if (std::remove(filename.c_str()) !=  0)
+		return -2;
+	return 0;
 }
