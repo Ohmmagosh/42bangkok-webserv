@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/01 16:29:14 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/01 16:54:28 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,11 +91,16 @@ std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& r
 	if (loc.status && !this->validateMethodAllow(loc.location.method, "GET")) {
 		return Response(405).HttpResponse();
 	}
+
 	path = CgiHandler().getRootByUrlFromServer(url, server);
 	if (path.empty()) {
 		path = CgiHandler().getRootDefaultByUrlFromServer(server);
 	}
-	path += req.getUrl();
+	if (!loc.location.redirection.empty())
+		path += loc.location.redirection;
+	else
+		path += req.getUrl();
+	std::cout << BLUB << "path : " << path << RES << std::endl;
 	std::string	file = File(path).getContent();
 	std::stringstream ss;
 	ss << "<h1> Path Not found : " << path << "</h1>" << std::endl;
@@ -217,6 +222,7 @@ std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& co
 			return Response(200, "<div>HELLO Post</div>").HttpResponse();
 		}
 		else if (req.getMethod() == "DELETE") {
+			std::cout << "\e[43m" << "--------------hello DELETE--------------" << "\e[0m" << std::endl;
 			std::stringstream ss;
 			ss << req;
 			return Response(200, ss.str()).HttpResponse();
