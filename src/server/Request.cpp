@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 18:27:36 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/01 15:46:55 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,6 @@ void	Request::setUrl(const std::string& url) {
 void	Request::setVersion(const std::string& version) {
 	this->_version = version;
 }
-
 
 void	Request::setBoundary(const std::string& boundary) {
 	this->_boundary = boundary;

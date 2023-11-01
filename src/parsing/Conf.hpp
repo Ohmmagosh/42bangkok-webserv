@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:39 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 18:10:13 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/01 15:39:43 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,20 +21,20 @@ class Conf
 	public:
 		Conf();
 		~Conf();
-		bool						parseConfigFile(const std::string& filePath);
-		void						parseGlobalSection(std::ifstream& file);
-		void						parseServerSection(std::ifstream& file);
-		void						parseCgiSection(std::ifstream& file);
-		void						parseRouteSection(std::ifstream& file);
+		bool									parseConfigFile(const std::string& filePath);
+		void									parseGlobalSection(std::ifstream& file);
+		void									parseServerSection(std::ifstream& file);
+		void									parseCgiSection(std::ifstream& file);
+		void									parseRouteSection(std::ifstream& file);
 
 
 		//GETTER
 
-		const t_con													getAllConfig() const;
-		const t_globalConf&									getGlobalConf() const;
+		const t_con								getAllConfig() const;
+		const t_globalConf&						getGlobalConf() const;
 		const std::vector<t_serverConf>&		getServerConf() const;
 		//HELPER
-		bool						validateFindStr(const std::string& line, const std::string& sfind);
+		bool									validateFindStr(const std::string& line, const std::string& sfind);
 
 		//SETTER
 		void									setGlobal(const std::vector<std::string>& gl);
@@ -65,10 +65,9 @@ class Conf
 		bool									setServerLocationUploadEnable(const std::string& line);
 		std::string								setServerLocationCgiUploadPath(const std::string& line);
 
-
 		// //printer
-		void                        			printGlobalConfig() const;
-		void                        			printServerConf() const;
+		void									printGlobalConfig() const;
+		void									printServerConf() const;
 
 	private:
 		t_globalConf				_globalConfig;
