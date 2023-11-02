@@ -121,7 +121,7 @@
 			function handleFileUpload() {
 				const formData = new FormData(document.getElementById('uploadForm'));
 
-				fetch('http://localhost:8080/upload-file', {
+				fetch('http://localhost:8080/upload-file.py', {
 					method: 'POST',
 					body: formData
 				})
