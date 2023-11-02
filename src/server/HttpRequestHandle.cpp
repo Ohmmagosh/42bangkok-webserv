@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 16:48:10 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 18:52:44 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,6 +240,11 @@ std::string	HttpRequestHandle::postMethod(const Request& req, const t_serverConf
 	cgi.initArgv(cgi.getExecuteByUrl(req.getUrl(), server), path);
 	StringMatrix	argv(cgi.getArgv());
 	StringMatrix	env(req.getHeaderC());
+	std::string		content;
+	if (!req.getBoundary().empty())
+		content = req.getContent();
+	else
+		content = req.getBody();
 
 
 	//location_save_file argv path cgi env
