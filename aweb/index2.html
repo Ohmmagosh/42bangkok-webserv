@@ -13,55 +13,12 @@
 			<h2>Hello world!</h2>
 			<p>This is the default page of Webserv. You can customize this page to display any content you like.</p>
 			<p>Enjoy using Webserv to serve your static and dynamic content!</p>
-
-
-			<!-- Added GET, POST, and DELETE buttons -->
 			<a href="/index.html" class="link-button">GET</a>
-
-
-			<!-- <button onclick="handleGet()">GET</button> -->
-			<!-- <button onclick="handlePost()">POST</button> -->
-			<!-- <button onclick="handleDelete()">DELETE</button> -->
-
-			<!-- <input type="text" id="deleteInput" placeholder="Enter item to delete"> -->
 		</div>
 	</div>
 	<div class="footer">
 			Powered by Webserv
 	</div>
-
-	<script>
-		// Functions for GET, POST, and DELETE actions
-		function handleGet() {
-			alert('GET button clicked.');
-			// Your GET request code here
-		}
-		function handlePost(e) {
-			alert(e.target.value)
-			// const data = document.getElementById('postDataInput').value;
-			// if (data) {
-			// 	// Define the server endpoint URL
-			// 	const serverUrl = 'https://your-server-endpoint.com/post-data'; // Replace with your server endpoint
-
-			// 	// Send POST request using Fetch API
-			// 	fetch(serverUrl, {
-			// 		method: 'POST',
-			// 		headers: {
-			// 			'Content-Type': 'application/json'
-			// 		},
-			// 		body: JSON.stringify({ data: data }) // Sending data as JSON
-			// 	})
-			// 	.then(response => response.json()) // Assuming server responds with json
-			// 	.then(data => {
-			// 		alert('Data successfully sent and received response:', data);
-			// 	})
-			// 	.catch(error => {
-			// 		alert('Error sending data:', error);
-			// 	});
-			// } else {
-			// 	alert('Please enter data to POST.');
-			// }
-		}
 	</script>
 </body>
 </html>

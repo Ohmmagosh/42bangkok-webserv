@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:17:34 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/29 14:03:34 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 11:26:42 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,12 @@ class Request {
 		std::string							_version;
 		std::string							_body;
 		std::string							_boundary;
+		std::string							_content;
+		std::string							_filename;
 		std::vector<std::string>			_headers_no_c;
 		std::map<std::string, std::string>	_headers;
 		std::map<std::string, std::string>	_query_url;
+
 
 	public:
 		Request();
@@ -42,6 +45,7 @@ class Request {
 		const std::map<std::string, std::string>&	getHeaderC() const;
 		const std::map<std::string, std::string>&	getQueryUrl() const;
 		std::string									getQueryUrlByValue(const std::string& val);
+		std::string									getContent() const;
 
 		//helper
 		bool										validateHeaderMethod(const std::string& line);
@@ -51,9 +55,12 @@ class Request {
 		bool										validateParams();
 		bool										validateBoundaryBody() const;
 		bool										validateBoundaryHeader() const;
+		std::string									deleteBoundaryFromContent(const std::string& content);
+		size_t										lenLine(const std::string& content);
 
 		//setter
 		void										setBoundaryFromContent(const std::string& content);
+		void										setAddHeaderFromBody(const std::string& body);
 		void										setBoundary(const std::string& boundary);
 		void										setHeaderMethod(const std::string& line);
 		void										setMethod(const std::string& method);
@@ -65,6 +72,7 @@ class Request {
 		void										setHeaderAndBody(const std::string& raw_req);
 		void										setAllHeader(const std::string& header);
 		void										setAllBody(const std::string& body);
+		void										setAllContentMultipart(const std::string& content);
 		void										setQueryUrl(const std::string& url);
 };
 

@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:48 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 03:47:39 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 15:23:25 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ class HttpRequestHandle
 		bool						validateCgi(const std::string& url, const t_serverConf& server);
 		t_detail					validateHostRequestAndGetServer(Request& req, const t_con& server);
 		bool						validateDirList(const t_serverConf& server);
-		bool						isDirlist(const std::string& url, const t_serverConf& server);
+		bool						isDirlist(const std::string& url);
 		bool						validateUrlDirlist(const std::string& url);
 		bool						validateAllowDelete(const t_serverConf& server);
 
@@ -64,7 +64,7 @@ class HttpRequestHandle
 		std::string					getMethod(const Request& req, const t_serverConf& config);
 
 		int							getPortFromRequest(Request req);
-		std::string					postMethod(const Request& req, const t_serverConf& config);
+		std::string					postMethod(const Request& req, const t_serverConf& server);
 		std::string					deleteMethod(const std::string& url, const t_serverConf& config);
 		std::string					readFile(std::stringstream& path);
 };

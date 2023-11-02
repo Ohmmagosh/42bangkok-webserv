@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/01 15:46:55 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 11:29:18 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,10 @@ std::string	Request::getVersion() const {
 
 std::string	Request::getBoundary() const {
 	return this->_boundary;
+}
+
+std::string Request::getContent() const {
+	return this->_content;
 }
 
 const std::map<std::string, std::string>&	Request::getHeaderC() const {
@@ -108,16 +112,75 @@ void	Request::setAllHeader(const std::string& header) {
 	}
 	if (this->validateBoundary())
 		this->setBoundaryFromContent(this->getHeadersByValue("Content-Type"));
+	else
+		this->_boundary = "";
 }
 
 void	Request::setAllBody(const std::string& body) {
 	this->setBody(body);
 }
 
+size_t	Request::lenLine(const std::string& content) {
+	std::istringstream	sc(content);
+	std::string			line;
+	size_t				len = 0;
+	while (std::getline(sc, line)) {
+		len++;
+	}
+	return len;
+}
+
+std::string	Request::deleteBoundaryFromContent(const std::string& content) {
+	std::string line;
+	std::string bd = this->getBoundary();
+	size_t		lenl = this->lenLine(content);
+	size_t		len = 0;
+	std::istringstream	sc(content);
+	std::string	ret;
+
+	if (bd.empty())
+		return "";
+	while (std::getline(sc, line)) {
+		if (len == lenl - 1) {
+			std::string	tr = Uti::trim(line, "-\r\n");
+			std::string tb = Uti::trim(bd, "-\n\r");
+			if (tb == tr)
+				break;
+			return "";
+		}
+		ret += line;
+		ret += '\n';
+		len++;
+	}
+	return ret;
+}
+
+void	Request::setAllContentMultipart(const std::string& content) {
+	this->_content = this->deleteBoundaryFromContent(content);
+}
+
+void	Request::setAddHeaderFromBody(const std::string& content) {
+	std::istringstream	sc(content);
+	std::string			line;
+
+	while (std::getline(sc, line)) {
+		std::vector<std::string>	sp = Uti::splite(line, ":");
+		if (sp.size() == 1)
+			this->setHeaderNoC(line);
+		else
+			this->setHeaderC(line);
+	}
+}
+
 void	Request::setHeaderAndBody(const std::string& raw_req) {
 	std::vector<std::string>	sp = Uti::splite(raw_req, "\r\n\r\n");
 	this->setAllHeader(sp[0]);
 	this->setAllBody(sp[1]);
+	if (sp.size() == 3) {
+		this->setAllContentMultipart(sp[2]);
+		this->setAddHeaderFromBody(sp[1]);
+	}
+	return ;
 }
 
 void	Request::setQueryUrl(const std::string& url) {
@@ -256,6 +319,12 @@ std::ostream&	operator<<(std::ostream& os, const Request& req) {
 	else
 		os << req.getBody() << std::endl;
 	os << "---------------------[END]---------------------" << std::endl;
+	os << "--------------------[CONTENT]---------------------" << std::endl;
+	if (req.getContent().empty())
+		os << "CONTENT IS EMPTY" << std::endl;
+	else
+		os << req.getContent() << std::endl;
+	os << "-------------------[END CONTENT]-------------------" << std::endl;
 	os << "--------------------end ostream-------------------" << std::endl;
 	return os;
 }
