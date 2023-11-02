@@ -6,12 +6,11 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 04:39:36 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 16:48:10 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "HttpRequestHandle.hpp"
-#include <string>
 
 
 HttpRequestHandle::HttpRequestHandle()
@@ -101,7 +100,6 @@ std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& r
 		path += loc.location.redirection;
 	else
 		path += req.getUrl();
-	std::cout << BLUB << "path : " << path << RES << std::endl;
 	std::string	file = File(path).getContent();
 	std::stringstream ss;
 	ss << "<h1> Path Not found : " << path << "</h1>" << std::endl;
@@ -168,8 +166,6 @@ bool	HttpRequestHandle::isDirlist(const std::string& url) {
 }
 
 std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Request& req, const t_serverConf& server) {
-
-	std::cout << "\e[43m" << "--------------Get Method route--------------" << "\e[0m" << std::endl;
 	if (this->validateCgi(url, server)) {
 		return this->callCgiGet(url, req, server);
 	}else {
@@ -177,11 +173,9 @@ std::string	HttpRequestHandle::getMethodRoute(const std::string& url, const Requ
 			return this->defaultRoute(url, server);
 		}
 		else if (this->isDirlist(url)) {
-			std::cout << "\e[43m" << "--------------Dir listing--------------" << "\e[0m" << std::endl;
 			return this->dirListing(url, server);
 		}
 		else {
-			std::cout << "\e[43m" << "--------------allRoute--------------" << "\e[0m" << std::endl;
 			return this->allRoute(url, req, server);
 		}
 	}
@@ -231,17 +225,30 @@ std::string	HttpRequestHandle::deleteMethod(const std::string& url, const t_serv
 	return Response(200).HttpResponse();
 }
 
-std::string	HttpRequestHandle::postMethod(const Request& req, const t_serverConf& config) {
-	(void)req;
-	(void)config;
-	std::cout << "\e[43m" << "--------------hello POST--------------" << "\e[0m" << std::endl;
-	return Response(200, "<div>HELLO Post</div>").HttpResponse();
+std::string	HttpRequestHandle::postMethod(const Request& req, const t_serverConf& server) {
+
+	t_detail	loc = CgiHandler().getAllLocation(req.getUrl(), server);
+	CgiHandler cgi;
+	std::string	path;
+
+	if (loc.status && !this->validateMethodAllow(loc.location.method, "POST")) {
+		return Response(405).HttpResponse();
+	}
+	path = CgiHandler().getRootByUrlFromServer(req.getUrl(), server);
+	path += req.getUrl();
+	std::string save_path = loc.location.upload.savePath;
+	cgi.initArgv(cgi.getExecuteByUrl(req.getUrl(), server), path);
+	StringMatrix	argv(cgi.getArgv());
+	StringMatrix	env(req.getHeaderC());
+
+
+	//location_save_file argv path cgi env
+	return Response(404).HttpResponse();
 }
 
 std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& config) {
 
 	t_detail tmp = this->validateHostRequestAndGetServer(const_cast<Request&>(req), config);
-	std::cout << "\e[43m" << "--------------HELLO--------------" << "\e[0m" << std::endl;
 	if (tmp.status) {
 		if (req.getMethod() == "GET") {
 			return this->getMethod(req, tmp.server);
