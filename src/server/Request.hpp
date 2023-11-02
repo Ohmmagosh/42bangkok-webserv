@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:17:34 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 06:06:21 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 11:26:42 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ class Request {
 		const std::map<std::string, std::string>&	getHeaderC() const;
 		const std::map<std::string, std::string>&	getQueryUrl() const;
 		std::string									getQueryUrlByValue(const std::string& val);
+		std::string									getContent() const;
 
 		//helper
 		bool										validateHeaderMethod(const std::string& line);
@@ -59,6 +60,7 @@ class Request {
 
 		//setter
 		void										setBoundaryFromContent(const std::string& content);
+		void										setAddHeaderFromBody(const std::string& body);
 		void										setBoundary(const std::string& boundary);
 		void										setHeaderMethod(const std::string& line);
 		void										setMethod(const std::string& method);

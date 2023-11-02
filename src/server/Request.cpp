@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:23:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 06:13:21 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 11:29:18 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,10 @@ std::string	Request::getVersion() const {
 
 std::string	Request::getBoundary() const {
 	return this->_boundary;
+}
+
+std::string Request::getContent() const {
+	return this->_content;
 }
 
 const std::map<std::string, std::string>&	Request::getHeaderC() const {
@@ -155,12 +159,27 @@ void	Request::setAllContentMultipart(const std::string& content) {
 	this->_content = this->deleteBoundaryFromContent(content);
 }
 
+void	Request::setAddHeaderFromBody(const std::string& content) {
+	std::istringstream	sc(content);
+	std::string			line;
+
+	while (std::getline(sc, line)) {
+		std::vector<std::string>	sp = Uti::splite(line, ":");
+		if (sp.size() == 1)
+			this->setHeaderNoC(line);
+		else
+			this->setHeaderC(line);
+	}
+}
+
 void	Request::setHeaderAndBody(const std::string& raw_req) {
 	std::vector<std::string>	sp = Uti::splite(raw_req, "\r\n\r\n");
 	this->setAllHeader(sp[0]);
 	this->setAllBody(sp[1]);
-	if (sp.size() == 3)
+	if (sp.size() == 3) {
 		this->setAllContentMultipart(sp[2]);
+		this->setAddHeaderFromBody(sp[1]);
+	}
 	return ;
 }
 
@@ -300,6 +319,12 @@ std::ostream&	operator<<(std::ostream& os, const Request& req) {
 	else
 		os << req.getBody() << std::endl;
 	os << "---------------------[END]---------------------" << std::endl;
+	os << "--------------------[CONTENT]---------------------" << std::endl;
+	if (req.getContent().empty())
+		os << "CONTENT IS EMPTY" << std::endl;
+	else
+		os << req.getContent() << std::endl;
+	os << "-------------------[END CONTENT]-------------------" << std::endl;
 	os << "--------------------end ostream-------------------" << std::endl;
 	return os;
 }
