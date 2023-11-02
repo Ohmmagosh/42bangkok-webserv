@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:13 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 19:18:56 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/11/03 03:25:00 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ class CgiHandler {
 		CgiHandler();
 		~CgiHandler();
 		std::string	executeCgi(StringMatrix& argv, StringMatrix& env);
+		std::string	executeCgi(StringMatrix& argv, StringMatrix& env, const std::string& content);
 
 		std::string getExecuteByUrl(const std::string& url, const t_serverConf& server);
 		std::string	getDefaultFileByUrl(const std::string& url, const t_serverConf& serverr);

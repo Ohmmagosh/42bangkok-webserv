@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 19:19:15 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/11/03 04:40:49 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,59 @@ std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env) {
 		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL) {
 			res = Response(500).HttpResponse();
 		}
-		return res;
+		alarm(0);
+		if (res.empty())
+			return Response(404).HttpResponse();
+		return Response(200, res).HttpResponse();
+	}
+}
+
+std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env, const std::string& content) {
+
+	int	pipeinfd[2];
+	int pipeoutfd[2];
+    if (pipe(pipeinfd) == -1 || pipe(pipeoutfd) == -1) {
+        perror("error pipe");
+        exit(EXIT_FAILURE);
+    }
+	signal(SIGALRM, timeout_handler);
+	alarm(30);
+	pid_t	pid = fork();
+	if (pid == 0) { //child
+		close(pipeinfd[1]); //close read
+		close(pipeoutfd[0]);
+		dup2(pipeinfd[0], STDIN_FILENO);
+		dup2(pipeoutfd[1], STDOUT_FILENO);
+		close(pipeinfd[0]);
+		close(pipeoutfd[0]);
+
+		if (execve(argv[0], argv.getStr(), env.getStr()) == -1)
+			perror("execve");
+		exit(EXIT_FAILURE);
+	}else { //parent
+		child_pid = pid;
+		close(pipeoutfd[1]); //close write
+		close(pipeinfd[0]);
+
+		write(pipeinfd[1], content.c_str(), content.size());
+		close(pipeinfd[1]);
+
+		std::string res;
+		char	buff[4096];
+		ssize_t byteRead;
+		while ((byteRead = read(pipeoutfd[0], buff, sizeof(buff) - 1)) > 0) {
+			buff[byteRead] = '\0';
+			res.append(buff);
+		}
+		close(pipeoutfd[0]);
+
+		int status;
+		waitpid(child_pid, &status, 0);
+		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL) {
+			res = Response(500).HttpResponse();
+		}
+		alarm(0);
+		return Response(200, res).HttpResponse();
 	}
 }
 

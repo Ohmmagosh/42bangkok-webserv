@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   HttpRequestHandle.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 18:52:44 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/03 04:31:53 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ std::string	HttpRequestHandle::callCgiGet(const std::string& url, const Request&
 	cgi.initArgv(cgi.getExecuteByUrl(url, server), path_file);
 	StringMatrix	argv(cgi.getArgv());
 	StringMatrix	env(req.getQueryUrl());
-	return Response(200,cgi.executeCgi(argv, env)).HttpResponse();
+	return cgi.executeCgi(argv, env);
 }
 
 std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& req, const t_serverConf& server) {
@@ -239,7 +239,7 @@ std::string	HttpRequestHandle::postMethod(const Request& req, const t_serverConf
 	std::string save_path = loc.location.upload.savePath;
 	cgi.initArgv(cgi.getExecuteByUrl(req.getUrl(), server), path);
 	StringMatrix	argv(cgi.getArgv());
-	StringMatrix	env(req.getHeaderC());
+	StringMatrix	env(req.getHeaderC(), save_path);
 	std::string		content;
 	if (!req.getBoundary().empty())
 		content = req.getContent();
@@ -248,7 +248,8 @@ std::string	HttpRequestHandle::postMethod(const Request& req, const t_serverConf
 
 
 	//location_save_file argv path cgi env
-	return Response(404).HttpResponse();
+	return cgi.executeCgi(argv, env, content);
+	// return Response(404).HttpResponse();
 }
 
 std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& config) {
