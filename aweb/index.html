@@ -86,7 +86,7 @@
 				alert('GET button clicked.');
 				// Your GET request code here
 			}
-			function handlePost(e) {akjsdgjkasgdkhagd
+			function handlePost(e) {
 				alert(e.target.value);
 			}
 
@@ -95,7 +95,7 @@
 					method: 'DELETE',
 				}).then(response => {
 					if (!response.ok) {
-					throw new Error('Error: ' + response.statusText);
+						throw new Error('Error: ' + response.statusText);
 					}
 					console.log('File deleted successfully!');
 					// Here you can update the DOM or call another function to reflect the deletion
