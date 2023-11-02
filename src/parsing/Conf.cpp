@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 18:10:16 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 19:07:35 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -487,6 +487,7 @@ void	Conf::setGlobalDefault(std::vector<std::string>::const_iterator begin, std:
 			this->_globalConfig.default_error_pages[num] = Uti::trim(sp[1], " ;");
 		}
 	}
+		g_conf.default_error_pages = this->_globalConfig.default_error_pages;
 	return ;
 }
 
@@ -507,6 +508,7 @@ void	Conf::setGlobalClient(const std::string& cli) {
 			return ;
 		}
 		this->_globalConfig.client_body_limit = num;
+		g_conf.client_body_limit = num;
 	}
 	return ;
 }

@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:09:37 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 14:03:54 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 18:56:01 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "../stdlib.hpp"
 
+extern t_globalConf g_conf;
 
 class Response
 {

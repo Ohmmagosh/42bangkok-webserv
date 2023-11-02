@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 00:17:34 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 11:26:42 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 18:55:38 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define REQUEST_HPP
 
 # include "../stdlib.hpp"
+
 
 class Request {
 	private:

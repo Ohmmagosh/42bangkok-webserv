@@ -1,6 +1,9 @@
 #include "src/server/Server.hpp"
 #include "src/stdlib.hpp"
 #include "src/parsing/Conf.hpp"
+#include "src/struct.hpp"
+
+t_globalConf g_conf;
 
 int main(int argc, char* argv[])
 {
