@@ -6,7 +6,7 @@
 /*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:39 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/01 15:39:43 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/02 18:56:47 by psuanpro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 # include "../stdlib.hpp"
 # include "../struct.hpp"
+
+extern t_globalConf g_conf;
 
 class Conf
 {
