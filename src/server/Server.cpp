@@ -112,7 +112,7 @@ int Server::setupKqueue()
 void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
 {
 	t_con config;
-
+	std::set<int> usedPorts;
 	config = this->_config.getAllConfig();
 	// config.global.
 	std::cout << "setupserversocket" << std::endl;
@@ -132,11 +132,18 @@ void Server::setupServerSockets(int kq, size_t NUM_SERVERS)
 			perror("setsockopt SO_REUSEADDR");
 			exit(EXIT_FAILURE);
 		}
-
+		int port = 0;
 		struct sockaddr_in serverAddr;
 		memset(&serverAddr, 0, sizeof(serverAddr));
 		serverAddr.sin_family = AF_INET;
-		int port = config.server[i].port;
+		port = config.server[i].port;
+		if (usedPorts.find(port) != usedPorts.end())
+		{
+			std::cerr << "Error: Port " << port << " is already in use!" << std::endl;
+			exit(EXIT_FAILURE);
+			return;
+		}
+		usedPorts.insert(port);
 		serverAddr.sin_addr.s_addr = INADDR_ANY;
 		serverAddr.sin_port = htons(port);
 
@@ -249,13 +256,12 @@ std::string Server::handleHttpRequest(const std::string& method, const std::stri
 			}
 		}
 	}
-
+	// std::cout << "I Here!!!" << std::endl;
 	if (!matchedServerConf)
 	{
 		return Response(400).HttpResponse();
 	}
 	return ret.validateMethod(parsedrequest, config);
-
 }
 
 void Server::handleRead(int kq, struct kevent& event)
@@ -300,18 +306,18 @@ void Server::handleRead(int kq, struct kevent& event)
     else
     {
         buffer[bytesRead] = '\0';
-        std::cout << "------- This is buffer -------" << std::endl;
-        std::cout << "\n" << buffer << '\n' << bytesRead << "bytes\n" << "\n" << std::endl;
-        std::cout << "------- End of buffer -------" << std::endl;
 
 		// Process the received data
 		std::string requestData(buffer);
 		Request parsedRequest(requestData);
 		testlen++;
+
 		if (parsedRequest.getBody().size() > (size_t)config.global.client_body_limit)
 		{
 			Response res(413);
 			send(eventIdent, res.HttpResponse().c_str(), res.size(), 0);
+			close(eventIdent);
+			this->_currentClientCount--;
 			return;
 		}
 
@@ -361,7 +367,6 @@ void Server::handleWrite(int kq, int eventIdent)
 					// Remove client from active_clients and close its socket
 					active_clients.erase(eventIdent);
 					client_write_queues.erase(eventIdent);
-					// checked_hostnames.erase(eventIdent);
 					close(eventIdent);
 					this->_currentClientCount--;
 					break;
@@ -386,14 +391,6 @@ void Server::handleWrite(int kq, int eventIdent)
 		}
 		if (write_queue.empty())
 		{
-			// struct kevent kev;
-			// EV_SET(&kev, eventIdent, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
-			// if (kevent(kq, &kev, 1, NULL, 0, NULL) < 0)
-			// {
-			// 	std::cout << "encounter 2" << std::endl;
-			// 	perror("Error removing write event from kqueue");
-			// }
-
 			// NEW: Check if client has closed its side of the connection
 			char temp_buf[1];
 			ssize_t checkBytes = recv(eventIdent, temp_buf, sizeof(temp_buf), MSG_PEEK);

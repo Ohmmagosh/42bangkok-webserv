@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/03 04:40:49 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/11/03 22:35:14 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,16 +60,19 @@ std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env) {
 		int status;
 		waitpid(child_pid, &status, 0);
 		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL) {
-			res = Response(500).HttpResponse();
+			std::cerr << "error here" << std::endl;
+			return Response(500).HttpResponse();
 		}
 		alarm(0);
 		if (res.empty())
 			return Response(404).HttpResponse();
-		return Response(200, res).HttpResponse();
+		std::cout << res << std::endl;
+		return res;
 	}
 }
 
 std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env, const std::string& content) {
+
 
 	int	pipeinfd[2];
 	int pipeoutfd[2];

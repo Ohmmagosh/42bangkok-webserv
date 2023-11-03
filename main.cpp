@@ -12,9 +12,6 @@ int main(int argc, char* argv[])
 		std::cerr << "Usage: " << argv[0] << " <config_file_name>" << std::endl;
 		return 1;
 	}
-
-	std::string file(argv[1]);
-
 	Conf confParser;
 	if (!confParser.parseConfigFile(argv[1]))
 	{
@@ -22,10 +19,8 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-
-	confParser.printGlobalConfig();
-	std::cout << "-----------------zzzzz--------------" << std::endl;
-	confParser.printServerConf();
+	g_conf.default_error_pages = confParser.getGlobalDefualtErrorPage();
+	g_conf.client_body_limit = confParser.getClientBodyLimit();
 
 	Server serv(confParser);
 	serv.start();

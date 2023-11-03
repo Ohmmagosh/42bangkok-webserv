@@ -6,7 +6,7 @@
 /*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/18 18:12:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/03 04:31:53 by rchiewli         ###   ########.fr       */
+/*   Updated: 2023/11/03 23:02:35 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,10 +101,8 @@ std::string	HttpRequestHandle::allRoute(const std::string& url, const Request& r
 	else
 		path += req.getUrl();
 	std::string	file = File(path).getContent();
-	std::stringstream ss;
-	ss << "<h1> Path Not found : " << path << "</h1>" << std::endl;
 	if (file.empty()) {
-		return Response(404, ss.str()).HttpResponse();
+		return Response(404).HttpResponse();
 	}
 	return Response(200, file).HttpResponse();
 }
@@ -227,6 +225,7 @@ std::string	HttpRequestHandle::deleteMethod(const std::string& url, const t_serv
 
 std::string	HttpRequestHandle::postMethod(const Request& req, const t_serverConf& server) {
 
+
 	t_detail	loc = CgiHandler().getAllLocation(req.getUrl(), server);
 	CgiHandler cgi;
 	std::string	path;
@@ -247,13 +246,12 @@ std::string	HttpRequestHandle::postMethod(const Request& req, const t_serverConf
 		content = req.getBody();
 
 
-	//location_save_file argv path cgi env
 	return cgi.executeCgi(argv, env, content);
-	// return Response(404).HttpResponse();
 }
 
 std::string	HttpRequestHandle::validateMethod(const Request& req,const t_con& config) {
 
+	std::cout << GRNB << req << RES << std::endl;
 	t_detail tmp = this->validateHostRequestAndGetServer(const_cast<Request&>(req), config);
 	if (tmp.status) {
 		if (req.getMethod() == "GET") {

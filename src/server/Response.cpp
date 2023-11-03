@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 19:09:46 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 14:10:00 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/03 20:10:39 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,18 +26,35 @@ Response::Response(size_t statusCode, const std::string& content) {
 
 Response::Response(size_t statusCode, const std::string& redirect, const std::string& content) {
 	this->initMessage();
+
+	std::string	error;
+	std::map<int, std::string>::iterator it = g_conf.default_error_pages.begin();
+	for (;it != g_conf.default_error_pages.end();it++) {
+		if (static_cast<size_t>(it->first) == statusCode)
+			error = File(it->second).getContent();
+	}
 	this->_res << "HTTP/1.1 " << statusCode << " " << this->getStatusMessage(statusCode) << "\r\n";
 	if (!redirect.empty())
 		this->_res << "Location: " << redirect << "\r\n";
 	this->_res << "\r\n";
 	if (!content.empty())
-		this->_res << content;
+		this->_res << error;
 }
 
 Response::Response(size_t statusCode) {
 	this->initMessage();
+	std::cout << "HELLO" << std::endl;
+	std::string	error;
+	std::map<int , std::string>::iterator it = g_conf.default_error_pages.begin();
+	for (;it != g_conf.default_error_pages.end();it++) {
+		if (static_cast<size_t>(it->first) == statusCode)
+			error = File(it->second).getContent();
+	}
 	this->_res << "HTTP/1.1 " << statusCode << " " << this->getStatusMessage(statusCode) << "\r\n";
 	this->_res << "\r\n";
+	std::cout << error << std::endl;
+	if (!error.empty())
+		this->_res << error;
 }
 
 Response::~Response() {
