@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   File.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/26 04:27:56 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 04:02:14 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/03 15:28:29 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ void	File::readFile() {
 	if(!f.is_open()) {
 		return ;
 	}
-
 	std::string	buff;
 	while(std::getline(f, buff)) {
 		this->_content += buff;

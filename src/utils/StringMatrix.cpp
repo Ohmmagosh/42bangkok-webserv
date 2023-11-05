@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   StringMatrix.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/25 02:46:42 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/29 14:46:09 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/03 03:34:08 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,24 @@ StringMatrix::StringMatrix(const std::map<std::string, std::string>& env) {
 		ss << it->first << "=" << it->second;
 		this->_str[i] = strdup(ss.str().c_str());
 	}
+	this->_str[this->_size] = nullptr;
+}
+StringMatrix::StringMatrix(const std::map<std::string, std::string>& env, const std::string& save_path) {
+	this->_size = (env.size());
+	if (!save_path.empty())
+		this->_size++;
+	this->_str = new char*[this->_size + 1];
+
+	std::map<std::string, std::string>::const_iterator	it = env.begin();
+	size_t i = 0;
+	for (;it != env.end(); i++,it++) {
+		std::stringstream	ss;
+		ss << it->first << "=" << it->second;
+		this->_str[i] = strdup(ss.str().c_str());
+	}
+	std::stringstream ss;
+	ss << "save_path=" << save_path;
+	this->_str[i] = strdup(ss.str().c_str());
 	this->_str[this->_size] = nullptr;
 }
 

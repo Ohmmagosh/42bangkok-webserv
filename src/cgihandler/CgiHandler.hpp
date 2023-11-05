@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandler.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:13 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/29 15:38:53 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/03 03:25:00 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include "../stdlib.hpp"
 # include "../server/Request.hpp"
+# include "../server/Response.hpp"
 # include "../parsing/Conf.hpp"
 #include <string>
 
@@ -26,6 +27,7 @@ class CgiHandler {
 		CgiHandler();
 		~CgiHandler();
 		std::string	executeCgi(StringMatrix& argv, StringMatrix& env);
+		std::string	executeCgi(StringMatrix& argv, StringMatrix& env, const std::string& content);
 
 		std::string getExecuteByUrl(const std::string& url, const t_serverConf& server);
 		std::string	getDefaultFileByUrl(const std::string& url, const t_serverConf& serverr);

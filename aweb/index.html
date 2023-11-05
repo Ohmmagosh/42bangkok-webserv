@@ -39,6 +39,16 @@
 				</div>
 				<div class="container">
 					<div class="content">
+						<h2>dowload</h3>
+						<form action="dowload-file.py" method="get">
+							<label for="number1">Number1:</label>
+							<input type="number" id="number1" name="number1">
+							<input type="submit" value="Submit">
+						</form>
+					</div>
+				</div>
+				<div class="container">
+					<div class="content">
 						<h2>Normal link</h2>
 						<a href="index2.html" class="link-button">index2.html</a>
 					</div>
@@ -55,7 +65,11 @@
 				<div class="container">
 					<div class="content">
 						<h2>Download the Latest File</h2>
-						<button id="downloadButton" onclick="handleFileDownload()">Download Latest File</button>
+						<form id="downloadForm">
+							<label for="downloadFilename">Filename:</label>
+							<input type="text" id="downloadFilename" name="downloadFilename" required>
+							<button type="submit" class="link-button">Download</button>
+						</form>
 					</div>
 				</div>
 				<div class="container">
@@ -128,21 +142,26 @@
 				.then(response => response.json())
 				.then(data => {
 					console.log(data);
-					alert('File uploaded successfully.');
 				})
 				.catch((error) => {
 					console.error('Error:', error);
-					alert('Error uploading file.');
 				});
 			}
 
-			function handleFileDownload()
-			{
-				// Define the server endpoint URL for downloading the latest uploaded file
-				const serverUrl = `http://localhost:8080/download-latest-file`;
+			document.getElementById('downloadForm').addEventListener('submit', function(event) {
+				event.preventDefault();
 
-				// Open the file in a new window or tab
-				window.open(serverUrl, '_blank');
+				const filename = document.getElementById('downloadFilename').value;
+
+				handleFileDownload(filename);
+			});
+
+			function handleFileDownload(filename)
+			{
+				// Define the server endpoint URL for downloading the specified file
+				const serverUrl = `http://localhost:8080/download-file.py?filename=${filename}`;
+
+				window.location.href = serverUrl;
 			}
 
 		</script>

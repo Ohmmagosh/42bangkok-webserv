@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/23 22:01:20 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/10/31 15:39:52 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/03 22:35:14 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CgiHandler.hpp"
+
+pid_t child_pid = -1;
 
 CgiHandler::CgiHandler() {
 
@@ -20,6 +22,15 @@ CgiHandler::~CgiHandler() {
 
 }
 
+static void timeout_handler(int signum)
+{
+	(void)signum;
+    if (child_pid > 0) {
+        kill(child_pid, SIGKILL);  // Forcefully kill child process
+        child_pid = -1;  // Reset PID
+    }
+}
+
 std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env) {
 
 	int	pipefd[2];
@@ -27,6 +38,8 @@ std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env) {
 		perror("error pipe");
 		exit(EXIT_FAILURE);
 	}
+	signal(SIGALRM, timeout_handler);
+	alarm(30);
 	pid_t	pid = fork();
 	if (pid == 0) { //child
 		close(pipefd[0]); //close read
@@ -35,6 +48,7 @@ std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env) {
 			perror("execve");
 		exit(EXIT_FAILURE);
 	}else { //parent
+		child_pid = pid;
 		close(pipefd[1]); //close write
 		std::string res;
 		char	buff[4096];
@@ -43,8 +57,67 @@ std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env) {
 			res.append(buff, byteRead);
 		}
 		close(pipefd[0]);
-		waitpid(pid, NULL, 0);
+		int status;
+		waitpid(child_pid, &status, 0);
+		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL) {
+			std::cerr << "error here" << std::endl;
+			return Response(500).HttpResponse();
+		}
+		alarm(0);
+		if (res.empty())
+			return Response(404).HttpResponse();
+		std::cout << res << std::endl;
 		return res;
+	}
+}
+
+std::string	CgiHandler::executeCgi(StringMatrix& argv, StringMatrix& env, const std::string& content) {
+
+
+	int	pipeinfd[2];
+	int pipeoutfd[2];
+    if (pipe(pipeinfd) == -1 || pipe(pipeoutfd) == -1) {
+        perror("error pipe");
+        exit(EXIT_FAILURE);
+    }
+	signal(SIGALRM, timeout_handler);
+	alarm(30);
+	pid_t	pid = fork();
+	if (pid == 0) { //child
+		close(pipeinfd[1]); //close read
+		close(pipeoutfd[0]);
+		dup2(pipeinfd[0], STDIN_FILENO);
+		dup2(pipeoutfd[1], STDOUT_FILENO);
+		close(pipeinfd[0]);
+		close(pipeoutfd[0]);
+
+		if (execve(argv[0], argv.getStr(), env.getStr()) == -1)
+			perror("execve");
+		exit(EXIT_FAILURE);
+	}else { //parent
+		child_pid = pid;
+		close(pipeoutfd[1]); //close write
+		close(pipeinfd[0]);
+
+		write(pipeinfd[1], content.c_str(), content.size());
+		close(pipeinfd[1]);
+
+		std::string res;
+		char	buff[4096];
+		ssize_t byteRead;
+		while ((byteRead = read(pipeoutfd[0], buff, sizeof(buff) - 1)) > 0) {
+			buff[byteRead] = '\0';
+			res.append(buff);
+		}
+		close(pipeoutfd[0]);
+
+		int status;
+		waitpid(child_pid, &status, 0);
+		if (WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL) {
+			res = Response(500).HttpResponse();
+		}
+		alarm(0);
+		return Response(200, res).HttpResponse();
 	}
 }
 

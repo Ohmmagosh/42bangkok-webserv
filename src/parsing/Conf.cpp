@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Conf.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:51 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 19:07:35 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/03 23:03:08 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,6 @@ bool Conf::parseConfigFile(const std::string &filePath)
 		return false; // Return false if the file could not be opened
 	}
 
-	// parseGlobalSection(file);
-
 	while (std::getline(file, line))
 	{
 		if (line.find("[GLOBAL]") != std::string::npos) {
@@ -53,11 +51,6 @@ bool Conf::parseConfigFile(const std::string &filePath)
 	this->setGlobal(global);
 	this->setServers(servers);
 
-	// std::cout << "--------------SERVERS--------------" << std::endl;
-	// for (size_t i = 0; i < servers.size(); i++) {
-	// 	std::cout << "servers["<< i <<"] : " << servers[i] << std::endl;
-	// }
-	// std::cout << "--------------END--------------" << std::endl;
 	return true;
 }
 
@@ -487,7 +480,6 @@ void	Conf::setGlobalDefault(std::vector<std::string>::const_iterator begin, std:
 			this->_globalConfig.default_error_pages[num] = Uti::trim(sp[1], " ;");
 		}
 	}
-		g_conf.default_error_pages = this->_globalConfig.default_error_pages;
 	return ;
 }
 
@@ -508,7 +500,6 @@ void	Conf::setGlobalClient(const std::string& cli) {
 			return ;
 		}
 		this->_globalConfig.client_body_limit = num;
-		g_conf.client_body_limit = num;
 	}
 	return ;
 }
@@ -522,6 +513,14 @@ void	Conf::setGlobal(const std::vector<std::string>& gl) {
 			this->setGlobalClient(buff);
 	}
 	return;
+}
+
+std::map<int, std::string>	Conf::getGlobalDefualtErrorPage() const {
+	return this->_globalConfig.default_error_pages;
+}
+
+int	Conf::getClientBodyLimit() const {
+	return this->_globalConfig.client_body_limit;
 }
 
 void Conf::printGlobalConfig() const

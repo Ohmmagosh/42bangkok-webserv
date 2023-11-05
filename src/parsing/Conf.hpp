@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Conf.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: psuanpro <psuanpro@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rchiewli <rchiewli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 14:23:39 by psuanpro          #+#    #+#             */
-/*   Updated: 2023/11/02 18:56:47 by psuanpro         ###   ########.fr       */
+/*   Updated: 2023/11/03 15:41:21 by rchiewli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ class Conf
 		const t_con								getAllConfig() const;
 		const t_globalConf&						getGlobalConf() const;
 		const std::vector<t_serverConf>&		getServerConf() const;
+		std::map<int, std::string>				getGlobalDefualtErrorPage() const;
+		int										getClientBodyLimit() const;
 		//HELPER
 		bool									validateFindStr(const std::string& line, const std::string& sfind);
 
