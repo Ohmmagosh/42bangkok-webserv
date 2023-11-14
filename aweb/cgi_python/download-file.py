@@ -11,8 +11,6 @@ class Response:
 		print(self._res)
 
 def main():
-    # Get form data
-    form = cgi.FieldStorage()
 
     # Get filename from the query parameter
     filename = os.environ.get('filename')
